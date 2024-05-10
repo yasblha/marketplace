@@ -1,21 +1,32 @@
 const express = require('express');
-const path = require('path');
+const cors = require('cors');
+const bodyParser = require('body-parser');
 const app = express();
-const port = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000;
 
-// Servir les fichiers statiques (HTML, CSS, JS) depuis le dossier 'dist'
-app.use(express.static(path.join(__dirname, 'dist')));
+require('dotenv').config();
+// Importer la configuration de la base de données
+require('./mongodb');
+require('./postgres');
 
-// Gérer les requêtes API
-app.get('/api/hello', (req, res) => {
-    res.json({ message: 'Hello from the server!' });
+app.use(cors());
+app.use(bodyParser.json());
+
+
+
+// Définir les routes principales
+app.get('/', async(req, res) => {
+    res.send('Hello World');
+    try {
+        const result = await db.query('SELECT * FROM users');
+        res.json(result.rows);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Internal Server Error');
+    }
 });
 
-// Rediriger toutes les autres routes vers le fichier index.html
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'dist', 'index.html'));
-});
-
-app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
+// Démarrer le serveur
+app.listen(PORT, () => {
+    console.log(`App is listening at http://localhost:${PORT}`);
 });
