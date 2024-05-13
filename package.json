@@ -3,6 +3,7 @@
     "cors": "^2.8.5",
     "mongoose": "^8.3.2",
     "node-cron": "^3.0.3",
-    "nodemailer": "^6.9.13"
+    "nodemailer": "^6.9.13",
+    "vue-toastification": "^2.0.0-rc.5"
   }
 }
