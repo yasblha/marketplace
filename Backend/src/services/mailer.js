@@ -1,12 +1,4 @@
-const nodemailer = require('nodemailer');
-
-const transporter = nodemailer.createTransport({
-    service: 'gmail', // Utilisez votre service de messagerie
-    auth: {
-        user: 'ibrahim60200@gmail.com',
-        pass: 'yvybbowzcccbdmwu'
-    }
-});
+const transporter = require('./transporter');
 
 function sendEmail(to, subject, text) {
     const mailOptions = {
@@ -16,13 +8,7 @@ function sendEmail(to, subject, text) {
         text: text
     };
 
-    transporter.sendMail(mailOptions, function(error, info){
-        if (error) {
-            console.log(error);
-        } else {
-            console.log('Email sent: ' + info.response);
-        }
-    });
+    return transporter.sendMail(mailOptions);
 }
 
 module.exports = sendEmail;
