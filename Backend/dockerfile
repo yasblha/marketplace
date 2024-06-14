@@ -1,15 +1,39 @@
+# FROM node:latest
+
+# # Create app directory
+# WORKDIR /usr/src/app
+
+# # Install app dependencies
+# COPY package.json package-lock.json ./
+
+# RUN npm install
+
+# # Bundle app source
+# COPY . .
+
+# EXPOSE 3000
+
+# CMD [ "npm", "run", "dev" ]
+
+
 FROM node:latest
 
-# Create app directory
+# Créer le répertoire de l'application
 WORKDIR /usr/src/app
 
-# Install app dependencies
-COPY package.json ./
+# Copier les fichiers de package et installer les dépendances
+COPY package.json package-lock.json ./
 
 RUN npm install
 
-# Bundle app source
+# Installer nodemon globalement
+RUN npm install -g nodemon
+
+# Copier le reste des fichiers de l'application dans le répertoire de travail
 COPY . .
 
-EXPOSE 3000:3000
-CMD [ "node", "server.js" ]
+# Exposer le port sur lequel l'application s'exécute
+EXPOSE 3000
+
+# Commande pour démarrer l'application
+CMD ["nodemon", "src/server.js"]

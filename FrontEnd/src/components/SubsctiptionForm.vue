@@ -25,7 +25,12 @@ const subscribe = async () => {
     const response = await axios.post('/api/subscribe', { email: email.value, alertType: alertType.value });
     alert(`Subscription successful: ${response.data.message}`);
   } catch (error) {
-    alert(`Subscription failed: ${error.response.data.message}`);
+    console.error(error); // Ajout de cette ligne pour aider au débogage
+    if (error.response && error.response.data && error.response.data.message) {
+      alert(`Subscription failed: ${error.response.data.message}`);
+    } else {
+      alert(`Subscription failed: ${error.message}`);
+    }
   }
 };
 </script>
