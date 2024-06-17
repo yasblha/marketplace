@@ -35,7 +35,7 @@ const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const app = express();
-const PORT = process.env.PORT || 3001;  // Changez le port ici
+const PORT = process.env.PORT || 3000;  // Changez le port ici
 const { faker } = require('@faker-js/faker');
 const db = require('./conf/postgres');
 
