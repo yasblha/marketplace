@@ -19,6 +19,9 @@ export default defineConfig({
     vue(),
     vueJsx(),
   ],
+  define: {
+    'process.env': process.env
+  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
