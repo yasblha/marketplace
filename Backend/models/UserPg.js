@@ -63,19 +63,8 @@ User.getUserById = async (id) => {
     return User.findByPk(id);
 };
 
-User.createUser = async (userData) => {
-    const { firstname, lastname, email, password, role } = userData;
-
+User.createUser = async ({ firstname, lastname, email, password, role }) => {
     try {
-        const existingUser = await User.findOne({
-            where: {
-                email: email,
-            },
-        });
-        if (existingUser) {
-            throw new Error(`User with email ${email} already exists`);
-        }
-
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const newUser = await User.create({
@@ -84,15 +73,15 @@ User.createUser = async (userData) => {
             email,
             password: hashedPassword,
             role,
+            confirmed: false,
         });
 
-        console.log('New user created:', newUser);
         return newUser;
     } catch (error) {
-        console.error('Error creating user:', error);
         throw error;
     }
 };
+
 
 User.updateUser = async (id, updates) => {
     const { firstname, lastname, email, role } = updates;
