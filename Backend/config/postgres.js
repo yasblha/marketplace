@@ -1,40 +1,26 @@
 const { Pool } = require('pg');
+const bcrypt = require('bcryptjs');
+const { Sequelize } = require("sequelize");
 
-const pool = new Pool({
-    user: 'user',
-    password: 'admin',
+const sequelize = new Sequelize({
+    dialect: 'postgres',
     host: 'postgres',
-    port: 5432,
+    username: 'user',
+    password: 'admin',
     database: 'marketplace',
-})
+});
+
+async function testConnection() {
+    try {
+        await sequelize.authenticate();
+        console.log('Connection to PostgreSQL has been established successfully.');
+    } catch (error) {
+        console.error('Unable to connect to the database:', error);
+    }
+}
+
+testConnection();
 
 
-pool.connect()
-    .then(() => {
-        console.log('Connected to PostgreSQL database');
-        pool.query('SELECT * FROM "Order"', (err, result) => {
-            if (err) {
-                console.error('Error executing query', err);
-            } else {
-                console.log('Query result:', result.rows);
-            }
+module.exports = sequelize;
 
-            // Close the connection when done
-            pool
-                .end()
-                .then(() => {
-                    console.log('Connection to PostgreSQL closed');
-                })
-                .catch((err) => {
-                    console.error('Error closing connection', err);
-                });
-        });
-
-})
-    .catch((err) => {
-        console.error('Error connecting to PostgreSQL database', err);
-    });
-
-module.exports = {
-    query: (text, params) => pool.query(text, params)
-};

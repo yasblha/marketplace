@@ -1,4 +1,5 @@
 const connectMongo = require('mongoose');
+const dotenv = require('dotenv');
 
 connectMongo.connect('mongodb://mongo:27018/marketplace')
     .then(() => {
