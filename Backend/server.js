@@ -1,46 +1,59 @@
 const express = require('express');
+const db = require('./config/postgres');
+const mongodb = require('./config/mongodb');
 const cors = require('cors');
-const cookieParser = require('cookie-parser');
-const bodyParser = require('body-parser');
-const app = express();
-const PORT = process.env.PORT || 3000;
-const { faker } = require('@faker-js/faker');
-const db = require ('./conf/postgres');
+const bodyParser = require("body-parser");
+const credentials = require('./middleware/credentials');
+const errorHandler = require('./middleware/error_handler');
+const authRoutes = require('./routes/api/auth');
+const nodemailer = require('nodemailer');
+//const User = require('/Backend/models/UserPg');
 
 require('dotenv').config();
-// Importer la configuration de la base de données
-require('./conf/mongodb');
-require('./conf/postgres');
 
-// app/json response
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Middleware pour parser les JSON et les cookies
 app.use(express.json());
-//le middleware pour les cookies
-app.use(cookieParser())
-app.use(cors());
+app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+app.use(cors());
+app.use(credentials);
 
-async function getUserData() {
-    try {
-        const result = await db.query('SELECT * FROM "User"');
-        console.log(result.rows);
-    } catch (err) {
-        console.error(err);
+// Routes
+app.use('/api/auth', authRoutes);
+
+// 404 Handler
+/*app.all('*', (req, res) => {
+    res.sendStatus(404);
+    if(req.accepts('json')) {
+        res.json({'error': '404 not found}'})
+    } else {
+        res.type('text').send('404 Not found')
     }
-}
+});*/
 
+/*app.get('/users', User.getUsers);
+app.get('/users/:id', User.getUserById);
+app.post('/users/create', User.createUser);
+app.put('/users/:id', User.updateUser);
+app.delete('/users/:id', User.deleteUser);*/
 
-// Définir les routes principales
-app.get('/', async(req, res) => {
-    res.send(getUserData());
+// Middleware d'erreurs
+app.use(errorHandler);
+
+// Démarrez l'application
+app.get('/', (req, res) => {
+    res.send('Welcome to my server!');
 });
 
-// Démarrer le serveur
 const server = app.listen(PORT, () => {
     console.log(`App is listening at http://localhost:${PORT}`);
 });
 
-//error Handler
-process.on("UnhendledRejection", err => {
-    console.log(`une erreur a eu lieu: ${err.message}`)
-    server.close(() => process.exit(1))
-})
+// Gestionnaire d'erreurs globales
+process.on("unhandledRejection", err => {
+    console.log(`Une erreur a eu lieu: ${err.message}`);
+    server.close(() => process.exit(1));
+});

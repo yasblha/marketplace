@@ -69,3 +69,6 @@ CREATE TABLE "DeliveryAdress" (
                                   Department VARCHAR(100),
                                   Country VARCHAR(100) DEFAULT 'France'
 );
+
+
+select * from "User";

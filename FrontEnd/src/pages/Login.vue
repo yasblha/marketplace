@@ -1,21 +1,8 @@
 <template>
-
-  <div id="">
-    <NavigationBar />
-  </div>
   <div class="login-container">
-    <h2 class="login-title">Login</h2>
+    <h2 class="login-title">Sign In</h2>
 
     <form @submit.prevent="login" class="login-form">
-      <div class="form-group">
-        <label for="role" class="form-label">Role:</label>
-        <select v-model="form.role" id="role" class="form-control" required>
-          <option value="">Select a role</option>
-          <option value="admin">Admin</option>
-          <option value="manager">Manager</option>
-          <option value="user">User</option>
-        </select>
-      </div>
       <div class="form-group">
         <label for="email" class="form-label">Email:</label>
         <input v-model="form.email" id="email" type="email" class="form-control" required />
@@ -26,51 +13,37 @@
       </div>
       <button type="submit" class="btn btn-primary">Login</button>
     </form>
+    <div class="forgot-password">
+      <router-link to="/forgot-password">Forgot password?</router-link>
+    </div>
   </div>
-  <!-- <div>
-    <Footer />
-  </div> -->
 </template>
 
-<script>
-import axiosInstance from "@/services/api";
-import router from "../router/router";
-import NavigationBar from "../components/UI/NavigationBar.vue";
-import Footer from "../components/UI/Footer.vue";
+<script setup lang="ts">
+import axiosInstance from "@/services/api.js";
+import { ref } from "vue";
+import { useRouter } from "vue-router"; // Pour la redirection
 
+const form = ref({
+  email: '',
+  password: ''
+});
 
+const router = useRouter();
 
+async function login() {
+  try {
+    console.log("Sending form data:", form.value);
+    const response = await axiosInstance.post('/api/auth/login', form.value);
+    alert('Logged in successfully');
+    console.log("Response received:", response.data);
 
-export default {
-  name: "Login",
-  components: {
-
-    NavigationBar
-    
-  },
-  data() {
-    return {
-      form: {
-        role: "",
-        email: "",
-        password: ""
-      }
-    };
-  },
-
-  methods: {
-    async login() {
-      try {
-        const response = await axiosInstance.post('/api/auth/login', this.form);
-        console.log('Logged in successfully:', response.data);
-        //router.push(`/${this.form.role}/dashboard`);
-      } catch (error) {
-        console.error('Login failed:', error);
-        alert('Login failed. Please check your credentials.');
-      }
-    }
+    // router.push(`/${response.data.user.role}/dashboard`);
+  } catch (error) {
+    console.error("Login failed:", error);
+    alert('Login failed. Please check your credentials.');
   }
-};
+}
 </script>
 
 <style scoped>
@@ -127,5 +100,19 @@ export default {
 
 .btn-primary:hover {
   background-color: #0056b3;
+}
+
+.forgot-password {
+  text-align: center;
+  margin-top: 10px;
+}
+
+.forgot-password a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.forgot-password a:hover {
+  text-decoration: underline;
 }
 </style>

@@ -1,18 +1,27 @@
 const Mongoose = require("mongoose");
 
-const  UserSchema = new Mongoose.Schema({
+const UserSchema = new Mongoose.Schema({
     firstName: {
         type: String,
         required: true,
     },
     lastName: {
         type: String,
-        required:true,
+        required: true,
     },
     email: {
         type: String,
-        required:true,
-
+        required: true,
+        lowercase: true,
+        trim: true,
+        unique: true,
+        validate: {
+            validator: (val) => /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(val),
+            message: props => `${props.value} is not a valid email!`
+        }
+    },
+    refresh_token: {
+        type: String,
     },
     username: {
         type: String,
@@ -29,7 +38,7 @@ const  UserSchema = new Mongoose.Schema({
         default: "Basic",
         required: true,
     },
-})
+});
 
-const User = Mongoose.model("user", UserSchema)
+const User = Mongoose.model("User", UserSchema);
 module.exports = User;

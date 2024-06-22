@@ -2,9 +2,11 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
 import Register from '../pages/Register.vue';
+
 import Login from '../pages/Login.vue';
 import Home from '../pages/Home.vue';
 import Products from '../pages/Products.vue';
+
 
 const routes = [
     {
