@@ -84,7 +84,7 @@ async function login(req, res) {
     }
 
     try {
-        const user = await User.getUser(email, password);
+        const user = await User.getUserByEmail(email);
         console.log(user);
 
         if (!user) {
@@ -100,7 +100,16 @@ async function login(req, res) {
             console.log(true, 'cest correct')
         }
 
-        res.status(200).json({ message: 'Bonjour ! Votre utilisateur est connecté' });
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{}|\\;:'",.<>\/?]).{12,}$/;
+        if (!passwordRegex.test(password)) {
+            return res.status(422).json({
+                message: 'Le mot de passe doit contenir au moins 12 caractères avec au moins une lettre majuscule, une lettre minuscule, un chiffre et un symbole'
+            });
+        }
+
+        const token = jwt.sign({ userId: user.id }, jwtSecret, { expiresIn: '1h' });
+
+        res.status(200).json({ message: 'Bonjour ! Votre utilisateur est connecté', token });
     } catch (error) {
         console.error('Erreur lors de la connexion :', error);
         res.status(500).json({ message: 'Erreur interne du serveur' });

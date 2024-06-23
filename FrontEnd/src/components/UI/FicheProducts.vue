@@ -4,7 +4,7 @@
 
         <a href="">
             <div class="OneProduct">
-                <img src="/src/assets/outfit1.jpg" alt="">
+                <img src="../../assets/outfit1.jpg" alt="">
                 <h2>Graphic Design</h2>
                 <p>English Departement</p>
                 <div class="prices">
@@ -16,7 +16,7 @@
 
         <a href="">
             <div class="OneProduct">
-                <img src="/src/assets/outfit2.jpg" alt="">
+                <img src="../../assets/outfit2.jpg" alt="">
                 <h2>Graphic Design</h2>
                 <p>English Departement</p>
                 <div class="prices">
@@ -29,7 +29,7 @@
         <a href="">
 
             <div class="OneProduct">
-                <img src="/src/assets/outfit3.jpg" alt="">
+                <img src="../../assets/outfit3.jpg" alt="">
                 <h2>Graphic Design</h2>
                 <p>English Departement</p>
                 <div class="prices">
@@ -41,7 +41,7 @@
 
         <a href="">
             <div class="OneProduct">
-                <img src="/src/assets/outfit4.jpg" alt="">
+                <img src="../../assets/outfit4.jpg" alt="">
                 <h2>Graphic Design</h2>
                 <p>English Departement</p>
                 <div class="prices">
@@ -53,7 +53,7 @@
 
         <a href="">
             <div class="OneProduct">
-                <img src="/src/assets/outfit3.jpg" alt="">
+                <img src="../../assets/outfit3.jpg" alt="">
                 <h2>Graphic Design</h2>
                 <p>English Departement</p>
                 <div class="prices">
@@ -66,7 +66,7 @@
 
         <a href="">
             <div class="OneProduct">
-                <img src="/src/assets/outfit2.jpg" alt="">
+                <img src="../../assets/outfit2.jpg" alt="">
                 <h2>Graphic Design</h2>
                 <p>English Departement</p>
                 <div class="prices">
@@ -80,7 +80,7 @@
         <a href="">
 
             <div class="OneProduct">
-                <img src="/src/assets/outfit1.jpg" alt="">
+                <img src="../../assets/outfit1.jpg" alt="">
                 <h2>Graphic Design</h2>
                 <p>English Departement</p>
                 <div class="prices">
@@ -92,7 +92,7 @@
 
         <a href="">
             <div class="OneProduct">
-                <img src="/src/assets/outfit4.jpg" alt="">
+                <img src="../../assets/outfit4.jpg" alt="">
                 <h2>Graphic Design</h2>
                 <p>English Departement</p>
                 <div class="prices">
@@ -106,7 +106,7 @@
         <a href="">
 
             <div class="OneProduct">
-                <img src="/src/assets/outfit2.jpg" alt="">
+                <img src="../../assets/outfit2.jpg" alt="">
                 <h2>Graphic Design</h2>
                 <p>English Departement</p>
                 <div class="prices">

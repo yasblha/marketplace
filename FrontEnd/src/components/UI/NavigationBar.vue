@@ -18,9 +18,9 @@
 
         <ul class="linkTwo">
             <li class="nav-item"><a class="nav-link2" href="/login">Login/Register</a></li>
-            <li class="nav-item"><a class="nav-link2" href="/login"><img src="/src/assets/Vector.svg"></img></a></li>
-            <li class="nav-item"><a class="nav-link2" href="/login"><img src="/src/assets/Panier.svg"></img></a></li>
-            <li class="nav-item"><a class="nav-link2" href="/login"><img src="/src/assets/hart.svg"></img></a></li>
+            <li class="nav-item"><a class="nav-link2" href="/login"><img src="../../assets/Vector.svg"></img></a></li>
+            <li class="nav-item"><a class="nav-link2" href="/login"><img src="../../assets/Panier.svg"></img></a></li>
+            <li class="nav-item"><a class="nav-link2" href="/login"><img src="../../assets/hart.svg"></img></a></li>
         </ul>
 
 
@@ -97,7 +97,4 @@ export default {
     text-decoration: none;
     font-size: 1.5em;
 } */
-
-@import '@fortawesome/fontawesome-free/css/all.css';
-/* Import Font Awesome CSS */
 </style>

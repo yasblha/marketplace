@@ -9,7 +9,7 @@
             <h2>Shop</h2>
             <div>
                 <a href="">Home</a>
-                <a href=""><img src="/src/assets/fd.svg" alt=""></a>
+                <a href=""><img src="../assets/fd.svg" alt=""></a>
                 <a href="">Shop</a>
             </div>
         </div>
@@ -58,8 +58,8 @@
                 </div>
                 <div class="views">
                     <span>Views:</span>
-                    <img src="/src/assets/Menu.png" alt="">
-                    <img src="/src/assets/Menu2.png" alt="">
+                    <img src="../assets/Menu.png" alt="">
+                    <img src="../assets/Menu2.png" alt="">
 
                 </div>
                 <div class="PandF">
@@ -86,6 +86,7 @@ import NavigationBar from "../components/UI/NavigationBar.vue";
 import Footer from "../components/UI/Footer.vue";
 import BestSellers_Products from "../components/UI/BestSellers_Products.vue";
 import FicheProducts from "../components/UI/FicheProducts.vue";
+//import '@fortawesome/fontawesome-free/css/all.css';
 
 export default {
 
@@ -103,7 +104,6 @@ export default {
 
 
 <style scoped>
-section {}
 
 div.Barshop {
 
@@ -155,27 +155,27 @@ div.Categ div {
 }
 
 div.item5 {
-    background-image: url('src/assets/items51.jpg');
+    background-image: url('../assets/items51.jpg');
 }
 
 div.item6 {
 
-    background-image: url('src/assets/items52.jpg');
+    background-image: url('../assets/items52.jpg');
 
 }
 
 div.item7 {
-    background-image: url('src/assets/items53.jpg');
+    background-image: url('../assets/items53.jpg');
 }
 
 div.item8 {
 
-    background-image: url('src/assets/items54.jpg');
+    background-image: url('../assets/items54.jpg');
 }
 
 div.item9 {
 
-    background-image: url('src/assets/items55.jpg');
+    background-image: url('../assets/items55.jpg');
 }
 
 div.Categ div div {

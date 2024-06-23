@@ -16,29 +16,31 @@
     <div class="forgot-password">
       <router-link to="/forgot-password">Forgot password?</router-link>
     </div>
+    <div class="register">
+      <router-link to="/register">Don't have an account? Sign up</router-link>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import axiosInstance from "@/services/api.js";
 import { ref } from "vue";
-import { useRouter } from "vue-router"; // Pour la redirection
+import router from "@/router/router";
 
 const form = ref({
   email: '',
   password: ''
 });
 
-const router = useRouter();
-
 async function login() {
   try {
     console.log("Sending form data:", form.value);
     const response = await axiosInstance.post('/api/auth/login', form.value);
     alert('Logged in successfully');
+
     console.log("Response received:", response.data);
 
-    // router.push(`/${response.data.user.role}/dashboard`);
+    router.push(`/${response.data.user.role}/home`);
   } catch (error) {
     console.error("Login failed:", error);
     alert('Login failed. Please check your credentials.');
@@ -50,17 +52,18 @@ async function login() {
 .login-container {
   max-width: 400px;
   margin: 50px auto;
-  padding: 30px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  background-color: #f9f9f9;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  padding: 40px;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .login-title {
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
+  font-size: 24px;
   color: #333;
+  font-weight: bold;
 }
 
 .login-form {
@@ -74,45 +77,55 @@ async function login() {
 
 .form-label {
   font-weight: bold;
-  margin-bottom: 5px;
+  margin-bottom: 8px;
   color: #555;
 }
 
 .form-control {
   padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 3px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
   font-size: 16px;
+  width: 100%;
+}
+
+.form-control:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.25);
 }
 
 .btn {
-  padding: 10px 20px;
+  padding: 12px 20px;
   font-size: 16px;
-  border-radius: 3px;
+  border-radius: 5px;
   cursor: pointer;
+  border: none;
 }
 
 .btn-primary {
   background-color: #007bff;
   color: #fff;
-  border: none;
+  transition: background-color 0.3s;
 }
 
 .btn-primary:hover {
   background-color: #0056b3;
 }
 
-.forgot-password {
+.forgot-password,
+.register {
   text-align: center;
-  margin-top: 10px;
+  margin-top: 15px;
 }
 
-.forgot-password a {
+.forgot-password a,
+.register a {
   color: #007bff;
   text-decoration: none;
 }
 
-.forgot-password a:hover {
+.forgot-password a:hover,
+.register a:hover {
   text-decoration: underline;
 }
 </style>

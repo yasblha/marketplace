@@ -62,9 +62,9 @@
             <span>Made With Love By Finland All Right Reserved </span>
 
             <div class="logos">
-                <img src="/src/assets/fb.png" alt="">
-                <img src="/src/assets/insta.png" alt="">
-                <img src="/src/assets/twitter.png" alt="">
+                <img src="../../assets/fb.png" alt="">
+                <img src="../../assets/insta.png" alt="">
+                <img src="../../assets/twitter.png" alt="">
             </div>
 
         </div>

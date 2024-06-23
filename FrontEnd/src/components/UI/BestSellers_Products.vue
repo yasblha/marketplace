@@ -10,15 +10,15 @@
 
             </ul>
             <div class="fleches">
-                <a href=""><img src="/src/assets/fg.svg" alt=""></a>
-                <a href=""><img src="/src/assets/fd.svg" alt=""></a>
+                <a href=""><img src="../../assets/fg.svg" alt=""></a>
+                <a href=""><img src="../../assets/fd.svg" alt=""></a>
             </div>
 
         </div>
         <div class="bestProducts">
 
             <div class="product">
-                <img src="/src/assets/image3.png" alt="">
+                <img src="../../assets/image3.png" alt="">
                 <h2>Graphic Design</h2>
                 <p>English Departement</p>
                 <div class="prices">
@@ -30,7 +30,7 @@
             </div>
 
             <div class="product">
-                <img src="/src/assets/image2.png" alt="">
+                <img src="../../assets/image2.png" alt="">
                 <h2>Graphic Design</h2>
                 <p>English Departement</p>
                 <div class="prices">
@@ -41,7 +41,7 @@
 
             </div>
             <div class="product">
-                <img src="/src/assets/image1.png" alt="">
+                <img src="../../assets/image1.png" alt="">
                 <h2>Graphic Design</h2>
                 <p>English Departement</p>
                 <div class="prices">
@@ -51,7 +51,7 @@
 
             </div>
             <div class="product">
-                <img src="/src/assets/image3.png" alt="">
+                <img src="../../assets/image3.png" alt="">
                 <h2>Graphic Design</h2>
                 <p>English Departement</p>
                 <div class="prices">
@@ -63,7 +63,7 @@
             </div>
 
             <div class="product">
-                <img src="/src/assets/image2.png" alt="">
+                <img src="../../assets/image2.png" alt="">
                 <h2>Graphic Design</h2>
                 <p>English Departement</p>
                 <div class="prices">
@@ -74,7 +74,7 @@
 
             </div>
             <div class="product">
-                <img src="/src/assets/image1.png" alt="">
+                <img src="../../assets/image1.png" alt="">
                 <h2>Graphic Design</h2>
                 <p>English Departement</p>
                 <div class="prices">

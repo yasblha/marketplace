@@ -65,13 +65,13 @@ User.getUserById = async (id) => {
 
 User.createUser = async ({ firstname, lastname, email, password, role }) => {
     try {
-        const hashedPassword = await bcrypt.hash(password, 10);
+        //const hashedPassword = await bcrypt.hash(password, 10);
 
         const newUser = await User.create({
             firstname,
             lastname,
             email,
-            password: hashedPassword,
+            password,
             role,
             confirmed: false,
         });
@@ -106,12 +106,19 @@ User.deleteUser = async (id) => {
     });
 };
 
+
 User.getUserByEmail = async (email) => {
-    return User.findOne({
-        where: {
-            email: email,
-        },
-    });
+    try {
+        const user = await User.findOne({
+            where: {
+                email: email,
+            },
+        });
+        return user;
+    } catch (error) {
+        console.error('Erreur lors de la récupération de l\'utilisateur :', error);
+        throw error;
+    }
 };
 
 User.updateUserByEmail = async (email, updates) => {
@@ -137,9 +144,6 @@ User.updateUserByToken = async (token, updates) => {
         reset_token_expiry,
     }, {
         where: {
-            // Changer la condition selon votre modèle de données
-            // Ici, nous supposons que vous avez une colonne `confirmation_token`
-            // pour gérer la confirmation de compte et la réinitialisation du mot de passe.
             [sequelize.Op.or]: [
                 { confirmation_token: token },
                 { reset_token: token },

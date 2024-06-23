@@ -23,7 +23,7 @@
             </div>
 
 
-            <img src="/src/assets/image2.png" alt="">
+            <img src="../assets/image2.png" alt="">
 
         </div>
         <div class="Oneproducts">
@@ -34,7 +34,7 @@
             </div>
 
 
-            <img src="/src/assets/image1.png" alt="">
+            <img src="../assets/image1.png" alt="">
 
         </div>
         <div class="Oneproducts">
@@ -45,7 +45,7 @@
                 <span>Explore Items</span>
             </div>
 
-            <img src="/src/assets/image3.png" alt="">
+            <img src="../assets/image3.png" alt="">
 
         </div>
 
@@ -97,9 +97,8 @@ export default {
 <style scoped>
 .images {
 
-    background-image: url('src/assets/dumbels.jpg');
+    background-image: url('../assets/dumbels.jpg');
     background-size: cover;
-    /* Pour couvrir toute la section */
     background-position: center;
     min-height: 40vw;
     display: flex;
@@ -192,7 +191,7 @@ div.allitems {
 
 div.itemOne {
 
-    background-image: url('src/assets/card_items.jpg');
+    background-image: url('../assets/card_items.jpg');
     width: 30%;
 
     background-size: cover;
