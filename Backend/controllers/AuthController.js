@@ -1,34 +1,12 @@
 const User = require('../models/UserPg');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-const nodemailer = require('nodemailer');
+//const nodemailer = require('nodemailer');
 const crypto = require('crypto');
+const mailer = require('../services/mailer');
+require('dotenv').config();
+const JWT_SECRET = process.env.JWT_SECRET;
 
-/*const jwtSecret = 'your_jwt_secret';
-const emailTransporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: 'your-email@gmail.com',
-        pass: 'your-email-password',
-    },
-});
-
-const sendEmail = (to, subject, text) => {
-    const mailOptions = {
-        from: 'your-email@gmail.com',
-        to,
-        subject,
-        text,
-    };
-
-    emailTransporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-            console.error('Error sending email:', error);
-        } else {
-            console.log('Email sent:', info.response);
-        }
-    });
-};*/
 
 async function register(req, res, next) {
     const { role, email, lastName, firstName, password, password_confirm } = req.body;
@@ -106,8 +84,8 @@ async function login(req, res) {
                 message: 'Le mot de passe doit contenir au moins 12 caractères avec au moins une lettre majuscule, une lettre minuscule, un chiffre et un symbole'
             });
         }
-
-        const token = jwt.sign({ userId: user.id }, jwtSecret, { expiresIn: '1h' });
+        console.log(JWT_SECRET);
+        const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '1h' });
 
         res.status(200).json({ message: 'Bonjour ! Votre utilisateur est connecté', token });
     } catch (error) {

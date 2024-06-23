@@ -40,7 +40,7 @@ async function login() {
 
     console.log("Response received:", response.data);
 
-    router.push(`/${response.data.user.role}/home`);
+    router.push(`/home`);
   } catch (error) {
     console.error("Login failed:", error);
     alert('Login failed. Please check your credentials.');
