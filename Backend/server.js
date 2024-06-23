@@ -1,96 +1,45 @@
-// const express = require('express');
-// const cors = require('cors');
-// const path = require('path');
-
-// const app = express();
-// const port = process.env.PORT || 3001;
-
-// app.use(cors());
-
-// // Utiliser les méthodes intégrées d'Express au lieu de bodyParser
-// app.use(express.json());  // pour parser les corps de requêtes JSON
-// app.use(express.urlencoded({ extended: true }));  // pour parser les corps de requêtes URL-encoded
-
-// const subscriptionRoutes = require('./src/routes/subscriptionRoutes');
-// app.use('/api', subscriptionRoutes);
-
-// // Gérer les requêtes API
-// app.get('/api/hello', (req, res) => {
-//     res.json({ message: 'Hello from the server!' });
-// });
-
-// app.use(express.static(path.join(__dirname, '../FrontEnd/dist')));
-
-// app.get('*', (req, res) => {
-//     res.sendFile(path.join(__dirname, '../FrontEnd/dist', 'index.html'));
-// });
-
-// app.listen(port, () => {
-//     console.log(`Server is running on port ${port}`);
-// });
-
-
 const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 const app = express();
-const PORT = process.env.PORT || 3000;  // Changez le port ici
-const { faker } = require('@faker-js/faker');
+const PORT = process.env.PORT || 3000;
 const db = require('./conf/postgres');
 
 require('dotenv').config();
-// Importer la configuration de la base de données
-require('./conf/mongodb');
-require('./conf/postgres');
 
-// Configurer CORS
-app.use(cors());
+const corsOptions = {
+    origin: 'http://localhost:8080',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true,
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
-// le middleware pour les cookies
 app.use(cookieParser());
 app.use(bodyParser.json());
 
-async function getUserData() {
-    try {
-        const result = await db.query('SELECT * FROM "User"');
-        console.log(result.rows);
-        return result.rows;
-    } catch (err) {
-        console.error(err);
-    }
-}
+const subscriptionRoutes = require('./routes/subscriptionRoutes');
+app.use('/api', subscriptionRoutes);
 
-// Définir les routes principales
-app.get('/', async (req, res) => {
-    const data = await getUserData();
-    res.send(data);
-});
+mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+    .then(() => console.log('MongoDB database is connected to marketplace ...'))
+    .catch(err => console.log('Error connecting to MongoDB:', err.message));
 
-// Exemple pour une route d'abonnement avec Express.js
-app.post('/api/subscribe', async (req, res) => {
-    try {
-        const { email, alertType } = req.body;
-
-        // Votre logique d'abonnement ici
-        if (!email || !alertType) {
-            throw new Error('Email and alert type are required');
-        }
-
-        // Simuler une réponse réussie
-        res.json({ message: 'Subscription successful' });
-    } catch (error) {
-        res.status(400).json({ message: error.message });
+db.connect((err) => {
+    if (err) {
+        console.error('Error connecting to PostgreSQL database', err);
+    } else {
+        console.log('Connected to PostgreSQL database');
     }
 });
 
-// Démarrer le serveur
 const server = app.listen(PORT, () => {
     console.log(`App is listening at http://localhost:${PORT}`);
 });
 
-// Error handler
 process.on("unhandledRejection", err => {
-    console.log(`An error occurred: ${err.message}`);
+    console.error(`An unhandled rejection occurred: ${err.message}`);
     server.close(() => process.exit(1));
 });

@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
+const { Schema } = mongoose;
 
 const userSchema = new Schema({
     firstName: {
@@ -33,7 +33,7 @@ const userSchema = new Schema({
     alerts: {
         newProduct: { type: Boolean, default: false },
         priceChange: { type: Boolean, default: false },
-        promotion: { type: Boolean, default: false }
+        promotion: { type: Boolean, default: false },
     }
 });
 

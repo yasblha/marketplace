@@ -9,7 +9,7 @@ services:
     restart: always
     environment:
       - PORT=3000
-      - MONGO_URI='mongodb://mongo:27018/marketplace'
+      - MONGO_URI=mongodb://mongo:27018/marketplace
     ports:
       - '3000:3000'
     volumes:
@@ -42,7 +42,6 @@ services:
       - pgadmin:/var/lib/pgadmin
     depends_on:
       - postgres
-
 
   mongo:
     container_name: mongo
