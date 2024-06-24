@@ -13,7 +13,7 @@ services:
       - POSTGRESDB_USER=${POSTGRESDB_USER}
       - POSTGRESDB_ROOT_PASSWORD=${POSTGRESDB_ROOT_PASSWORD}
       - POSTGRESDB_DATABASE=${POSTGRESDB_DATABASE}
-      - POSTGRESDB_HOST=postgres  # Utilisez le nom du service Docker
+      - POSTGRESDB_HOST=${POSTGRESDB_HOST}  # Utilisez le nom du service Docker
     ports:
       - '3000:3000'
     volumes:

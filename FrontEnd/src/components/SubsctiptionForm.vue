@@ -19,16 +19,17 @@ import axios from 'axios';
 
 const email = ref('');
 const alertType = ref('newProduct');
+const apiUrl = import.meta.env.VITE_API_URL; // Utilisation de import.meta.env pour Vite
 
 const subscribe = async () => {
   try {
-    const response = await axios.post('http://localhost:3000/api/subscribe', {
+    const response = await axios.post(`${apiUrl}/subscribe`, {
       email: email.value,
       alertType: alertType.value
     });
     alert(`Subscription successful: ${response.data.message}`);
   } catch (error) {
-    console.error(error); // Ajout de cette ligne pour aider au débogage
+    console.error(error);
     if (error.response && error.response.data && error.response.data.message) {
       alert(`Subscription failed: ${error.response.data.message}`);
     } else {
@@ -36,5 +37,4 @@ const subscribe = async () => {
     }
   }
 };
-
 </script>
