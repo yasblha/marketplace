@@ -22,7 +22,10 @@ const alertType = ref('newProduct');
 
 const subscribe = async () => {
   try {
-    const response = await axios.post('/api/subscribe', { email: email.value, alertType: alertType.value });
+    const response = await axios.post('http://localhost:3000/api/subscribe', {
+      email: email.value,
+      alertType: alertType.value
+    });
     alert(`Subscription successful: ${response.data.message}`);
   } catch (error) {
     console.error(error); // Ajout de cette ligne pour aider au débogage
@@ -33,4 +36,5 @@ const subscribe = async () => {
     }
   }
 };
+
 </script>
