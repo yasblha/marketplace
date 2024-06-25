@@ -6,10 +6,17 @@ const bodyParser = require("body-parser");
 const credentials = require('./middleware/credentials');
 const errorHandler = require('./middleware/error_handler');
 const authRoutes = require('./routes/api/auth');
-const nodemailer = require('nodemailer');
-//const User = require('/Backend/models/UserPg');
+//const nodemailer = require('nodemailer');
+const cron = require('node-cron');
+const cookieParser = require('cookie-parser');
+const { checkPasswordRenewal } = require('./services/reset_mail');
 
 require('dotenv').config();
+
+async function test() {
+    await checkPasswordRenewal();
+}
+//test();
 
 const app = express();
 const PORT = process.env.PORT ;
@@ -20,9 +27,13 @@ app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cors());
 app.use(credentials);
+app.use(cookieParser);
 
 // Routes
 app.use('/api/auth', authRoutes);
+
+//check les mots de passes qui arrivent à expiration et envoie un mail de reset
+cron.schedule('0 0 * * *', checkPasswordRenewal);
 
 // 404 Handler
 /*app.all('*', (req, res) => {

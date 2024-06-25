@@ -7,6 +7,7 @@ import Home from "@/pages/Home.vue";
 import Products from "@/pages/Products.vue";
 import ForgotPassword from "@/pages/ForgotPassword.vue";
 import ConfirmEmail from "@/pages/ConfirmEmail.vue";
+import resetPassword from '@/pages/resetPassword.vue';
 
 
 const routes = [
@@ -42,7 +43,12 @@ const routes = [
     },
     {
         path: '/',
-        redirect:'/Login',
+        redirect:'/home',
+    },
+    {
+        path: '/reset-password/:resetToken',
+        name: '/reset-password',
+        component: resetPassword
     },
     {
         path: '/:catchAll(.*)',

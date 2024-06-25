@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const authControllers = require('../../controllers/AuthController');
-const db = require('../../config/postgres');
+//const db = require('../../config/postgres');
 
 
 router.post('/register', authControllers.register);

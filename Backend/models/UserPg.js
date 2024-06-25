@@ -1,7 +1,8 @@
 // models/User.js
-const { DataTypes } = require('sequelize');
+const { DataTypes, Op } = require('sequelize');
 const sequelize = require('../config/postgres');
 const bcrypt = require('bcryptjs');
+
 
 const User = sequelize.define('User', {
     id: {
@@ -36,6 +37,13 @@ const User = sequelize.define('User', {
     },
     reset_token_expiry: {
         type: DataTypes.DATE,
+    },
+    password_last_changed: {
+        type: DataTypes.DATE,
+    },
+    account_created_at: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW
     },
     confirmed: {
         type: DataTypes.BOOLEAN,
@@ -134,22 +142,30 @@ User.updateUserByEmail = async (email, updates) => {
     });
 };
 
-User.updateUserByToken = async (token, updates) => {
-    const { confirmed, password, reset_token, reset_token_expiry } = updates;
 
-    return User.update({
-        confirmed,
-        password,
-        reset_token,
-        reset_token_expiry,
-    }, {
+User.updateUserByToken = async (token, updates) => {
+    const updateFields = {};
+    if (updates.password !== undefined) updateFields.password = updates.password;
+    if (updates.reset_token !== undefined) updateFields.reset_token = updates.reset_token;
+    if (updates.reset_token_expiry !== undefined) {
+        const resetTokenExpiryDate = new Date(updates.reset_token_expiry);
+        if (!isNaN(resetTokenExpiryDate.getTime())) {
+            console.log(resetTokenExpiryDate);
+            updateFields.reset_token_expiry = resetTokenExpiryDate;
+        } else {
+            throw new Error('Invalid reset_token_expiry date');
+        }
+    }
+
+    return User.update(updateFields, {
         where: {
-            [sequelize.Op.or]: [
+            [Op.or]: [
                 { confirmation_token: token },
                 { reset_token: token },
             ],
         },
     });
 };
+
 
 module.exports = User;
