@@ -2,7 +2,7 @@
 
     <div class="itemsView">
 
-        <a href="">
+        <a href="/OneProduct">
             <div class="OneProduct">
                 <img src="/src/assets/outfit1.jpg" alt="">
                 <h2>Graphic Design</h2>
@@ -14,7 +14,7 @@
             </div>
         </a>
 
-        <a href="">
+        <a href="/OneProduct">
             <div class="OneProduct">
                 <img src="/src/assets/outfit2.jpg" alt="">
                 <h2>Graphic Design</h2>
@@ -26,7 +26,7 @@
             </div>
         </a>
 
-        <a href="">
+        <a href="/OneProduct">
 
             <div class="OneProduct">
                 <img src="/src/assets/outfit3.jpg" alt="">
@@ -39,7 +39,7 @@
             </div>
         </a>
 
-        <a href="">
+        <a href="/OneProduct">
             <div class="OneProduct">
                 <img src="/src/assets/outfit4.jpg" alt="">
                 <h2>Graphic Design</h2>
@@ -51,7 +51,7 @@
             </div>
         </a>
 
-        <a href="">
+        <a href="/OneProduct">
             <div class="OneProduct">
                 <img src="/src/assets/outfit3.jpg" alt="">
                 <h2>Graphic Design</h2>
@@ -64,7 +64,7 @@
 
         </a>
 
-        <a href="">
+        <a href="/OneProduct">
             <div class="OneProduct">
                 <img src="/src/assets/outfit2.jpg" alt="">
                 <h2>Graphic Design</h2>
@@ -77,7 +77,7 @@
         </a>
 
 
-        <a href="">
+        <a href="/OneProduct">
 
             <div class="OneProduct">
                 <img src="/src/assets/outfit1.jpg" alt="">
@@ -90,7 +90,7 @@
             </div>
         </a>
 
-        <a href="">
+        <a href="/OneProduct">
             <div class="OneProduct">
                 <img src="/src/assets/outfit4.jpg" alt="">
                 <h2>Graphic Design</h2>
@@ -103,7 +103,7 @@
 
         </a>
 
-        <a href="">
+        <a href="/OneProduct">
 
             <div class="OneProduct">
                 <img src="/src/assets/outfit2.jpg" alt="">

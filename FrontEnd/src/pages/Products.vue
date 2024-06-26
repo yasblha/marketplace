@@ -1,11 +1,7 @@
 <template>
-
     <NavigationBar />
-
     <section class="">
-
         <div class="Barshop">
-
             <h2>Shop</h2>
             <div>
                 <a href="">Home</a>
@@ -13,21 +9,16 @@
                 <a href="">Shop</a>
             </div>
         </div>
-
         <div class="Categ">
             <div class="item5">
                 <div>
                     <span>CLOTHS</span>
                 </div>
-
-
             </div>
             <div class="item6">
                 <div>
                     <span>CLOTHS</span>
                 </div>
-
-
             </div>
             <div class="item7">
                 <div>
@@ -68,9 +59,22 @@
                 </div>
 
             </div>
-           <FicheProducts />
-           <Footer />
-                
+
+
+            <FicheProducts />
+            <NextBefore />
+
+            <div class="pros">
+                <img src="/src/assets/ProOne.png" alt="">
+                <img src="/src/assets/ProTwo.png" alt="">
+                <img src="/src/assets/ProTree.png" alt="">
+                <img src="/src/assets/ProStripe.png" alt="">
+                <img src="/src/assets/ProAws.png" alt="">
+                <img src="/src/assets/ProBaby.png" alt="">
+
+            </div>
+            <Footer />
+
         </div>
 
     </section>
@@ -81,11 +85,14 @@
 
 <script>
 import axiosInstance from "@/services/api";
+import axios from 'axios';
 import router from "../router/router";
 import NavigationBar from "../components/UI/NavigationBar.vue";
 import Footer from "../components/UI/Footer.vue";
 import BestSellers_Products from "../components/UI/BestSellers_Products.vue";
 import FicheProducts from "../components/UI/FicheProducts.vue";
+import NextBefore from "../components/UI/Buttons/BeforeNext.vue";
+
 
 export default {
 
@@ -95,12 +102,13 @@ export default {
 
         NavigationBar,
         Footer,
-        FicheProducts
-    }
+        FicheProducts,
+        NextBefore
+    },
+
 };
 
 </script>
-
 
 <style scoped>
 section {}
@@ -191,6 +199,7 @@ div.Categ div div span {
     font-weight: 600;
     font-size: medium;
 }
+
 /* Components */
 
 div.filtreBar {
@@ -241,7 +250,21 @@ div.PandF {}
     color: white;
     text-align: center;
     font-size: 12px;
+}
+
+div.pros {
+
+    display: flex;
+    justify-content: center;
+    margin-bottom: 18px;
 
 }
 
+div.pros img {
+
+    width: 84px;
+    margin: 34px;
+    height: 67px;
+
+}
 </style>

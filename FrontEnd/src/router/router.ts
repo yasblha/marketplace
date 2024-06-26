@@ -5,6 +5,7 @@ import Register from '../pages/Register.vue';
 import Login from '../pages/Login.vue';
 import Home from '../pages/Home.vue';
 import Products from '../pages/Products.vue';
+import OneProduct from '../pages/OneProduct.vue';
 
 const routes = [
     {
@@ -26,6 +27,11 @@ const routes = [
         path: '/products',
         name: 'Products',
         component: Products
+    },
+    {
+        path: '/Oneproduct',
+        name: 'OneProduct',
+        component: OneProduct
     }
     
 
