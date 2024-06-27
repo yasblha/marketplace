@@ -39,8 +39,14 @@ async function login() {
     alert('Logged in successfully');
 
     console.log("Response received:", response.data);
+    const { token, role } = response.data;
 
-    router.push(`/home`);
+    if (role === 'admin') {
+      router.push('/admin/dashboard');
+    } else {
+      router.push('/home');
+    }
+
   } catch (error) {
     console.error("Login failed:", error);
     alert('Login failed. Please check your credentials.');

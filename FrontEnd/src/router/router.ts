@@ -8,6 +8,7 @@ import Products from "@/pages/Products.vue";
 import ForgotPassword from "@/pages/ForgotPassword.vue";
 import ConfirmEmail from "@/pages/ConfirmEmail.vue";
 import resetPassword from '@/pages/resetPassword.vue';
+import Admin_dashboard from "@/pages/admin_dashboard.vue";
 
 
 const routes = [
@@ -47,12 +48,18 @@ const routes = [
     },
     {
         path: '/reset-password/:resetToken',
-        name: '/reset-password',
+        name: 'reset-password',
         component: resetPassword
     },
     {
         path: '/:catchAll(.*)',
         redirect: '/login'
+    },
+    {
+        path: '/dashboard',
+        name: 'adminDashboard',
+        component: Admin_dashboard,
+        meta: { requiresAuth: true, requiresAdmin: true } ,
     }
 ];
 
