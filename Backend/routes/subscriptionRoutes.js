@@ -1,4 +1,3 @@
-// backend/routes/subscriptionRoutes.js
 const express = require('express');
 const User = require('../models/User');
 const { sendAlertEmail } = require('../utils/email');
@@ -18,19 +17,33 @@ router.post('/subscribe', async (req, res) => {
     }
 
     try {
-        const user = await User.findOneAndUpdate(
-            { email: email },
-            { $set: { [`alerts.${alertType}`]: true } },
-            { new: true, upsert: true }
-        );
-
-        if (user) {
-            sendAlertEmail(email, alertType);
-            sendPushNotification(userToken, `Subscribed to ${alertType}`);
+        let user = await User.findOne({ email: email });
+        if (!user) {
+            // Crée un nouvel utilisateur avec un `username` par défaut
+            user = new User({
+                firstName: 'Ibrahim', // Remplacez par des valeurs appropriées
+                lastName: 'Ouahabi',   // Remplacez par des valeurs appropriées
+                email: email,
+                username: email.split('@')[0], // Utilise la partie avant '@' de l'email comme `username`
+                password: 'ESGI2024.',   // Assurez-vous de définir ou de générer un mot de passe valide
+                alerts: {
+                    newProduct: false,
+                    priceChange: false,
+                    promotion: false
+                }
+            });
         }
+
+        // Met à jour l'alerte pour l'utilisateur
+        user.alerts[alertType] = true;
+        await user.save();
+
+        sendAlertEmail(email, alertType);
+        sendPushNotification(userToken, `Subscribed to ${alertType}`);
 
         res.status(200).json({ message: `Subscribed to ${alertType} successfully.`, user: user });
     } catch (error) {
+        console.error(error);
         res.status(500).json({ message: 'Error subscribing to alerts.' });
     }
 });

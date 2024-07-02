@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 const apiClient = axios.create({
-  baseURL: process.env.VUE_APP_API_URL || 'http://localhost:3000', // Utilisez le port que votre backend écoute
+  baseURL: import.meta.env.VITE_APP_API_URL || 'http://localhost:3000/api',
   headers: {
     'Content-Type': 'application/json',
   },

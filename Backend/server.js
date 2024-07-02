@@ -40,6 +40,7 @@ pool.connect((err) => {
     }
 });
 
+// Assurez-vous que le chemin est correct
 const subscriptionRoutes = require('./routes/subscriptionRoutes');
 app.use('/api', subscriptionRoutes);
 

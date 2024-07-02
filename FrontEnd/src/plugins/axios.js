@@ -1,11 +1,11 @@
-// src/plugins/axios.js
-import axios from 'axios';
+// import axios from 'axios';
 
-const apiClient = axios.create({
-  baseURL: process.env.VUE_APP_API_URL,
-  headers: {
-    'Content-Type': 'application/json'
-  }
-});
+// const instance = axios.create({
+//   baseURL: process.env.VUE_APP_API_URL || 'http://localhost:3000/api',
+//   withCredentials: true,
+//   Headers: {  
+//     'content-type': 'application/json',
+//   }
+// });
 
-export default apiClient;
+// export default instance;

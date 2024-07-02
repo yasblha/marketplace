@@ -13,27 +13,27 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue';
 import axios from 'axios';
+import apiClient from '@/utils/api'; // Assurez-vous que le chemin est correct
 
 const email = ref('');
 const alertType = ref('newProduct');
-const apiUrl = import.meta.env.VITE_API_URL; // Utilisation de import.meta.env pour Vite
 
 const subscribe = async () => {
   try {
-    const response = await axios.post(`${apiUrl}/subscribe`, {
-      email: email.value,
-      alertType: alertType.value
-    });
+    const response = await apiClient.post('/subscribe', { email: email.value, alertType: alertType.value, userToken: 'dummyTokenForTesting' });
     alert(`Subscription successful: ${response.data.message}`);
-  } catch (error) {
+  } catch (error: unknown) {
     console.error(error);
-    if (error.response && error.response.data && error.response.data.message) {
+
+    if (axios.isAxiosError(error) && error.response && error.response.data && error.response.data.message) {
       alert(`Subscription failed: ${error.response.data.message}`);
-    } else {
+    } else if (error instanceof Error) {
       alert(`Subscription failed: ${error.message}`);
+    } else {
+      alert('Subscription failed: An unknown error occurred.');
     }
   }
 };
