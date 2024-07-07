@@ -1,6 +1,6 @@
 // services/passwordRenewalService.js
 
-const User = require('../models/UserPg');
+const User = require('../models/postgres_models/UserPg');
 const {sendEmail} = require('./mailer');
 
 async function checkPasswordRenewal() {

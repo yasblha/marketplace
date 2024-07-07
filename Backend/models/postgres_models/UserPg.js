@@ -1,7 +1,8 @@
 // models/User.js
 const { DataTypes, Op } = require('sequelize');
-const sequelize = require('../config/postgres');
+const sequelize = require('../../config/postgres');
 const bcrypt = require('bcryptjs');
+const Product = require('./ProductPg');
 
 
 const User = sequelize.define('User', {
@@ -53,6 +54,8 @@ const User = sequelize.define('User', {
     tableName: 'Clients',
     timestamps: false,
 });
+
+User.belongsToMany(Product, { through: 'Client_Product', foreignKey: 'userId' });
 
 User.getUsers = async () => {
     return User.findAll();

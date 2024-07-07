@@ -1,174 +1,171 @@
-<template>
+<script setup>
+import { ref, onMounted } from 'vue';
 
-   
-        <div class="Categorie">
-            <ul>
-                <li>BESTSELLER PRODUCTS</li>
-                <li><a href="">Men</a></li>
-                <li><a href="">Women</a></li>
-                <li><a href="">Accessories</a></li>
+const currentIndex = ref(0);
+const categoryList = ref(null);
 
-            </ul>
-            <div class="fleches">
-                <a href=""><img src="../../assets/fg.svg" alt=""></a>
-                <a href=""><img src="../../assets/fd.svg" alt=""></a>
-            </div>
-
-        </div>
-        <div class="bestProducts">
-
-            <div class="product">
-                <img src="../../assets/image3.png" alt="">
-                <h2>Graphic Design</h2>
-                <p>English Departement</p>
-                <div class="prices">
-                    <span class="priceNormal">$16,48</span>
-                    <span class="priceBlue">$6,48</span>
-                </div>
-
-
-            </div>
-
-            <div class="product">
-                <img src="../../assets/image2.png" alt="">
-                <h2>Graphic Design</h2>
-                <p>English Departement</p>
-                <div class="prices">
-                    <span class="priceNormal">$16,48</span>
-                    <span class="priceBlue">$6,48</span>
-                </div>
-
-
-            </div>
-            <div class="product">
-                <img src="../../assets/image1.png" alt="">
-                <h2>Graphic Design</h2>
-                <p>English Departement</p>
-                <div class="prices">
-                    <span class="priceNormal">$16,48</span>
-                    <span class="priceBlue">$6,48</span>
-                </div>
-
-            </div>
-            <div class="product">
-                <img src="../../assets/image3.png" alt="">
-                <h2>Graphic Design</h2>
-                <p>English Departement</p>
-                <div class="prices">
-                    <span class="priceNormal">$16,48</span>
-                    <span class="priceBlue">$6,48</span>
-                </div>
-
-
-            </div>
-
-            <div class="product">
-                <img src="../../assets/image2.png" alt="">
-                <h2>Graphic Design</h2>
-                <p>English Departement</p>
-                <div class="prices">
-                    <span class="priceNormal">$16,48</span>
-                    <span class="priceBlue">$6,48</span>
-                </div>
-
-
-            </div>
-            <div class="product">
-                <img src="../../assets/image1.png" alt="">
-                <h2>Graphic Design</h2>
-                <p>English Departement</p>
-                <div class="prices">
-                    <span class="priceNormal">$16,48</span>
-                    <span class="priceBlue">$6,48</span>
-                </div>
-
-            </div>
-
-        </div>
-
-    
-
-</template>
-<script>
-export default {
-    name: 'BestSellers_Products',
+const slide = (direction) => {
+  const maxIndex = 6; // Nombre total de catégories - 1
+  if (direction === 'left' && currentIndex.value > 0) {
+    currentIndex.value--;
+  } else if (direction === 'right' && currentIndex.value < maxIndex) {
+    currentIndex.value++;
+  }
 };
+
+onMounted(() => {
+  if (categoryList.value) {
+    categoryList.value.style.width = `${7 * 100}px`; // 7 est le nombre total de catégories
+  }
+});
 </script>
 
+<template>
+  <div class="Categorie">
+    <ul ref="categoryList" :style="{ transform: `translateX(${-currentIndex * 100}px)` }">
+      <li>BESTSELLER PRODUCTS</li>
+      <li><a href="">Men</a></li>
+      <li><a href="">Women</a></li>
+      <li><a href="">Accessories</a></li>
+      <li><a href="">Shoes</a></li>
+      <li><a href="">Bags</a></li>
+      <li><a href="">Watches</a></li>
+    </ul>
+    <div class="fleches">
+      <a href="#" @click.prevent="slide('left')"><img src="../../assets/fg.svg" alt="Left Arrow"></a>
+      <a href="#" @click.prevent="slide('right')"><img src="../../assets/fd.svg" alt="Right Arrow"></a>
+    </div>
+  </div>
+  <div class="bestProducts">
+    <div class="product">
+      <img src="../../assets/image3.png" alt="Graphic Design">
+      <h2>Graphic Design</h2>
+      <p>English Department</p>
+      <div class="prices">
+        <span class="priceNormal">$16.48</span>
+        <span class="priceBlue">$6.48</span>
+      </div>
+    </div>
+
+    <div class="product">
+      <img src="../../assets/image2.png" alt="Graphic Design">
+      <h2>Graphic Design</h2>
+      <p>English Department</p>
+      <div class="prices">
+        <span class="priceNormal">$16.48</span>
+        <span class="priceBlue">$6.48</span>
+      </div>
+    </div>
+
+    <div class="product">
+      <img src="../../assets/image1.png" alt="Graphic Design">
+      <h2>Graphic Design</h2>
+      <p>English Department</p>
+      <div class="prices">
+        <span class="priceNormal">$16.48</span>
+        <span class="priceBlue">$6.48</span>
+      </div>
+    </div>
+
+    <div class="product">
+      <img src="../../assets/image3.png" alt="Graphic Design">
+      <h2>Graphic Design</h2>
+      <p>English Department</p>
+      <div class="prices">
+        <span class="priceNormal">$16.48</span>
+        <span class="priceBlue">$6.48</span>
+      </div>
+    </div>
+
+    <div class="product">
+      <img src="../../assets/image2.png" alt="Graphic Design">
+      <h2>Graphic Design</h2>
+      <p>English Department</p>
+      <div class="prices">
+        <span class="priceNormal">$16.48</span>
+        <span class="priceBlue">$6.48</span>
+      </div>
+    </div>
+
+    <div class="product">
+      <img src="../../assets/image1.png" alt="Graphic Design">
+      <h2>Graphic Design</h2>
+      <p>English Department</p>
+      <div class="prices">
+        <span class="priceNormal">$16.48</span>
+        <span class="priceBlue">$6.48</span>
+      </div>
+    </div>
+  </div>
+</template>
+
 <style scoped>
-
-
-div.Categorie {
-    display: flex;
-    justify-content: space-evenly;
-
+.Categorie {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  overflow: hidden;
 }
 
-div.Categorie ul {
-    display: flex;
-    justify-content: space-evenly;
-    list-style: none;
+.Categorie ul {
+  display: flex;
+  gap: 20px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  transition: transform 0.3s ease;
 }
 
-div.fleches {
-    display: contents;
+.Categorie ul li {
+  flex: 0 0 100px;
+  text-align: center;
 }
 
-div.fleches img {
-    /* width: 100%;
-    border-radius: 100%;
-    border: 1px solid grey; */
-
+.fleches {
+  display: flex;
+  gap: 10px;
 }
 
-div.Categorie ul li {
-
-    margin-left: 59px;
+.bestProducts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
+  padding: 25px;
+  width: 100%;
 }
 
-
-
-div.Categorie div {}
-
-div.bestProducts {
-
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: repeat(2, 1fr);
-    gap: 10px;
-    padding: 25px;
-    width: 100%;
-    height: 100vh;
+.product {
+  text-align: center;
 }
 
-div.product {
-
-    text-align: right;
+.product img {
+  width: 100%;
+  max-width: 200px;
 }
 
-div.product img {
-    width: 76%;
+.product h2 {
+  font-size: 18px;
+  margin: 10px 0;
 }
 
-div.product h2 {
-    font-size: 19px;
+.product p {
+  color: grey;
+  font-size: 14px;
+  margin: 5px 0;
 }
 
-div.product p {
-
-    color: grey;
-    font-size: 13px;
+.prices {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
 }
 
 .priceNormal {
-
-    color: grey;
+  color: grey;
 }
 
 .priceBlue {
-
-    color: rgba(35, 133, 109, 1);
-    margin-left: 5px;
-
+  color: rgba(35, 133, 109, 1);
 }
 </style>

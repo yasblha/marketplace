@@ -1,42 +1,38 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/postgres');
+const sequelize = require('../../config/postgres');
+const User = require('../mongo_models/User');
 
-
-const Product = sequelize.define('Product', {
+const DeliveryAddress = sequelize.define('DeliveryAddress', {
     id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
         primaryKey: true,
     },
-    name: {
+    fullname: {
         type: DataTypes.STRING,
         allowNull: false,
     },
-    description: {
+    address: {
         type: DataTypes.STRING,
         allowNull: false,
     },
-    category: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        unique: true,
-    },
-    brand: {
+    city: {
         type: DataTypes.STRING,
         allowNull: false,
     },
-    price: {
-        type: DataTypes.NUMBER,
+    postalcode: {
+        type: DataTypes.STRING,
         allowNull: false,
     },
-    stock_available: {
-        type: DataTypes.NUMBER,
-    },
-    status: {
+    department: {
         type: DataTypes.STRING,
     },
-    image: {
+    country: {
         type: DataTypes.STRING,
-        defaultValue: false,
-    }
+        allowNull: false,
+    },
 });
+
+DeliveryAddress.belongsTo(User, { foreignKey: 'user_id' });
+
+module.exports = DeliveryAddress;

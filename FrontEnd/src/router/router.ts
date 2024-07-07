@@ -9,6 +9,7 @@ import ForgotPassword from "@/pages/ForgotPassword.vue";
 import ConfirmEmail from "@/pages/ConfirmEmail.vue";
 import resetPassword from '@/pages/resetPassword.vue';
 import Admin_dashboard from "@/pages/admin_dashboard.vue";
+import NotFound from "@/pages/NotFound.vue";
 
 
 const routes = [
@@ -53,7 +54,8 @@ const routes = [
     },
     {
         path: '/:catchAll(.*)',
-        redirect: '/login'
+        name: 'NotFound',
+        component: NotFound,
     },
     {
         path: '/dashboard',

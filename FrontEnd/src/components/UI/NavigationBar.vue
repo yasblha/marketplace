@@ -1,45 +1,48 @@
 <template>
   <nav class="navbar">
     <div class="title">
-      <a class="navbar-brand" href="/home">Bandage</a>
+      <router-link class="navbar-brand" to="/home">Bandage</router-link>
     </div>
 
     <div class="links">
-      <li class="nav-item"><a class="nav-link" href="/home">Home</a></li>
-      <li class="nav-item"><a class="nav-link" href="/products">Shop</a></li>
-      <li class="nav-item"><a class="nav-link" href="/about">About</a></li>
-      <li class="nav-item"><a class="nav-link" href="/blog">Blog</a></li>
-      <li class="nav-item"><a class="nav-link" href="/contact">Contact</a></li>
-      <li class="nav-item"><a class="nav-link" href="/pages">Pages</a></li>
+      <li class="nav-item"><router-link class="nav-link" to="/home">Home</router-link></li>
+      <li class="nav-item"><router-link class="nav-link" to="/products">Shop</router-link></li>
+      <li class="nav-item"><router-link class="nav-link" to="/about">About</router-link></li>
+      <li class="nav-item"><router-link class="nav-link" to="/blog">Blog</router-link></li>
+      <li class="nav-item"><router-link class="nav-link" to="/contact">Contact</router-link></li>
+      <li class="nav-item"><router-link class="nav-link" to="/pages">Pages</router-link></li>
     </div>
 
     <ul class="linkTwo">
-      <li class="nav-item"><a class="nav-link2" href="/login">Login/Register</a></li>
-      <li class="nav-item"><a class="nav-link2" href="/login"><img src="../../assets/Vector.svg" alt="icon"></a></li>
-      <li class="nav-item"><a class="nav-link2" href="/login"><img src="../../assets/Panier.svg" alt="cart"></a></li>
-      <li class="nav-item"><a class="nav-link2" href="/login"><img src="../../assets/hart.svg" alt="wishlist"></a></li>
+      <li class="nav-item"><a class="nav-link2" href="#" @click.prevent="$emit('openAuthModal')">Login/Register</a></li>
+      <li class="nav-item"><router-link class="nav-link2" to="/profile"><img src="@/assets/Vector.svg" alt="profile"></router-link></li>
+      <li class="nav-item"><router-link class="nav-link2" to="/cart"><img src="@/assets/Panier.svg" alt="cart"></router-link></li>
+      <li class="nav-item"><router-link class="nav-link2" to="/wishlist"><img src="@/assets/hart.svg" alt="wishlist"></router-link></li>
     </ul>
   </nav>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-// Any reactive state or methods can be defined here
+defineEmits(['openAuthModal']);
 </script>
 
 <style scoped>
 .navbar {
   display: flex;
+  /* justify-content: space-between; */
   width: 100%;
   background-color: white;
+  /* padding: 10px 20px; */
   color: black;
-  padding: 19px;
+  PADDING: 19px;
 }
 
 .title {
+
   margin: auto;
   font-size: 20px;
 }
+
 
 .links {
   display: flex;
@@ -63,6 +66,7 @@ import { ref } from 'vue';
   margin: auto;
 }
 
+
 .linkTwo li {
   list-style: none;
   margin-left: 14px;
@@ -75,5 +79,12 @@ import { ref } from 'vue';
 .linkTwo li a {
   color: #23a6f0;
   font-weight: 500;
+
 }
+
+/* .navbar-brand {
+    color: black;
+    text-decoration: none;
+    font-size: 1.5em;
+} */
 </style>

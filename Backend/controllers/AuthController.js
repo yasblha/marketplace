@@ -1,4 +1,4 @@
-const User = require('../models/UserPg');
+const User = require('../models/postgres_models/UserPg');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
@@ -80,6 +80,8 @@ async function login(req, res) {
         delete loginAttempts[email];
 
         const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '1h' });
+        res.cookie('token', token, { httpOnly: true, secure: true });
+
 
         const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{}|\\;:'",.<>\/?]).{12,}$/;
         if (!passwordRegex.test(password)) {
@@ -88,7 +90,11 @@ async function login(req, res) {
             });
         }
 
-        res.status(200).json({ message: 'Bonjour ! Votre utilisateur est connecté', token });
+        if(user.role === 'admin') {
+            return res.status(200).json({ message: 'Connecté en tant qu\'administrateur', token, redirectTo: '/admin/dashboard' });
+        }
+
+        res.status(200).json({ message: 'Bonjour ! Votre utilisateur est connecté' });
     } catch (error) {
         console.error('Erreur lors de la connexion :', error);
         res.status(500).json({ message: 'Erreur interne du serveur' });

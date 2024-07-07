@@ -6,65 +6,54 @@ const bodyParser = require("body-parser");
 const credentials = require('./middleware/credentials');
 const errorHandler = require('./middleware/error_handler');
 const authRoutes = require('./routes/api/auth');
-//const nodemailer = require('nodemailer');
+const products = require('./routes/api/products')
 const cron = require('node-cron');
+const upload = require('./middleware/upload');
 const cookieParser = require('cookie-parser');
 const { checkPasswordRenewal } = require('./services/reset_mail');
 
 require('dotenv').config();
 
-async function test() {
+async function init() {
     await checkPasswordRenewal();
 }
-//test();
 
 const app = express();
-const PORT = process.env.PORT ;
+const PORT = process.env.PORT || 3000;
 
-// Middleware pour parser les JSON et les cookies
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cors());
 app.use(credentials);
-app.use(cookieParser);
+app.use(cookieParser());
 
-// Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/products', products);
 
-//check les mots de passes qui arrivent à expiration et envoie un mail de reset
 cron.schedule('0 0 * * *', checkPasswordRenewal);
 
-// 404 Handler
-/*app.all('*', (req, res) => {
-    res.sendStatus(404);
-    if(req.accepts('json')) {
-        res.json({'error': '404 not found}'})
-    } else {
-        res.type('text').send('404 Not found')
-    }
-});*/
-
-/*app.get('/users', User.getUsers);
-app.get('/users/:id', User.getUserById);
-app.post('/users/create', User.createUser);
-app.put('/users/:id', User.updateUser);
-app.delete('/users/:id', User.deleteUser);*/
-
-// Middleware d'erreurs
-app.use(errorHandler);
-
-// Démarrez l'application
 app.get('/', (req, res) => {
     res.send('Welcome to my server!');
 });
 
-const server = app.listen(PORT, () => {
-    console.log(`App is listening at http://localhost:${PORT}`);
+app.post('/api/upload', upload.single('image'), (req, res) => {
+    try {
+        res.status(201).json({ message: 'Image téléchargée avec succès', path: req.file.path });
+    } catch (error) {
+        console.error('Erreur lors du téléchargement de l\'image :', error);
+        res.status(500).json({ error: 'Erreur interne du serveur' });
+    }
 });
 
-// Gestionnaire d'erreurs globales
+app.use(errorHandler);
+
+const server = app.listen(PORT, () => {
+    console.log(`App is listening at http://localhost:${PORT}`);
+    //init();
+});
+
 process.on("unhandledRejection", err => {
-    console.log(`Une erreur a eu lieu: ${err.message}`);
+    console.error(`Unhandled Rejection: ${err.message}`);
     server.close(() => process.exit(1));
 });

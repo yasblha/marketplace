@@ -1,104 +1,138 @@
 <template>
-  <div>
-    <NavigationBar />
-  </div>
-  <section class="images">
-    <div>
-      <span>We know how large objects will act, but things on a small scale just do not act that way.</span>
-      <br>
-      <button>Start now</button>
-    </div>
-  </section>
+  <div class="home-container">
+    <NavigationBar @openAuthModal="openAuthModal" />
+    <AuthModal :isVisible="isAuthModalVisible" @close="closeAuthModal" />
 
-  <section class="produits">
-    <div class="Oneproducts">
-      <div class="texts">
-        <span>Your Space</span>
-        <h1>Unique <br />Life</h1>
-        <span>Explore Items</span>
+    <section class="hero-section">
+      <div class="hero-content">
+        <span class="hero-text">We know how large objects will act, but things on a small scale just do not act that way.</span>
+        <button class="start-button">Start now</button>
       </div>
-      <img src="../assets/image2.png" alt="" />
-    </div>
-    <div class="Oneproducts">
-      <div class="texts">
-        <span>Ends Today</span>
-        <h1>Elements <br />Style </h1>
-        <span>Explore Items</span>
+    </section>
+
+    <section class="products-section">
+      <div class="product-card" v-for="(product, index) in products" :key="index">
+        <div class="product-text">
+          <span class="product-tag">{{ product.tag }}</span>
+          <h1 class="product-title">{{ product.title }}</h1>
+          <span class="product-cta">{{ product.cta }}</span>
+        </div>
+        <img :src="product.image" :alt="product.title" />
       </div>
-      <img src="../assets/image1.png" alt="" />
-    </div>
-    <div class="Oneproducts">
-      <div class="texts">
-        <span>Your Space</span>
-        <h1>Unique <br />Life</h1>
-        <span>Explore Items</span>
+    </section>
+
+    <section class="best-sellers-section">
+      <div class="best-sellers-container">
+        <div class="featured-item">
+          <img src="../assets/card_items.jpg" alt="Featured item" />
+        </div>
+        <div class="best-sellers-list">
+          <BestSellers_Products />
+        </div>
       </div>
-      <img src="../assets/image3.png" alt="" />
-    </div>
-  </section>
-  <section class="BestSellers">
-    <div class="allitems">
-      <div class="itemOne">
-        <img src="" alt="" />
+    </section>
+
+    <section class="newsletter-section">
+      <div class="newsletter-content">
+        <h2 class="newsletter-title">Subscribe to Our Newsletter</h2>
+        <p class="newsletter-description">Stay updated with our latest products and offers</p>
+        <form class="newsletter-form">
+          <input type="email" placeholder="Enter your email" required>
+          <button type="submit">Subscribe</button>
+        </form>
       </div>
-      <div class="itemTwo">
-        <BestSellers_Products />
-      </div>
-    </div>
-  </section>
-  <br /><br /><br />
-  <Footer />
+    </section>
+
+    <Footer />
+  </div>
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue';
 import NavigationBar from "@/components/UI/NavigationBar.vue";
 import Footer from "@/components/UI/Footer.vue";
 import BestSellers_Products from "@/components/UI/BestSellers_Products.vue";
+import AuthModal from '@/pages/AuthModal.vue';
+
+const isAuthModalVisible = ref(false);
+
+function openAuthModal() {
+  console.log('Opening auth modal');
+  isAuthModalVisible.value = true;
+}
+
+function closeAuthModal() {
+  isAuthModalVisible.value = false;
+}
+
+const products = [
+  {
+    tag: "Your Space",
+    title: "Unique Life",
+    cta: "Explore Items",
+    image: new URL('../assets/image2.png', import.meta.url).href
+  },
+  {
+    tag: "Ends Today",
+    title: "Elements Style",
+    cta: "Explore Items",
+    image: new URL('../assets/image1.png', import.meta.url).href
+  },
+  {
+    tag: "Your Space",
+    title: "Unique Life",
+    cta: "Explore Items",
+    image: new URL('../assets/image3.png', import.meta.url).href
+  }
+];
 </script>
 
 <style scoped>
-.images {
+.home-container {
+  width: 100%;
+}
+
+.hero-section {
   background-image: url('../assets/dumbels.jpg');
   background-size: cover;
   background-position: center;
   min-height: 40vw;
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   text-align: center;
 }
 
-.images button {
+.hero-content {
+  width: 32%;
+}
+
+.hero-text {
+  color: #23a6f0;
+  font-size: 18px;
+  display: block;
+  margin-bottom: 20px;
+}
+
+.start-button {
   background-color: rgba(35, 166, 240, 1);
   padding: 12px;
-  outline: none;
   border: none;
   color: white;
   border-radius: 3px;
   width: 36%;
   font-size: 16px;
-  margin-top: 19px;
+  cursor: pointer;
 }
 
-.images div {
-  margin: auto;
-  width: 32%;
-}
-
-.images div span {
-  margin: auto;
-  color: #23a6f0;
-  font-size: 18px;
-}
-
-section.produits {
+.products-section {
   display: flex;
   padding: 61px;
   background: #80808012;
-  text-align: center;
   justify-content: space-between;
 }
 
-div.Oneproducts {
+.product-card {
   background-color: white;
   display: flex;
   padding: 14px;
@@ -106,44 +140,120 @@ div.Oneproducts {
   box-shadow: inset 0 0 1em rgb(255 255 255), 0 0 1em rgb(160 148 148 / 33%);
 }
 
-.Oneproducts img {
+.product-card img {
   width: 244px;
   height: 181px;
+  object-fit: cover;
 }
 
-div.texts {
+.product-text {
   display: flex;
   flex-direction: column;
   margin: auto;
+  text-align: center;
 }
 
-div.texts h1 {
+.product-title {
   color: black;
+  margin: 10px 0;
 }
 
-div.texts span {
+.product-tag, .product-cta {
   color: #808080ad;
 }
 
-/* Best Sellers */
-section.BestSellers {
-  padding: 41px;
+/* Nouveaux styles pour la section best-sellers */
+.best-sellers-section {
+  padding: 40px 20px;
   width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-div.allitems {
+.best-sellers-container {
   display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
 }
 
-div.itemOne {
-  background-image: url('../assets/card_items.jpg');
-  width: 30%;
-  background-size: cover;
-  background-position: center;
+.featured-item {
+  flex: 1;
+  min-width: 300px;
+  max-width: 100%;
+  height: auto;
+  overflow: hidden;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-div.itemTwo {
-  width: 68%;
-  margin: auto;
+.featured-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.featured-item:hover img {
+  transform: scale(1.05);
+}
+
+.best-sellers-list {
+  flex: 2;
+  min-width: 300px;
+}
+
+@media (max-width: 768px) {
+  .best-sellers-container {
+    flex-direction: column;
+  }
+
+  .featured-item,
+  .best-sellers-list {
+    width: 100%;
+  }
+}
+
+/* Styles pour la section newsletter */
+.newsletter-section {
+  background-color: #f8f8f8;
+  padding: 40px 0;
+  text-align: center;
+}
+
+.newsletter-content {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.newsletter-title {
+  font-size: 24px;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.newsletter-description {
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.newsletter-form {
+  display: flex;
+  justify-content: center;
+}
+
+.newsletter-form input {
+  padding: 10px;
+  width: 60%;
+  border: 1px solid #ddd;
+  border-radius: 3px 0 0 3px;
+}
+
+.newsletter-form button {
+  padding: 10px 20px;
+  background-color: #23a6f0;
+  color: white;
+  border: none;
+  border-radius: 0 3px 3px 0;
+  cursor: pointer;
 }
 </style>

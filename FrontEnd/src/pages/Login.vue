@@ -2,14 +2,14 @@
   <div class="login-container">
     <h2 class="login-title">Sign In</h2>
 
-    <form @submit.prevent="login" class="login-form">
+    <form @submit.prevent="handleLogin" class="login-form">
       <div class="form-group">
         <label for="email" class="form-label">Email:</label>
-        <input v-model="form.email" id="email" type="email" class="form-control" required />
+        <input v-model="email" id="email" type="email" class="form-control" required />
       </div>
       <div class="form-group">
         <label for="password" class="form-label">Password:</label>
-        <input v-model="form.password" id="password" type="password" class="form-control" required />
+        <input v-model="password" id="password" type="password" class="form-control" required />
       </div>
       <button type="submit" class="btn btn-primary">Login</button>
     </form>
@@ -23,33 +23,30 @@
 </template>
 
 <script setup lang="ts">
-import axiosInstance from "@/services/api.js";
 import { ref } from "vue";
 import router from "@/router/router";
+import { useAuthStore } from "@/stores/user";
 
-const form = ref({
-  email: '',
-  password: ''
-});
+const authStore = useAuthStore();
 
-async function login() {
+const email = ref('');
+const password = ref('');
+
+async function handleLogin() {
   try {
-    console.log("Sending form data:", form.value);
-    const response = await axiosInstance.post('/api/auth/login', form.value);
-    alert('Logged in successfully');
+    const response = await authStore.login(email.value, password.value);
+    console.log("Connexion réussie :", response);
 
-    console.log("Response received:", response.data);
-    const { token, role } = response.data;
-
-    if (role === 'admin') {
-      router.push('/admin/dashboard');
+    if (authStore.user?.role === 'admin') {
+      router.push('/dashboard'); // Corrected route path
     } else {
       router.push('/home');
     }
 
+    alert('Connexion réussie');
   } catch (error) {
-    console.error("Login failed:", error);
-    alert('Login failed. Please check your credentials.');
+    console.error("Échec de la connexion :", error);
+    alert('Échec de la connexion. Veuillez vérifier vos identifiants.');
   }
 }
 </script>
