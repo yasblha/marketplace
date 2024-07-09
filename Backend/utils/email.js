@@ -31,7 +31,7 @@ const sendAlertEmail = (userEmail, alertType) => {
     });
 };
 
-async function sendPromotionEmail(email, promotionDetails) {
+const sendPromotionEmail = async (email, promotionDetails) => {
     const mailOptions = {
         from: process.env.EMAIL_USER,
         to: email,
@@ -46,9 +46,27 @@ async function sendPromotionEmail(email, promotionDetails) {
     } catch (error) {
         console.error(`Erreur lors de l'envoi de l'email de promotion à ${email}:`, error);
     }
-}
+};
+
+const sendNewProductEmail = async (email, productDetails) => {
+    const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: email,
+        subject: 'Nouveau Produit Disponible !',
+        text: `Bonjour ! Un nouveau produit est disponible : ${productDetails.name}. Découvrez-le !`,
+        html: `<p>Bonjour ! Un nouveau produit est disponible : <strong>${productDetails.name}</strong>. Découvrez-le !</p>`
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+        console.log(`Email de nouveau produit envoyé à ${email}`);
+    } catch (error) {
+        console.error(`Erreur lors de l'envoi de l'email de nouveau produit à ${email}:`, error);
+    }
+};
 
 module.exports = {
     sendAlertEmail,
     sendPromotionEmail,
+    sendNewProductEmail,
 };

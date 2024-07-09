@@ -7,6 +7,7 @@ const credentials = require('./middleware/credentials');
 const errorHandler = require('./middleware/error_handler');
 const alertRoutes = require('./routes/api/alerts');
 const promotionRoutes = require('./routes/api/promotions'); 
+const productRoutes = require('./routes/api/product')  
 
 require('dotenv').config();
 
@@ -23,6 +24,7 @@ app.use(bodyParser.json());
 // Routes
 app.use('/api/alerts', alertRoutes);
 app.use('/api/promotions', promotionRoutes);
+app.use('/api/product', productRoutes);
 
 // Error handling middleware
 app.use(errorHandler);
