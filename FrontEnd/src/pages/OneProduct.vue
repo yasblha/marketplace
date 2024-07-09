@@ -147,4 +147,74 @@ div.description span {
 }
 
 span.source {}
+
+@media (max-width: 1200px) {
+    div.GlobalItem {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    div.images {
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: auto;
+        padding: 20px;
+    }
+
+    div.itemDetails {
+        padding: 20px;
+        text-align: center;
+    }
+
+    div.description {
+        width: 80%;
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 768px) {
+    div.GlobalItem {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    div.images {
+        grid-template-columns: 1fr;
+        padding: 20px;
+    }
+
+    div.images img {
+        width: 100%;
+        padding: 7px;
+    }
+
+    div.itemDetails {
+        padding: 20px;
+        text-align: center;
+    }
+
+    div.description {
+        width: 90%;
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    div.images {
+        padding: 10px;
+    }
+
+    div.images img {
+        padding: 5px;
+    }
+
+    div.itemDetails {
+        padding: 10px;
+    }
+
+    div.description {
+        width: 100%;
+        font-size: 11px;
+    }
+
+}
 </style>

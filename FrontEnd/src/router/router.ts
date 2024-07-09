@@ -6,6 +6,10 @@ import Login from '../pages/Login.vue';
 import Home from '../pages/Home.vue';
 import Products from '../pages/Products.vue';
 import OneProduct from '../pages/OneProduct.vue';
+import Panier from '../pages/Panier.vue';
+import Favorites from '../pages/Favorites.vue';
+
+
 
 const routes = [
     {
@@ -32,6 +36,16 @@ const routes = [
         path: '/Oneproduct',
         name: 'OneProduct',
         component: OneProduct
+    },
+    {
+        path: '/panier',
+        name: 'Panier',
+        component: Panier
+    },
+    {
+        path: '/favorites',
+        name: 'Favorites',
+        component: Favorites
     }
     
 
