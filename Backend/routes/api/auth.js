@@ -1,20 +1,20 @@
 const express = require('express');
 const router = express.Router();
 const authControllers = require('../../controllers/AuthController');
-//const db = require('../../config/postgres_models');
 const { authenticateToken } = require('../../middleware/authAdmin');
 
-
+// Routes publiques d'authentification
 router.post('/register', authControllers.register);
-router.get('/confirm/:token', authControllers.confirmEmail);
-router.post('/request-password-reset', authControllers.requestPasswordReset);
-router.post('/reset-password', authControllers.resetPassword);
-
 router.post('/login', authControllers.login);
-router.post('/logout', authenticateToken, authControllers.logout);
-router.post('/refresh', authControllers.refresh);
-router.get('/users', authenticateToken, authControllers.user);
-router.get('/user', authenticateToken, authControllers.getUser);
-//router.get('/user', authControllers.);
+router.post('/refresh-token', authControllers.refresh);
+router.post('/forgot-password', authControllers.requestPasswordReset);
+router.patch('/reset-password', authControllers.resetPassword);
+router.get('/confirm-email/:token', authControllers.confirmEmail);
 
+// Routes protégées (nécessitant une authentification)
+router.use(authenticateToken); // Applique l'authentification à toutes les routes suivantes
+
+router.post('/logout', authControllers.logout);
+router.get('/me', authControllers.getUser);
+router.get('/users', authControllers.user);
 module.exports = router;

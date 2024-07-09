@@ -75,7 +75,7 @@ export const useAuthStore = defineStore('auth', () => {
 
     async function requestPasswordReset(email: string) {
         try {
-            const response = await axiosInstance.post('auth/request-password-reset', { email });
+            const response = await axiosInstance.post('auth/forgot-password', { email });
             return response.data;
         } catch (error) {
             console.error('Erreur de demande de réinitialisation de mot de passe:', error);
@@ -95,7 +95,7 @@ export const useAuthStore = defineStore('auth', () => {
 
     async function refreshToken() {
         try {
-            const response = await axiosInstance.post('auth/refresh');
+            const response = await axiosInstance.post('auth/refresh-token');
             token.value = response.data.token;
             axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token.value}`;
         } catch (error) {
@@ -106,7 +106,7 @@ export const useAuthStore = defineStore('auth', () => {
 
     async function fetchUser() {
         try {
-            const response = await axiosInstance.get('auth/user');
+            const response = await axiosInstance.get('auth/me');
             user.value = response.data;
         } catch (error) {
             console.error('Erreur de récupération des données utilisateur:', error);

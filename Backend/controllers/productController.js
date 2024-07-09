@@ -46,10 +46,12 @@ async function createProduct(req, res) {
         }
 
         const newSQLProduct = await Product.createProduct(productData);
+        const newMONGOProduct = await Product.createProduct(productData);
 
         res.status(201).json({
             message: 'Produit créé avec succès',
             sqlProduct: newSQLProduct,
+            mongoProduct: newMONGOProduct,
         });
     } catch (error) {
         console.error('Erreur lors de la création du produit :', error);

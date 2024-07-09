@@ -82,6 +82,7 @@ const close = () => {
   max-height: 80vh;
   display: flex;
   flex-direction: column;
+  color: black;
 }
 
 .modal-header {
@@ -97,6 +98,7 @@ const close = () => {
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
+  color: black;
 }
 
 .modal-body {
@@ -109,5 +111,9 @@ const close = () => {
   border-top: 1px solid #e0e0e0;
   display: flex;
   justify-content: flex-end;
+}
+
+.modal-container * {
+  color: black;
 }
 </style>

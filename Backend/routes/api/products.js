@@ -4,18 +4,18 @@ const productControllers = require('../../controllers/ProductController');
 const authenticateAdmin = require('../../middleware/authAdmin').authenticateAdmin;
 const upload = require('../../middleware/upload');
 
-// Routes spécifiques
-router.get('/all', productControllers.getAllProducts);
+// Routes publiques
+router.get('/get', productControllers.getAllProducts);
 router.get('/search', productControllers.searchProducts);
-router.get('/category/:category', productControllers.getProductsByCategory);
-
-// Route de création (protégée)
-router.post('/create', upload.single('image'), productControllers.createProduct);
-
-// Routes avec ID
+//router.get('/category/:category', productControllers.getProductsByCategory);
 router.get('/:id', productControllers.getProductById);
-router.put('/:id', authenticateAdmin, upload.single('image'), productControllers.updateProduct);
-router.delete('/:id', authenticateAdmin, productControllers.deleteProduct);
-router.put('/:id/stock', authenticateAdmin, productControllers.updateProductStock);
+
+// Routes protégées (authentification admin requise)
+//router.post('/', authenticateAdmin, upload.array('images', 5), productControllers.createProduct);
+router.post('/', upload.array('images', 5), productControllers.createProduct);
+router.put('/:id', authenticateAdmin, upload.array('images', 5), productControllers.updateProduct);
+//router.delete('/:id', authenticateAdmin, productControllers.deleteProduct);
+router.delete('/:id', productControllers.deleteProduct);
+router.patch('/:id/stock', authenticateAdmin, productControllers.updateProductStock);
 
 module.exports = router;

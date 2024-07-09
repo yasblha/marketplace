@@ -8,7 +8,7 @@
       <table>
         <thead>
         <tr>
-          <th><input type="checkbox" v-model="selectAll" @change="toggleSelectAll" /></th>
+          <th class="checkbox-column"><input type="checkbox" v-model="selectAll" @change="toggleSelectAll" /></th>
           <th v-for="column in columns" :key="column.key">
             <div class="table-header">
               {{ column.label }}
@@ -16,14 +16,16 @@
               <input v-if="column.searchable" class="input-search" :placeholder="`Rechercher ${column.label}`" @input="search(column.key, $event)" />
             </div>
           </th>
-          <th>Actions</th>
+          <th class="actions-column">Actions</th>
         </tr>
         </thead>
         <tbody>
-        <tr v-for="item in paginatedItems" :key="item.id">
-          <td><input type="checkbox" v-model="selectedItems" :value="item.id" /></td>
-          <td v-for="column in columns" :key="column.key">{{ item[column.key] }}</td>
-          <td>
+        <tr v-for="item in paginatedItems" :key="item._id">
+          <td class="checkbox-column"><input type="checkbox" v-model="selectedItems" :value="item._id" /></td>
+          <td v-for="column in columns" :key="column.key" :data-label="column.label">
+            {{ item[column.key] }}
+          </td>
+          <td class="actions-column">
             <div class="table-actions">
               <button class="btn-view" @click="viewItem(item)">Voir</button>
               <button class="btn-edit" @click="editItem(item)">Modifier</button>
@@ -45,24 +47,21 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import DeleteButton from "@/components/common/DeteleButton.vue";
-import { defineProps } from 'vue';
 
-interface Column {
-  key: string;
+interface Column<T> {
+  key: keyof T & string;
   label: string;
   searchable?: boolean;
 }
 
 const props = defineProps<{
   items: any[];
-  columns: { key: string; label: string; searchable?: boolean }[];
+  columns: Column<any>[];
   itemsPerPage: number;
   onView: (item: any) => void;
   onEdit: (item: any) => void;
   onDelete: (item: any) => Promise<void>;
 }>();
-
-console.log(props.items);
 
 const currentPage = ref(1);
 const sortKey = ref<string>('');
@@ -96,7 +95,7 @@ const paginatedItems = computed(() => {
   return sortedItems.value.slice(start, end);
 });
 
-const sort = (key: string) => {
+const sort = (key: keyof any & string) => {
   if (sortKey.value === key) {
     sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc';
   } else {
@@ -105,7 +104,7 @@ const sort = (key: string) => {
   }
 };
 
-const search = (key: string, event: Event) => {
+const search = (key: keyof any & string, event: Event) => {
   const value = (event.target as HTMLInputElement).value;
   if (value) {
     searchFilters.value[key] = value;
@@ -127,12 +126,11 @@ const viewItem = (item: any) => props.onView(item);
 const editItem = (item: any) => props.onEdit(item);
 const deleteItem = async (item: any) => {
   await props.onDelete(item);
-  // Mettre à jour la liste des items après la suppression
 };
 
 const toggleSelectAll = () => {
   if (selectAll.value) {
-    selectedItems.value = sortedItems.value.map(item => item.id);
+    selectedItems.value = sortedItems.value.map(item => item._id);
   } else {
     selectedItems.value = [];
   }
@@ -140,7 +138,7 @@ const toggleSelectAll = () => {
 
 const deleteSelected = async () => {
   for (const id of selectedItems.value) {
-    const item = props.items.find(i => i.id === id);
+    const item = props.items.find(i => i._id === id);
     if (item) await props.onDelete(item);
   }
   selectedItems.value = [];
@@ -149,7 +147,7 @@ const deleteSelected = async () => {
 const exportCSV = () => {
   const headers = props.columns.map(col => col.label).join(',');
   const rows = selectedItems.value.length > 0
-      ? props.items.filter(item => selectedItems.value.includes(item.id))
+      ? props.items.filter(item => selectedItems.value.includes(item._id))
       : props.items;
   const csv = [
     headers,
@@ -181,6 +179,7 @@ const exportCSV = () => {
 
 .table-controls {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
@@ -196,7 +195,7 @@ const exportCSV = () => {
   text-decoration: none;
   display: inline-block;
   font-size: 16px;
-  margin-right: 10px;
+  margin: 5px;
   cursor: pointer;
 }
 
@@ -216,6 +215,7 @@ table {
   background-color: #fff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
+  color: black;
 }
 
 thead {
@@ -235,6 +235,7 @@ th {
 
 .table-header {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
 }
 
@@ -251,11 +252,12 @@ th {
 }
 
 .input-search {
-  margin-left: 10px;
+  margin-top: 5px;
   padding: 5px 10px;
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 14px;
+  width: 100%;
 }
 
 .input-search:focus {
@@ -277,12 +279,58 @@ th {
   text-decoration: none;
   display: inline-block;
   font-size: 16px;
-  margin-right: 10px;
+  margin: 5px;
   cursor: pointer;
 }
 
 .pagination-text {
   font-size: 14px;
   vertical-align: middle;
+}
+
+@media screen and (max-width: 600px) {
+  table, thead, tbody, th, td, tr {
+    display: block;
+  }
+
+  thead tr {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
+
+  tr {
+    margin-bottom: 15px;
+  }
+
+  td {
+    border: none;
+    position: relative;
+    padding-left: 50%;
+  }
+
+  td:before {
+    content: attr(data-label);
+    position: absolute;
+    left: 6px;
+    width: 45%;
+    padding-right: 10px;
+    white-space: nowrap;
+    font-weight: bold;
+  }
+
+  .checkbox-column, .actions-column {
+    padding-left: 15px;
+  }
+
+  .table-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+
+  .table-actions button {
+    margin: 2px;
+  }
 }
 </style>

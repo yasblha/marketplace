@@ -1,10 +1,9 @@
 <template>
   <div>
-    <h1>Product Management</h1>
     <button @click="showProductModal = true">Add Product</button>
 
     <Table
-        :items="products"
+        :items="combinedProducts"
         :columns="columns"
         :itemsPerPage="10"
         :onView="viewProduct"
@@ -27,21 +26,21 @@
         <p><strong>Price:</strong> {{ selectedProduct?.price }}</p>
         <p><strong>Stock:</strong> {{ selectedProduct?.stock_available }}</p>
         <p><strong>Status:</strong> {{ selectedProduct?.status }}</p>
-        <!-- Add other fields as needed -->
+        <p><strong>Description:</strong> {{ selectedProduct?.description }}</p>
       </div>
     </Modal>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useProductStore } from '@/stores/products';
 import Table from '@/components/common/Table.vue';
 import Modal from '@/components/common/Modale.vue';
 import AddProductForm from '@/components/common/AddProductForm.vue';
 
 interface Product {
-  _id: string;
+  _id?: string;
   name: string;
   description: string;
   category: string;
@@ -49,18 +48,34 @@ interface Product {
   price: number;
   stock_available: number;
   status: string;
-  image?: string;
+  image: string | null;
+}
+
+
+interface Column<T> {
+  key: keyof T & string;
+  label: string;
+  searchable?: boolean;
 }
 
 const productStore = useProductStore();
 const showProductModal = ref(false);
 const showProductDetailsModal = ref(false);
-const selectedProduct = ref<Product | null>(null);
+//const selectedProduct = ref<Product | undefined>(undefined);
+const selectedProduct = ref<Partial<Product> | undefined>(undefined);
+//const selectedProduct = ref<Product | undefined>(undefined);
 
-const products = computed(() => productStore.products);
+
+
+
+const combinedProducts = computed(() => {
+  console.log('Computing combined products:', productStore.products);
+  return productStore.products;
+});
+
 const modalTitle = computed(() => selectedProduct.value ? 'Edit Product' : 'Add Product');
 
-const columns = [
+const columns: Column<Product>[] = [
   { key: 'name', label: 'Name', searchable: true },
   { key: 'category', label: 'Category', searchable: true },
   { key: 'brand', label: 'Brand', searchable: true },
@@ -69,12 +84,24 @@ const columns = [
   { key: 'status', label: 'Status' }
 ];
 
+onMounted(async () => {
+  console.log('Component mounted, fetching products...');
+  await productStore.fetchProducts();
+  console.log('Products after fetch:', productStore.products);
+});
+
+watch(() => productStore.products, (newProducts) => {
+  console.log('Products in store changed:', newProducts);
+}, { deep: true });
+
 const viewProduct = (product: Product) => {
+  console.log('Viewing product:', product);
   selectedProduct.value = { ...product };
   showProductDetailsModal.value = true;
 };
 
 const editProduct = (product: Product) => {
+  console.log('Editing product:', product);
   selectedProduct.value = { ...product };
   showProductModal.value = true;
 };
@@ -82,21 +109,26 @@ const editProduct = (product: Product) => {
 const deleteProduct = async (product: Product) => {
   if (confirm('Are you sure you want to delete this product?')) {
     try {
+      console.log('Deleting product:', product);
       await productStore.deleteProduct(product._id);
+      console.log('Product deleted, refreshing list...');
+      await productStore.fetchProducts();
     } catch (error) {
       console.error('Error deleting product:', error);
     }
   }
 };
 
-const onProductAdded = () => {
+const onProductAdded = async () => {
+  console.log('Product added, refreshing list...');
   showProductModal.value = false;
-  productStore.fetchAllProducts();
+  await productStore.fetchProducts();
 };
 
-const onProductUpdated = () => {
+const onProductUpdated = async () => {
+  console.log('Product updated, refreshing list...');
   showProductModal.value = false;
-  selectedProduct.value = null;
-  productStore.fetchAllProducts();
+  selectedProduct.value = undefined;
+  await productStore.fetchProducts();
 };
 </script>

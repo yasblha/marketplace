@@ -32,59 +32,98 @@
 import { ref, computed, watch } from 'vue';
 import { useProductStore } from '@/stores/products';
 
+interface ProductData {
+  _id?: string;
+  name: string;
+  description: string;
+  category: string;
+  brand: string;
+  price: number;
+  stock_available: number;
+  status: string;
+  image: string;
+}
+
+interface FormField {
+  name: keyof ProductData;
+  type: string;
+  label: string;
+  options?: string[];
+}
+
 const props = defineProps<{
-  initialData?: any
+  initialData?: Partial<ProductData>
 }>();
 
-const emit = defineEmits(['product-added', 'product-updated']);
+const emit = defineEmits<{
+  (e: 'product-added'): void;
+  (e: 'product-updated'): void;
+}>();
 
 const productStore = useProductStore();
 
-const formFields = [
-  { name: 'name', type: 'text', label: 'Product Name', value: '' },
-  { name: 'description', type: 'textarea', label: 'Description', value: '' },
-  { name: 'category', type: 'text', label: 'Category', value: '' },
-  { name: 'brand', type: 'text', label: 'Brand', value: '' },
-  { name: 'price', type: 'number', label: 'Price', value: 0 },
-  { name: 'stock_available', type: 'number', label: 'Stock Available', value: 0 },
-  { name: 'status', type: 'select', label: 'Status', value: 'available', options: ['available', 'out_of_stock', 'discontinued'] },
-  { name: 'image', type: 'file', label: 'Image', value: null },
+const formFields: FormField[] = [
+  { name: 'name', type: 'text', label: 'Product Name' },
+  { name: 'description', type: 'textarea', label: 'Description' },
+  { name: 'category', type: 'text', label: 'Category' },
+  { name: 'brand', type: 'text', label: 'Brand' },
+  { name: 'price', type: 'number', label: 'Price' },
+  { name: 'stock_available', type: 'number', label: 'Stock Available' },
+  { name: 'status', type: 'select', label: 'Status', options: ['available', 'out_of_stock', 'discontinued'] },
+  { name: 'image', type: 'file', label: 'Image' },
 ];
 
-const productData = ref(props.initialData || {});
+const productData = ref<ProductData>({
+  name: '',
+  description: '',
+  category: '',
+  brand: '',
+  price: 0,
+  stock_available: 0,
+  status: 'available',
+  image: '',
+});
 
 const isEditing = computed(() => !!props.initialData?._id);
 
 watch(() => props.initialData, (newVal) => {
   if (newVal) {
-    productData.value = { ...newVal };
+    productData.value = {
+      name: newVal.name || '',
+      description: newVal.description || '',
+      category: newVal.category || '',
+      brand: newVal.brand || '',
+      price: newVal.price || 0,
+      stock_available: newVal.stock_available || 0,
+      status: newVal.status || 'available',
+      image: newVal.image || '',
+      _id: newVal._id,
+    };
   }
 }, { deep: true });
 
 const handleFileUpload = (event: Event) => {
   const target = event.target as HTMLInputElement;
   if (target.files && target.files.length > 0) {
-    productData.value.image = target.files[0];
+    const file = target.files[0];
+    productData.value.image = URL.createObjectURL(file);
   }
 };
 
 const submitForm = async () => {
-  const formData = new FormData();
-  Object.entries(productData.value).forEach(([key, value]) => {
-    if (value !== null && value !== undefined) {
-      if (value instanceof File) {
-        formData.append(key, value);
-      } else if (typeof value === 'boolean') {
-        formData.append(key, value ? 'true' : 'false');
-      } else if (typeof value === 'number') {
-        formData.append(key, value.toString());
-      } else {
-        formData.append(key, String(value));
-      }
-    }
-  });
-
   try {
+    const formData = new FormData();
+    Object.entries(productData.value).forEach(([key, value]) => {
+      if (key !== '_id' && value !== undefined) {
+        formData.append(key, value.toString());
+      }
+    });
+
+    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+    if (fileInput && fileInput.files && fileInput.files.length > 0) {
+      formData.append('image', fileInput.files[0]);
+    }
+
     if (isEditing.value && productData.value._id) {
       await productStore.updateProduct(productData.value._id, formData);
       emit('product-updated');
@@ -92,8 +131,18 @@ const submitForm = async () => {
       await productStore.createProduct(formData);
       emit('product-added');
     }
+
     if (!isEditing.value) {
-      productData.value = formFields.reduce((acc, field) => ({ ...acc, [field.name]: field.value }), {});
+      productData.value = {
+        name: '',
+        description: '',
+        category: '',
+        brand: '',
+        price: 0,
+        stock_available: 0,
+        status: 'available',
+        image: '',
+      };
     }
   } catch (err) {
     console.error('Error submitting form:', err);
@@ -115,6 +164,7 @@ label {
 input, select, textarea {
   width: 100%;
   padding: 0.5rem;
+  color: black;
 }
 
 button {

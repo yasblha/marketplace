@@ -19,10 +19,10 @@ class ProductService {
             console.log('Tentative de création de produit:', productData);
             const newSQLProduct = await ProductSQL.createProduct(productData);
             console.log('Produit créé dans PostgreSQL:', newSQLProduct);
-            //const newMongoProduct = await ProductMongo.create(productData);
-            //console.log('Produit créé dans MongoDB:', newMongoProduct);
-            //return { newSQLProduct, newMongoProduct };
-            return { newSQLProduct }
+            const newMongoProduct = await ProductMongo.create(productData);
+            console.log('Produit créé dans MongoDB:', newMongoProduct);
+            return { newSQLProduct, newMongoProduct };
+            //return { newSQLProduct }
         } catch (error) {
             console.error('Erreur dans le service lors de la création du produit:', error);
             throw error;
