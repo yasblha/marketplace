@@ -1,54 +1,42 @@
 const express = require('express');
+const mongoose = require('./conf/mongodb');
+const pool = require('./conf/postgres');
 const cors = require('cors');
-const cookieParser = require('cookie-parser');
-const mongoose = require('mongoose');
-const { Pool } = require('pg');
-const app = express();
-const PORT = process.env.PORT || 3000;
+const bodyParser = require("body-parser");
+const credentials = require('./middleware/credentials');
+const errorHandler = require('./middleware/error_handler');
+const alertRoutes = require('./routes/api/alerts');
+const promotionRoutes = require('./routes/api/promotions'); 
 
 require('dotenv').config();
 
-const corsOptions = {
-    origin: 'http://localhost:8080',
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    credentials: true,
-};
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-app.use(cors(corsOptions));
+// Middleware
+app.use(credentials);
+app.use(cors());
 app.use(express.json());
-app.use(cookieParser());
+app.use(express.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
-// Connexion à MongoDB
-mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(() => console.log('MongoDB database is connected to marketplace ...'))
-    .catch(err => console.log('Error connecting to MongoDB:', err.message));
+// Routes
+app.use('/api/alerts', alertRoutes);
+app.use('/api/promotions', promotionRoutes);
 
-// Connexion à PostgreSQL
-const pool = new Pool({
-    user: process.env.POSTGRESDB_USER,
-    host: process.env.POSTGRESDB_HOST,
-    database: process.env.POSTGRESDB_DATABASE,
-    password: process.env.POSTGRESDB_ROOT_PASSWORD,
-    port: 5432,
+// Error handling middleware
+app.use(errorHandler);
+
+app.get('/', (req, res) => {
+    res.send('Welcome to my server!');
 });
-
-pool.connect((err) => {
-    if (err) {
-        console.error('Error connecting to PostgreSQL database', err);
-    } else {
-        console.log('Connected to PostgreSQL database');
-    }
-});
-
-// Assurez-vous que le chemin est correct
-const subscriptionRoutes = require('./routes/subscriptionRoutes');
-app.use('/api', subscriptionRoutes);
 
 const server = app.listen(PORT, () => {
     console.log(`App is listening at http://localhost:${PORT}`);
 });
 
+// Global error handler for unhandled rejections
 process.on("unhandledRejection", err => {
-    console.error(`An unhandled rejection occurred: ${err.message}`);
+    console.log(`Une erreur a eu lieu: ${err.message}`);
     server.close(() => process.exit(1));
 });

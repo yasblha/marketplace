@@ -15,20 +15,19 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import axios from 'axios';
-import apiClient from '@/utils/api'; // Assurez-vous que le chemin est correct
+import apiClient from '@/services/api';
 
 const email = ref('');
 const alertType = ref('newProduct');
 
 const subscribe = async () => {
   try {
-    const response = await apiClient.post('/subscribe', { email: email.value, alertType: alertType.value, userToken: 'dummyTokenForTesting' });
+    const response = await apiClient.post('/alerts/subscribe', { email: email.value, alertType: alertType.value, userToken: 'dummyTokenForTesting' });
     alert(`Subscription successful: ${response.data.message}`);
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error(error);
 
-    if (axios.isAxiosError(error) && error.response && error.response.data && error.response.data.message) {
+    if (error.response && error.response.data && error.response.data.message) {
       alert(`Subscription failed: ${error.response.data.message}`);
     } else if (error instanceof Error) {
       alert(`Subscription failed: ${error.message}`);
