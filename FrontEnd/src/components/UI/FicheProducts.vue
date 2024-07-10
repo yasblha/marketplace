@@ -1,129 +1,32 @@
 <template>
-
     <div class="itemsView">
-
-        <a href="/OneProduct">
+        <a :href="'/product/' + product._id" v-for="product in products" :key="product._id">
             <div class="OneProduct">
-                <img src="/src/assets/outfit1.jpg" alt="">
-                <h2>Graphic Design</h2>
-                <p>English Departement</p>
+                <img :src="product.images[0]" :alt="product.name">
+                <h2>{{ product.name }}</h2>
+                <p>{{ product.category }}</p>
                 <div class="prices">
-                    <span class="priceNormal">$16,48</span>
-                    <span class="priceBlue">$6,48</span>
+                    <span class="priceNormal">${{ product.price.toFixed(2) }}</span>
+                    <span class="priceBlue">${{ (product.price * 0.6).toFixed(2) }}</span>
                 </div>
             </div>
         </a>
-
-        <a href="/OneProduct">
-            <div class="OneProduct">
-                <img src="/src/assets/outfit2.jpg" alt="">
-                <h2>Graphic Design</h2>
-                <p>English Departement</p>
-                <div class="prices">
-                    <span class="priceNormal">$16,48</span>
-                    <span class="priceBlue">$6,48</span>
-                </div>
-            </div>
-        </a>
-
-        <a href="/OneProduct">
-
-            <div class="OneProduct">
-                <img src="/src/assets/outfit3.jpg" alt="">
-                <h2>Graphic Design</h2>
-                <p>English Departement</p>
-                <div class="prices">
-                    <span class="priceNormal">$16,48</span>
-                    <span class="priceBlue">$6,48</span>
-                </div>
-            </div>
-        </a>
-
-        <a href="/OneProduct">
-            <div class="OneProduct">
-                <img src="/src/assets/outfit4.jpg" alt="">
-                <h2>Graphic Design</h2>
-                <p>English Departement</p>
-                <div class="prices">
-                    <span class="priceNormal">$16,48</span>
-                    <span class="priceBlue">$6,48</span>
-                </div>
-            </div>
-        </a>
-
-        <a href="/OneProduct">
-            <div class="OneProduct">
-                <img src="/src/assets/outfit3.jpg" alt="">
-                <h2>Graphic Design</h2>
-                <p>English Departement</p>
-                <div class="prices">
-                    <span class="priceNormal">$16,48</span>
-                    <span class="priceBlue">$6,48</span>
-                </div>
-            </div>
-
-        </a>
-
-        <a href="/OneProduct">
-            <div class="OneProduct">
-                <img src="/src/assets/outfit2.jpg" alt="">
-                <h2>Graphic Design</h2>
-                <p>English Departement</p>
-                <div class="prices">
-                    <span class="priceNormal">$16,48</span>
-                    <span class="priceBlue">$6,48</span>
-                </div>
-            </div>
-        </a>
-
-
-        <a href="/OneProduct">
-
-            <div class="OneProduct">
-                <img src="/src/assets/outfit1.jpg" alt="">
-                <h2>Graphic Design</h2>
-                <p>English Departement</p>
-                <div class="prices">
-                    <span class="priceNormal">$16,48</span>
-                    <span class="priceBlue">$6,48</span>
-                </div>
-            </div>
-        </a>
-
-        <a href="/OneProduct">
-            <div class="OneProduct">
-                <img src="/src/assets/outfit4.jpg" alt="">
-                <h2>Graphic Design</h2>
-                <p>English Departement</p>
-                <div class="prices">
-                    <span class="priceNormal">$16,48</span>
-                    <span class="priceBlue">$6,48</span>
-                </div>
-            </div>
-
-        </a>
-
-        <a href="/OneProduct">
-
-            <div class="OneProduct">
-                <img src="/src/assets/outfit2.jpg" alt="">
-                <h2>Graphic Design</h2>
-                <p>English Departement</p>
-                <div class="prices">
-                    <span class="priceNormal">$16,48</span>
-                    <span class="priceBlue">$6,48</span>
-                </div>
-            </div>
-        </a>
-
     </div>
 </template>
 
-<script>
-export default {
-    name: 'FicheProducts',
-};
+
+<script setup lang="ts">
+import { ref } from 'vue';
+import { products, Product } from '/src/products_simulate/product_data.ts';
+
+const productList = ref<Product[]>(products);
+
+
+
+
+        
 </script>
+
 
 <style scoped>
 div.itemsView {
@@ -132,7 +35,8 @@ div.itemsView {
     gap: 20px;
     margin: 25px auto;
     padding: 0 15px;
-    max-width: 1200px; /* Limitez la largeur maximale */
+    max-width: 1200px;
+    /* Limitez la largeur maximale */
 }
 
 div.OneProduct {
@@ -146,18 +50,21 @@ div.OneProduct img {
     width: 100%;
     max-width: 100%;
     height: auto;
-    margin-bottom: 10px; /* Ajoutez un espace entre l'image et le texte */
+    margin-bottom: 10px;
+    /* Ajoutez un espace entre l'image et le texte */
 }
 
 div.OneProduct h2 {
-    font-size: 18px; /* Ajustez la taille de la police */
+    font-size: 18px;
+    /* Ajustez la taille de la police */
     margin-top: 6px;
 }
 
 div.OneProduct p {
     font-size: 14px;
     color: grey;
-    margin-bottom: 10px; /* Ajoutez un espace en bas du paragraphe */
+    margin-bottom: 10px;
+    /* Ajoutez un espace en bas du paragraphe */
 }
 
 div.prices {

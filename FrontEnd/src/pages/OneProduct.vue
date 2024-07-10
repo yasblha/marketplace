@@ -31,46 +31,22 @@ import NavigationBar from "../components/UI/NavigationBar.vue";
 import Footer from "../components/UI/Footer.vue";
 import Paiement_product from "../components/UI/Buttons/Paiement_product.vue";
 import Sizes from "../components/UI/Buttons/Sizes.vue";
+import { products, Product } from '/src/products_simulate/product_data.ts';
 
-interface Product {
-    _id: string;
-    name: string;
-    description: string;
-    category: string;
-    vendor: string;
-    price: number;
-    images: string[];
-}
+
 
 const route = useRoute();
 const productId = route.params.id as string;
 const product = ref<Product | null>(null);
 
-const mockProducts: Product[] = [
-    {
-        _id: '1',
-        name: 'Natural Honey Bottle',
-        description: 'Pure honey harvested from organic farms.',
-        category: 'Food',
-        vendor: 'HoneyVendor',
-        price: 99.99,
-        images: [
-            '/src/assets/outfit1.jpg',
-            '/src/assets/outfit2.jpg',
-            '/src/assets/outfit3.jpg',
-            '/src/assets/outfit4.jpg'
-        ]
-    },
-    // Add more mock products as needed
-];
-
 const fetchProductById = (id: string): Product | undefined => {
-    return mockProducts.find(product => product._id === id);
+    return products.find(product => product._id === id);
 };
 
 onMounted(() => {
     product.value = fetchProductById(productId) || null;
 });
+
 </script>
 
 <style scoped>
