@@ -49,8 +49,5 @@ jobs:
       env:
         SERVER_IP: ${{ secrets.SERVER_IP }}
         SERVER_USER: ${{ secrets.SERVER_USER }}
-        SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
       run: |
-        echo "$SSH_PRIVATE_KEY" > deploy_key.pem
-        chmod 600 deploy_key.pem
-        ssh -i deploy_key.pem -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "cd /home/yassine/marketplace/marketplace && git pull && docker-compose up -d --build"
+        ssh $SERVER_USER@$SERVER_IP "cd /home/yassine/marketplace/marketplace && git pull && docker-compose up -d --build"
