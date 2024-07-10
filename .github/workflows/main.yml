@@ -46,12 +46,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Add SSH key
+    - name: Setup SSH
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
+        SERVER_IP: ${{ secrets.SERVER_IP }}
       run: |
-        echo "$SSH_PRIVATE_KEY" > deploy_key.pem
-        chmod 600 deploy_key.pem
-    - name: Add server to known_hosts
-      run: |
+        mkdir -p ~/.ssh
+        echo "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key.pem
+        chmod 600 ~/.ssh/deploy_key.pem
         ssh-keyscan -H $SERVER_IP >> ~/.ssh/known_hosts
     - name: Deploy to server
       env:
