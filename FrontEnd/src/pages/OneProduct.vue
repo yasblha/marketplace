@@ -1,111 +1,91 @@
 <template>
-
-
     <NavigationBar />
 
     <section class="produits">
-
-        <div class="GlobalItem">
-
-
-            <div class="images" :style="{ gridTemplateColumns: gridTemplateColumns }">
-
-                <img src="/src/assets/outfit1.jpg" alt="">
-                <img src="/src/assets/outfit3.jpg" alt="">
-                <img src="/src/assets/outfit2.jpg" alt="">
-                <img src="/src/assets/outfit4.jpg" alt="">
-
+        <div class="GlobalItem" v-if="product">
+            <div class="images">
+                <img v-for="image in product.images" :src="image" :key="image" alt="">
             </div>
 
             <div class="itemDetails">
-
-                <h2>Natural Honey Bottle</h2>
-                <span>$99</span>
+                <h2>{{ product.name }}</h2>
+                <span>{{ product.price }}</span>
                 <div class="description">
-                    <span>Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-                        sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</span>
+                    <span>{{ product.description }}</span>
                     <br>
-                    <span class="source">By Vendor Name</span>
+                    <span class="source">By {{ product.vendor }}</span>
                 </div>
                 <Sizes />
                 <Paiement_product />
-
-
             </div>
-
-
         </div>
-
     </section>
 
     <Footer />
-
 </template>
 
-
-<script>
-
-import axiosInstance from "@/services/api";
-import router from "../router/router";
+<script setup lang="ts">
+import { ref, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 import NavigationBar from "../components/UI/NavigationBar.vue";
 import Footer from "../components/UI/Footer.vue";
-import BestSellers_Products from "../components/UI/BestSellers_Products.vue";
-import FicheProducts from "../components/UI/FicheProducts.vue";
 import Paiement_product from "../components/UI/Buttons/Paiement_product.vue";
 import Sizes from "../components/UI/Buttons/Sizes.vue";
 
+interface Product {
+    _id: string;
+    name: string;
+    description: string;
+    category: string;
+    vendor: string;
+    price: number;
+    images: string[];
+}
 
+const route = useRoute();
+const productId = route.params.id as string;
+const product = ref<Product | null>(null);
 
-export default {
-
-    name: 'OneProduct',
-
-    components: {
-
-        NavigationBar,
-        Footer,
-        FicheProducts,
-        Paiement_product,
-        Sizes,
+const mockProducts: Product[] = [
+    {
+        _id: '1',
+        name: 'Natural Honey Bottle',
+        description: 'Pure honey harvested from organic farms.',
+        category: 'Food',
+        vendor: 'HoneyVendor',
+        price: 99.99,
+        images: [
+            '/src/assets/outfit1.jpg',
+            '/src/assets/outfit2.jpg',
+            '/src/assets/outfit3.jpg',
+            '/src/assets/outfit4.jpg'
+        ]
     },
-    // props: {
-    //   nbImages: Number,
-    //   images: Array, // Array of image data
-    // },
-    // computed: {
-    //   gridTemplateColumns() {
-    //     if (this.nbImages === 1) {
-    //       return 'flex';
-    //     } else if (this.nbImages === 2) {
-    //       return 'repeat(2, 1fr)';
-    //     } else {
-    //       return 'repeat(auto-fit, minmax(250px, 1fr))'; // Responsive grid
-    //     }
-    //   },
-    // },
+    // Add more mock products as needed
+];
 
+const fetchProductById = (id: string): Product | undefined => {
+    return mockProducts.find(product => product._id === id);
 };
 
-
-
-
+onMounted(() => {
+    product.value = fetchProductById(productId) || null;
+});
 </script>
 
-<style>
+<style scoped>
+
 section {}
 
 div.GlobalItem {
-
     display: flex;
     margin: auto;
     width: 82%;
-
 }
 
 div.itemDtails {}
 
 div.images {
-
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     grid-template-rows: repeat(2, 1fr);
@@ -113,37 +93,29 @@ div.images {
 }
 
 div.images img {
-
     width: 195px;
     height: 225px;
-    /* border: 1px solid grey; */
     padding: 7px;
-
 }
 
 div.itemDetails {
     padding: 44px;
     width: 100%;
-
 }
 
 div.itemDetails h2 {
     font-weight: 700;
-
 }
 
 div.itemDetails span {}
 
 div.description {
-
-    WIDTH: 70%;
+    width: 70%;
     font-size: 14px;
 }
 
 div.description span {
-
     font-weight: 600;
-
 }
 
 span.source {}
@@ -209,11 +181,6 @@ span.source {}
 
     div.itemDetails {
         padding: 10px;
-    }
-
-    div.description {
-        width: 100%;
-        font-size: 11px;
     }
 
 }
