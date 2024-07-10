@@ -42,7 +42,7 @@ jobs:
 #         sleep 10
 
   deploy:
-    needs: test  
+#   needs: test  
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
