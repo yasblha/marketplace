@@ -1,85 +1,148 @@
 <template>
     <NavigationBar />
+
     <section>
-      <div class="titles">
-        <h2>Your cart</h2>
-        <span>Not ready to checkout? Continue Shopping</span>
-      </div>
-      <div class="globalPanier">
-        <div class="ProductFiche" v-for="product in cartProducts" :key="product.id">
-          <div class="produit">
-            <input type="checkbox" class="selected" v-model="product.selected">
-            <img :src="product.image" alt="">
-            <div class="infos">
-              <div class="titleChekbox">
-                <h3>{{ product.name }}</h3>
-                <span class="PriceNumber">\${{ product.price }}</span>
-              </div>
-              <span>Size : L</span>
-              <div class="Qte">
-                <label for="quantitySelect">Quantité </label>
-                <div class="custom-select-container">
-                  <select v-model="product.selectedQuantity" id="quantitySelect" class="selectQuantie">
-                    <option value="" disabled selected hidden>Choisissez une option...</option>
-                    <option v-for="num in 10" :key="num" :value="num">{{ num }}</option>
-                    <option value="+10">+10</option>
-                  </select>
-                  <input class="selectinput" v-if="product.selectedQuantity === '+10'" type="text"
-                         v-model="product.exactQuantity" placeholder="Quantité exacte">
+        <div class="titles">
+            <h2>Your cart</h2>
+            <span>Not ready to checkout? Continue Shopping</span>
+        </div>
+        <div class="globalPanier">
+
+            <div class="ProductFiche">
+
+                <div class="produit">
+                    <input type="checkbox" class="selected" checked>
+                    <img src="/src/assets/outfit1.jpg" alt="">
+                    <div class="infos">
+                        <div class="titleChekbox">
+                            <h3>Nom du produit</h3>
+                            <span class="PriceNumber">$99</span>
+                        </div>
+                        <span>Size : L</span>
+                        <div class="Qte">
+                            <label for="quantitySelect">Quantité </label>
+                            <div class="custom-select-container">
+                                <select v-model="selectedQuantity" id="quantitySelect" class="selectQuantie">
+                                    <option value="" disabled selected hidden>Choisissez une option...</option>
+                                    <option v-for="num in 10" :key="num" :value="num">{{ num }}</option>
+                                    <option value="+10">+10</option>
+                                </select>
+                                <input class="selectinput" v-if="selectedQuantity === '+10'" type="text"
+                                    v-model="exactQuantity" placeholder="Quantité exacte">
+                            </div>
+                        </div>
+                        <div class="priceDelete">
+                            <button @click="removeProduct">Supprimer</button>
+                        </div>
+                    </div>
                 </div>
-              </div>
-              <div class="priceDelete">
-                <button @click="removeProduct(product.id)">Supprimer</button>
-              </div>
+                <!-- <div class="produit">
+                    <img src="/src/assets/outfit3.jpg" alt="">
+                    <div class="infos">
+                        <div class="titleChekbox">
+                            <h3>Nom du produit</h3>
+                            <input type="checkbox" class="selected">
+
+                        </div> <span>Size : L</span>
+                        <span>Quantity:1</span>
+                        <div class="priceDelete">
+                            <span>$99</span>
+                            <button @click="removeProduct">Remove</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="produit">
+                    <img src="/src/assets/outfit3.jpg" alt="">
+                    <div class="infos">
+                        <div class="titleChekbox">
+                            <h3>Nom du produit</h3>
+                            <input type="checkbox" class="selected">
+
+                        </div> <span>Size : L</span>
+                        <span>Quantity:1</span>
+                        <div class="priceDelete">
+                            <span>$99</span>
+                            <button @click="removeProduct">Remove</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="produit">
+                    <img src="/src/assets/outfit3.jpg" alt="">
+                    <div class="infos">
+                        <div class="titleChekbox">
+                            <h3>Nom du produit</h3>
+                            <input type="checkbox" class="selected">
+
+                        </div> <span>Size : L</span>
+                        <span>Quantity:1</span>
+                        <div class="priceDelete">
+                            <span>$99</span>
+                            <button @click="removeProduct">Remove</button>
+                        </div>
+                    </div>
+                </div> -->
+
+                <div class="SelectAll">
+                    <span>Tout selectionner</span>
+                    <input type="checkbox" id="selectAll">
+
+                </div>
             </div>
-          </div>
+            <div class="paiments">
+                <h2>Order Summary</h2>
+                <input type="text" placeholder="Enter coupon code here">
+                <br><br>
+                <div>
+                    <span>Subtotal</span>
+                    <span>$99</span>
+                </div>
+                <div>
+
+                    <span>Shipping</span>
+                    <span>Calculated at the next step</span>
+                </div>
+                <div>
+
+                    <span>total</span>
+                    <span>$100</span>
+                </div>
+                <br>
+                <br>
+                <button>Continue to checkout</button>
+
+
+            </div>
+
         </div>
-        <div class="SelectAll">
-          <span>Tout selectionner</span>
-          <input type="checkbox" id="selectAll" v-model="selectAll">
+
+        <div class="OrderF">
+            <h3>Order Information</h3>
+            <div class="buttonAndText">
+                <div class="">
+                    <span>Return Policy</span>
+                    <button @click="toggleText('text1')">{{ isText1Visible ? '-' : '+' }}</button>
+                </div>
+                <p v-show="isText1Visible" class="text1">This is our example return policy which is everything you need
+                    to know about our returns.</p>
+            </div>
+            <div class="buttonAndText">
+                <div class="">
+                    <span>Shipping Options</span>
+                    <button @click="toggleText('text2')">{{ isText2Visible ? '-' : '+' }}</button>
+                </div>
+                <p v-show="isText2Visible" class="text2">This is our example return policy which is everything you need
+                    to know about our returns.</p>
+            </div>
+            <br>
         </div>
-        <div class="paiments">
-          <h2>Order Summary</h2>
-          <input type="text" placeholder="Enter coupon code here">
-          <br><br>
-          <div>
-            <span>Subtotal</span>
-            <span>\${{ subtotal }}</span>
-          </div>
-          <div>
-            <span>Shipping</span>
-            <span>Calculated at the next step</span>
-          </div>
-          <div>
-            <span>Total</span>
-            <span>\${{ total }}</span>
-          </div>
-          <br><br>
-          <button>Continue to checkout</button>
-        </div>
-      </div>
-      <div class="OrderF">
-        <h3>Order Information</h3>
-        <div class="buttonAndText">
-          <div class="">
-            <span>Return Policy</span>
-            <button @click="toggleText('text1')">{{ isText1Visible ? '-' : '+' }}</button>
-          </div>
-          <p v-show="isText1Visible" class="text1">This is our example return policy which is everything you need to know about our returns.</p>
-        </div>
-        <div class="buttonAndText">
-          <div class="">
-            <span>Shipping Options</span>
-            <button @click="toggleText('text2')">{{ isText2Visible ? '-' : '+' }}</button>
-          </div>
-          <p v-show="isText2Visible" class="text2">This is our example return policy which is everything you need to know about our returns.</p>
-        </div>
-        <br>
-      </div>
+
+
     </section>
     <Footer />
-  </template>
-  
+
+
+
+</template>
 <script>
 import axiosInstance from "@/services/api";
 import router from "../router/router";
@@ -90,67 +153,70 @@ import FicheProducts from "../components/UI/FicheProducts.vue";
 import Paiement_product from "../components/UI/Buttons/Paiement_product.vue";
 import Sizes from "../components/UI/Buttons/Sizes.vue";
 
+
 export default {
-  name: 'Panier',
-  components: {
-    NavigationBar,
-    Footer,
-    FicheProducts,
-    Paiement_product,
-    Sizes,
-  },
-  data() {
-    return {
-      isText1Visible: false,
-      isText2Visible: false,
-      selectAll: false,
-      cartProducts: [
-        {
-          id: 1,
-          name: 'Nom du produit',
-          price: 99,
-          image: '/src/assets/outfit1.jpg',
-          selectedQuantity: 1,
-          exactQuantity: 1,
-          selected: true,
+
+    name: 'Panier',
+
+    components: {
+
+        NavigationBar,
+        Footer,
+        FicheProducts,
+        Paiement_product,
+        Sizes,
+    },
+    data() {
+        return {
+            isText1Visible: false,
+            isText2Visible: false,
+        };
+
+    },
+    data() {
+
+        return {
+            selectedQuantity: null, // Pour stocker la quantité sélectionnée
+            exactQuantity: 1 // Par défaut, la quantité exacte est 1
+        };
+    },
+
+    mounted() {
+        const selectAllCheckbox = document.getElementById('selectAll');
+        const productCheckboxes = document.querySelectorAll('.selected');
+
+        selectAllCheckbox.addEventListener('change', () => {
+            const isChecked = selectAllCheckbox.checked;
+            productCheckboxes.forEach((checkbox) => {
+                checkbox.checked = isChecked;
+            });
+        });
+    },
+    methods: {
+        toggleText(text) {
+            if (text === 'text1') {
+                this.isText1Visible = !this.isText1Visible;
+            } else if (text === 'text2') {
+                this.isText2Visible = !this.isText2Visible;
+            }
         },
-        // Ajoutez d'autres produits ici
-      ],
-    };
-  },
-  watch: {
-    selectAll(newValue) {
-      this.cartProducts.forEach(product => {
-        product.selected = newValue;
-      });
-    }
-  },
-  computed: {
-    subtotal() {
-      return this.cartProducts.reduce((acc, product) => {
-        const quantity = product.selectedQuantity === '+10' ? product.exactQuantity : product.selectedQuantity;
-        return acc + (product.selected ? product.price * quantity : 0);
-      }, 0);
     },
-    total() {
-      return this.subtotal; // Ajoutez les frais de livraison si nécessaire
-    }
-  },
-  methods: {
-    toggleText(text) {
-      if (text === 'text1') {
-        this.isText1Visible = !this.isText1Visible;
-      } else if (text === 'text2') {
-        this.isText2Visible = !this.isText2Visible;
-      }
+    methods: {
+        removeProduct(event) {
+            // Trouver le parent `.produit` du bouton cliqué
+            const productElement = event.target.closest('.produit');
+            if (productElement) {
+                // Supprimer l'élément du DOM
+                productElement.remove();
+            }
+        },
+        toggleText(text) {
+            // méthode existante pour afficher/masquer du texte
+        },
     },
-    removeProduct(productId) {
-      this.cartProducts = this.cartProducts.filter(product => product.id !== productId);
-    },
-  },
+
 };
 </script>
-
 
 <style scoped>
 div.globalPanier {

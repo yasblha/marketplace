@@ -12,6 +12,7 @@ import Favorites from '../pages/Favorites.vue';
 
 
 const routes = [
+
     {
         path: '/register',
         name: 'Register',
@@ -33,9 +34,11 @@ const routes = [
         component: Products
     },
     {
-        path: '/Oneproduct',
+        path: '/product/:id',
         name: 'OneProduct',
-        component: OneProduct
+        component: OneProduct,
+        props: true
+
     },
     {
         path: '/panier',
@@ -47,7 +50,7 @@ const routes = [
         name: 'Favorites',
         component: Favorites
     }
-    
+
 
 ];
 
@@ -55,6 +58,6 @@ const routes = [
 const router = createRouter({
     history: createWebHistory(),
     routes
-});
+  });
 
 export default router;
