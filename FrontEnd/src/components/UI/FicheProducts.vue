@@ -2,21 +2,23 @@
   <div class="itemsView">
     <a v-for="product in products" :key="product._id" :href="'/product/' + product._id">
       <div class="OneProduct">
-        <img :src="product.image || defaultImage" :alt="product.name">
+        <img :src="defaultImage" :alt="product.name">
         <h2>{{ product.name }}</h2>
         <p>{{ product.category }}</p>
         <div class="prices">
           <span class="priceNormal">${{ product.price.toFixed(2) }}</span>
-          <!-- Si vous avez un prix réduit, vous pouvez l'ajouter ici -->
-          <!-- <span class="priceBlue">${{ calculateDiscountedPrice(product.price).toFixed(2) }}</span> -->
         </div>
       </div>
     </a>
   </div>
 </template>
 
+
+
+
 <script setup lang="ts">
 import { defineProps, ref } from 'vue';
+import defaultImage from '@/assets/image1.png';
 
 interface Product {
   _id: string;
@@ -27,20 +29,22 @@ interface Product {
   price: number;
   stock_available: number;
   status: string;
-  image: string;
+  images: string[];
 }
 
 const props = defineProps<{
   products: Product[]
 }>();
 
-const defaultImage = ref('../../assets/default-product-image.jpg');
+//const defaultImage = ref(require('@/assets/default-product-image.jpg'));
 
+console.log(props.products);
 // Si vous voulez ajouter une logique pour calculer un prix réduit
 // const calculateDiscountedPrice = (price: number) => {
 //   return price * 0.9; // 10% de réduction
 // };
 </script>
+
 
 <style scoped>
 div.itemsView {

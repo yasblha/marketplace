@@ -8,7 +8,7 @@ import Products from "@/pages/Products.vue";
 import ForgotPassword from "@/pages/ForgotPassword.vue";
 import ConfirmEmail from "@/pages/ConfirmEmail.vue";
 import resetPassword from '@/pages/resetPassword.vue';
-import Admin_dashboard from "@/pages/admin_dashboard.vue";
+import adminDashboard from "@/pages/admin_dashboard.vue";
 import NotFound from "@/pages/NotFound.vue";
 
 
@@ -60,7 +60,7 @@ const routes = [
     {
         path: '/dashboard',
         name: 'adminDashboard',
-        component: Admin_dashboard,
+        component: adminDashboard,
         meta: { requiresAuth: true, requiresAdmin: true } ,
     }
 ];
