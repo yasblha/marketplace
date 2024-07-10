@@ -43,6 +43,7 @@ div.OneProduct {
     text-align: center;
     padding: 17px;
     margin: auto;
+    width: 279px;
 }
 
 div.OneProduct img {
