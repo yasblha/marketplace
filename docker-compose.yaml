@@ -3,7 +3,7 @@ version: '3'
 services:
   nodejs:
     build:
-      context: ./backend/
+      context: ./Backend/
       dockerfile: Dockerfile
     container_name: backend
     restart: always
@@ -13,7 +13,7 @@ services:
     ports:
       - '3000:3000'
     volumes:
-      - ./backend:/backend
+      - ./Backend:/backend
     depends_on:
       - mongo
       - postgres
@@ -58,14 +58,14 @@ services:
 
   frontend:
     build:
-      context: ./frontend/
+      context: ./FrontEnd/
       dockerfile: Dockerfile
     container_name: frontend
     restart: always
     ports:
       - '8080:8080'
     volumes:
-      - ./frontend:/app
+      - ./FrontEnd:/app
     depends_on:
       - nodejs
 
