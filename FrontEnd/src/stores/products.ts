@@ -11,12 +11,11 @@ interface Product {
     price: number;
     stock_available: number;
     status: string;
-    image: string;
+    images: string[];
 }
 
 export const useProductStore = defineStore('product', () => {
     const products = ref<Product[]>([]);
-    debugger;
     const fetchProducts = async (): Promise<void> => {
         const response = await axiosInstance.get('/products/get');
         products.value = response.data.mongoProducts;

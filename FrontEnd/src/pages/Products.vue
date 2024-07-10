@@ -1,6 +1,6 @@
 <template>
   <NavigationBar />
-  <section class="">
+  <section>
     <div class="Barshop">
       <h2>Shop</h2>
       <div>
@@ -39,6 +39,7 @@
   </section>
 </template>
 
+
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { useProductStore } from '@/stores/products';
@@ -46,8 +47,20 @@ import NavigationBar from "../components/UI/NavigationBar.vue";
 import FicheProducts from "../components/UI/FicheProducts.vue";
 import Footer from "@/components/UI/Footer.vue";
 
+interface Product {
+  _id: string;
+  name: string;
+  description: string;
+  category: string;
+  brand: string;
+  price: number;
+  stock_available: number;
+  status: string;
+  images: string[];
+}
+
 const productStore = useProductStore();
-const products = ref(productStore.products);
+const products = ref<Product[]>([]);
 
 const categories = computed(() => {
   const uniqueCategories = new Set(products.value.map(product => product.category));
@@ -59,6 +72,7 @@ onMounted(async () => {
   products.value = productStore.products;
 });
 </script>
+
 
 <style scoped>
 div.Barshop {
