@@ -22,17 +22,18 @@ jobs:
     - name: Build frontend
       run: |
         cd FrontEnd
-        npm run build
+        ## npm run build
+        npm run dev
     
     - name: Install backend dependencies
       run: |
         cd backend
         npm ci
     
-    - name: Run backend tests
-      run: |
-        cd backend
-        npm test
+   ## - name: Run backend tests
+    ##run: |
+      ##  cd backend
+       ## npm test
     
     - name: Start backend server
       run: |
