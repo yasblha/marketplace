@@ -53,7 +53,10 @@ jobs:
         SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
       run: |
         mkdir -p ~/.ssh
-        echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+        echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        eval "$(ssh-agent -s)"
+        ssh-add ~/.ssh/id_rsa
         ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
 
     - name: Deploy to server
@@ -61,4 +64,4 @@ jobs:
         SERVER_IP: ${{ secrets.SERVER_IP }}
         SERVER_USER: ${{ secrets.SERVER_USER }}
       run: |
-        ssh $SERVER_USER@$SERVER_IP "cd /home/yassine/marketplace/marketplace && git pull && docker-compose up -d --build"
+        ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "cd /home/yassine/marketplace/marketplace && git pull && docker-compose up -d --build"
