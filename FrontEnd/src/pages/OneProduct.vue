@@ -1,24 +1,25 @@
+<!-- Product.vue -->
 <template>
   <NavigationBar />
 
   <section class="produits">
-      <div class="GlobalItem" v-if="product">
-          <div class="images">
-              <img v-for="image in product.images" :src="image" :key="image" alt="">
-          </div>
-
-          <div class="itemDetails">
-              <h2>{{ product.name }}</h2>
-              <span>{{ product.price }}</span>
-              <div class="description">
-                  <span>{{ product.description }}</span>
-                  <br>
-                  <span class="source">By {{ product.vendor }}</span>
-              </div>
-              <Sizes />
-              <Paiement_product />
-          </div>
+    <div class="GlobalItem" v-if="product">
+      <div class="images">
+        <img v-for="image in product.images" :src="image" :key="image" alt="">
       </div>
+
+      <div class="itemDetails">
+        <h2>{{ product.name }}</h2>
+        <span>{{ product.price }}</span>
+        <div class="description">
+          <span>{{ product.description }}</span>
+          <br>
+          <span class="source">By {{ product.vendor }}</span>
+        </div>
+        <Sizes />
+        <Paiement_product :productId="product._id" @addToCart="handleAddToCart" />
+      </div>
+    </div>
   </section>
 
   <Footer />
@@ -31,47 +32,36 @@ import NavigationBar from "../components/UI/NavigationBar.vue";
 import Footer from "../components/UI/Footer.vue";
 import Paiement_product from "../components/UI/Buttons/Paiement_product.vue";
 import Sizes from "../components/UI/Buttons/Sizes.vue";
-
-interface Product {
-  _id: string;
-  name: string;
-  description: string;
-  category: string;
-  vendor: string;
-  price: number;
-  images: string[];
-}
+import { products } from './../products_simulate/products_data';
+import type { Product } from './../products_simulate/products_data';
+import { useCartStore } from '@/stores/cart';
 
 const route = useRoute();
 const productId = route.params.id as string;
 const product = ref<Product | null>(null);
-
-const mockProducts: Product[] = [
-  {
-      _id: '1',
-      name: 'Natural Honey Bottle',
-      description: 'Pure honey harvested from organic farms.',
-      category: 'Food',
-      vendor: 'HoneyVendor',
-      price: 99.99,
-      images: [
-          '/src/assets/outfit1.jpg',
-          '/src/assets/outfit2.jpg',
-          '/src/assets/outfit3.jpg',
-          '/src/assets/outfit4.jpg'
-      ]
-  },
-  // Add more mock products as needed
-];
+const cartStore = useCartStore();
 
 const fetchProductById = (id: string): Product | undefined => {
-  return mockProducts.find(product => product._id === id);
+  return products.find(product => product._id === id);
 };
 
 onMounted(() => {
   product.value = fetchProductById(productId) || null;
+  console.log('Product loaded:', product.value);
 });
+
+const handleAddToCart = ({ productId, quantity }: { productId: string; quantity: number }) => {
+  console.log('Product added to cart:', productId, 'Quantity:', quantity);
+  cartStore.addToCart(productId, quantity);
+  console.log('Updated Cart in Product.vue:', cartStore.cart);
+};
 </script>
+
+
+
+
+
+
 
 <style scoped>
 
