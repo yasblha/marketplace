@@ -36,52 +36,6 @@
                         </div>
                     </div>
                 </div>
-                <!-- <div class="produit">
-                    <img src="/src/assets/outfit3.jpg" alt="">
-                    <div class="infos">
-                        <div class="titleChekbox">
-                            <h3>Nom du produit</h3>
-                            <input type="checkbox" class="selected">
-
-                        </div> <span>Size : L</span>
-                        <span>Quantity:1</span>
-                        <div class="priceDelete">
-                            <span>$99</span>
-                            <button @click="removeProduct">Remove</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="produit">
-                    <img src="/src/assets/outfit3.jpg" alt="">
-                    <div class="infos">
-                        <div class="titleChekbox">
-                            <h3>Nom du produit</h3>
-                            <input type="checkbox" class="selected">
-
-                        </div> <span>Size : L</span>
-                        <span>Quantity:1</span>
-                        <div class="priceDelete">
-                            <span>$99</span>
-                            <button @click="removeProduct">Remove</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="produit">
-                    <img src="/src/assets/outfit3.jpg" alt="">
-                    <div class="infos">
-                        <div class="titleChekbox">
-                            <h3>Nom du produit</h3>
-                            <input type="checkbox" class="selected">
-
-                        </div> <span>Size : L</span>
-                        <span>Quantity:1</span>
-                        <div class="priceDelete">
-                            <span>$99</span>
-                            <button @click="removeProduct">Remove</button>
-                        </div>
-                    </div>
-                </div> -->
-
                 <div class="SelectAll">
                     <span>Tout selectionner</span>
                     <input type="checkbox" id="selectAll">

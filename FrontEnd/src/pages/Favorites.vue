@@ -9,14 +9,25 @@
         </div>
         <div class="lesproduits">
             <div v-for="(product, index) in favoriteProducts" :key="index" class="produit">
-                <img class="productImage" :src="product.images[0]" alt="Product Image" />
-                <div class="productinfos">
-                    <span>{{ product.name }}</span>
-                    <FavoritesIcon :isInitiallyFavorited="product.isFavorited"
-                        @update:isFavorited="(isFavorited) => updateFavorite(product._id, isFavorited)" />
-                </div>
-                <div class="price">
-                    <span>{{ product.price }}</span>
+                <div class="productWrapper" @mouseover="hoverProduct(index)" @mouseleave="leaveProduct()">
+                    <router-link :to="'/product/' + product._id">
+                        <img class="productImage" :src="product.images[0]" :alt="product.name" />
+                    </router-link>
+                    <div class="productHover" v-if="hoveredIndex === index">
+                        <router-link :to="'/product/' + product._id">
+                            <div class="paiementNf">
+                                <PaiementNow />
+                            </div>
+                        </router-link>
+                    </div>
+                    <div class="productinfos">
+                        <span>{{ product.name }}</span>
+                        <FavoritesIcon :isInitiallyFavorited="product.isFavorited"
+                            @update:isFavorited="(isFavorited) => updateFavorite(product._id, isFavorited)" />
+                    </div>
+                    <div class="price">
+                        <span>{{ product.price }}</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -29,10 +40,10 @@ import { ref, computed } from 'vue';
 import NavigationBar from "@/components/UI/NavigationBar.vue";
 import Footer from "@/components/UI/Footer.vue";
 import FavoritesIcon from '@/components/UI/Buttons/FavoritesIcon.vue';
+import PaiementNow from '@/components/UI/Buttons/PaiementNow.vue';// Assurez-vous que le chemin est correct
 import type { Product } from '@/products_simulate/product_data';
 import { products as simulatedProducts } from '@/products_simulate/product_data';
 
-// Declare fetchedProducts as a reactive reference
 const fetchedProducts = ref<Product[]>(simulatedProducts);
 
 const favoriteProducts = computed(() => {
@@ -44,6 +55,17 @@ const updateFavorite = (productId: string, isFavorited: boolean) => {
     if (product) {
         product.isFavorited = isFavorited;
     }
+};
+
+// State for tracking which product is being hovered
+const hoveredIndex = ref<number | null>(null);
+
+const hoverProduct = (index: number) => {
+    hoveredIndex.value = index;
+};
+
+const leaveProduct = () => {
+    hoveredIndex.value = null;
 };
 </script>
 
@@ -74,30 +96,55 @@ div.lesproduits {
     justify-content: center;
 }
 
-div.produit {
+.productWrapper {
+    position: relative;
     width: 220px;
     margin-left: 4px;
     padding: 17px;
 }
 
 .productImage {
-    width: -webkit-fill-available;
-    margin: auto;
+    width: 100%;
     height: auto;
+    transition: opacity 0.3s ease;
 }
 
-div.productinfos {
+.productWrapper:hover .productImage {
+    opacity: 0.7;
+}
+
+.productHover {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: none;
+}
+
+.productWrapper:hover .productHover {
+    display: block;
+}
+
+.productinfos {
     display: flex;
     justify-content: space-between;
+    margin-top: 8px;
 }
 
-svg{
-    
+.productinfos span {
+    font-weight: bold;
 }
 
-div.productinfos span {}
+.price {
+    margin-top: 8px;
+}
 
-div.price {}
+.price span {
+    font-size: 18px;
+    font-weight: bold;
+}
 
-div.price span {}
+div.paiementNf {
+    width: 100%;
+}
 </style>

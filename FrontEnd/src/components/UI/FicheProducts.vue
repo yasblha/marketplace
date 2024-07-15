@@ -1,26 +1,23 @@
 <template>
     <div class="itemsView">
-        <div v-for="product in productList" :key="product._id">
-            <a :href="'/product/' + product._id">
-                <div class="OneProduct">
-                    <img :src="product.images[0]" :alt="product.name">
-                    <h2>{{ product.name }}</h2>
-                    <p>{{ product.category }}</p>
-                    <div class="prices">
-                        <span class="priceNormal">${{ product.price.toFixed(2) }}</span>
-                        <span class="priceBlue">${{ (product.price * 0.6).toFixed(2) }}</span>
-                    </div>
-                    <div class="hoverButtons">
-                        <button class="addToCart" @click.stop="addToCart(product._id)">Add to Cart</button>
-                        <div>
-                            <FavoritesIcon :isInitiallyFavorited="product.isFavorited"
-                                @update:isFavorited="(isFavorited) => updateFavorite(product._id, isFavorited)"
-                                @click.stop />
-                        </div>
+        <a :href="'/product/' + product._id" v-for="product in productList" :key="product._id">
+            <div class="OneProduct">
+                <img :src="product.images[0]" :alt="product.name">
+                <h2>{{ product.name }}</h2>
+                <p>{{ product.category }}</p>
+                <div class="prices">
+                    <span class="priceNormal">${{ product.price.toFixed(2) }}</span>
+                    <span class="priceBlue">${{ (product.price * 0.6).toFixed(2) }}</span>
+                </div>
+                <div class="hoverButtons">
+                    <button class="addToCart">Add to Cart</button>
+                    <div>
+                        <FavoritesIcon :isInitiallyFavorited="product.isFavorited"
+                            @update:isFavorited="(isFavorited) => updateFavorite(product._id, isFavorited)" />
                     </div>
                 </div>
-            </a>
-        </div>
+            </div>
+        </a>
     </div>
 </template>
 
@@ -38,13 +35,7 @@ const updateFavorite = (productId: string, isFavorited: boolean) => {
         product.isFavorited = isFavorited;
     }
 };
-
-const addToCart = (productId: string) => {
-    // Logic for adding the product to the cart
-    console.log(`Product ${productId} added to cart`);
-};
 </script>
-
 
 <style scoped>
 div.itemsView {
@@ -68,6 +59,7 @@ div.OneProduct {
 
 div.OneProduct:hover {
     background-color: rgba(255, 255, 255, 0.8);
+    opacity: 0.7;
 }
 
 div.OneProduct img {

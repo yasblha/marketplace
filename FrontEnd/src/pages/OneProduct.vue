@@ -17,6 +17,11 @@
                 </div>
                 <Sizes />
                 <Paiement_product />
+                <div class="PaiementOneProduct">
+                    <PaiementNow />
+                </div>
+              
+
             </div>
         </div>
     </section>
@@ -30,6 +35,8 @@ import { useRoute } from 'vue-router';
 import NavigationBar from "../components/UI/NavigationBar.vue";
 import Footer from "../components/UI/Footer.vue";
 import Paiement_product from "../components/UI/Buttons/Paiement_product.vue";
+import PaiementNow from "../components/UI/Buttons/PaiementNow.vue";
+
 import Sizes from "../components/UI/Buttons/Sizes.vue";
 
 // Importer l'interface Product en tant qu'importation de type uniquement
@@ -57,6 +64,9 @@ div.GlobalItem {
     display: flex;
     margin: auto;
     width: 82%;
+}
+div.PaiementOneProduct{
+    width: 48%;
 }
 
 div.itemDtails {}
