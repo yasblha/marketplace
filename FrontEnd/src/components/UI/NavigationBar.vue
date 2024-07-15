@@ -29,15 +29,10 @@
 <script>
 import { ref } from 'vue';
 
-export default {
-    name: 'NavigationBar',
-    setup() {
-        const isMenuOpen = ref(false);
-        const toggleMenu = () => {
-            isMenuOpen.value = !isMenuOpen.value;
-        };
-        return { isMenuOpen, toggleMenu };
-    }
+const isMenuOpen = ref(false);
+
+const toggleMenu = () => {
+    isMenuOpen.value = !isMenuOpen.value;
 };
 </script>
 
@@ -97,6 +92,7 @@ export default {
     font-weight: 500;
 
 }
+
 .menu-button {
     display: none;
     background: none;
@@ -108,7 +104,9 @@ export default {
 
 
 @media (max-width: 768px) {
-    .links, .linkTwo {
+
+    .links,
+    .linkTwo {
         display: none;
         flex-direction: column;
         width: 100%;
@@ -119,11 +117,13 @@ export default {
         border-top: 1px solid #ccc;
     }
 
-    .links.show, .linkTwo.show {
+    .links.show,
+    .linkTwo.show {
         display: flex;
     }
 
-    .links li, .linkTwo li {
+    .links li,
+    .linkTwo li {
         margin: 10px 0;
         text-align: center;
     }

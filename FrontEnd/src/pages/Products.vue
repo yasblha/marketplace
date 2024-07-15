@@ -60,8 +60,8 @@
 
             </div>
 
-
             <FicheProducts />
+            
             <NextBefore />
 
             <div class="pros">

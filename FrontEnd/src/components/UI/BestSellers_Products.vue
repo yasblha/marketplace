@@ -90,9 +90,11 @@
 
 </template>
 <script>
-export default {
+
+const BestSellers_Products = {
+
     name: 'BestSellers_Products',
-};
+}
 </script>
 
 <style scoped>

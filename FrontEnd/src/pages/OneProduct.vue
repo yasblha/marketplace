@@ -31,9 +31,11 @@ import NavigationBar from "../components/UI/NavigationBar.vue";
 import Footer from "../components/UI/Footer.vue";
 import Paiement_product from "../components/UI/Buttons/Paiement_product.vue";
 import Sizes from "../components/UI/Buttons/Sizes.vue";
-import { products, Product } from '/src/products_simulate/product_data.ts';
 
+// Importer l'interface Product en tant qu'importation de type uniquement
+import type { Product } from '@/products_simulate/product_data';
 
+import { products } from '@/products_simulate/product_data';
 
 const route = useRoute();
 const productId = route.params.id as string;
@@ -46,11 +48,9 @@ const fetchProductById = (id: string): Product | undefined => {
 onMounted(() => {
     product.value = fetchProductById(productId) || null;
 });
-
 </script>
 
 <style scoped>
-
 section {}
 
 div.GlobalItem {

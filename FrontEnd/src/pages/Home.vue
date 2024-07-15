@@ -141,7 +141,7 @@ section.produits {
 div.Oneproducts {
     background-color: white;
     display: flex;
-    flex-direction: column;
+    /* flex-direction: column; */
     align-items: center;
     padding: 20px;
     margin: 20px;
@@ -150,7 +150,7 @@ div.Oneproducts {
 }
 
 .Oneproducts img {
-    width: 100%; /* Image occupant toute la largeur du conteneur */
+    width: 60%; /* Image occupant toute la largeur du conteneur */
     height: auto;
 }
 

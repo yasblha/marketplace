@@ -1,101 +1,87 @@
 <template>
+    <div class="products-container">
+        <div class="pagination-container">
+            <button @click="prevPage" class="pagination-button" :disabled="currentPage === 1">Précédent</button>
 
-<div class="products-container">
-                <div class="pagination-container">
-                    <button @click="prevPage" class="pagination-button" :disabled="currentPage === 1">Précédent</button>
-
-                    <div class="page-numbers">
-                        <span class="page-number" v-for="pageNumber in displayedPages" :key="pageNumber"
-                            @click="goToPage(pageNumber)" :class="{ 'active': currentPage === pageNumber }">{{
-                                pageNumber }}</span>
-                    </div>
-
-                    <button @click="nextPage" class="pagination-button"
-                        :disabled="currentPage === totalPages">Suivant</button>
-                </div>
-
-                <div class="products">
-                    <ImageGrid v-for="(product, index) in products.slice(0, 36)" :key="index" :product="product" />
-                </div>
+            <div class="page-numbers">
+                <span class="page-number" v-for="pageNumber in displayedPages" :key="pageNumber"
+                    @click="goToPage(pageNumber)" :class="{ 'active': currentPage === pageNumber }">
+                    {{ pageNumber }}
+                </span>
             </div>
+
+            <button @click="nextPage" class="pagination-button" :disabled="currentPage === totalPages">Suivant</button>
+        </div>
+
+        <div class="products">
+            <ImageGrid v-for="(product, index) in displayedProducts" :key="index" :product="product" />
+        </div>
+    </div>
 </template>
 
-
-<script>
-
+<script setup lang="ts">
 import axios from 'axios';
-import { ref } from 'vue';
-export default {
-    name: 'NextBefore',
+import { ref, onMounted } from 'vue';
 
-    data() {
-        return {
-            products: [],
-            filteredProducts: [],
-            currentPage: 1,
-            totalPages: 36,
-            perPage: 3,
-            displayedPages: [],// // Number of products to display per page
-        };
-    },
+const currentPage = ref<number>(1); // Specify currentPage as number type
+const totalPages = ref<number>(36); // Specify totalPages as number type
+const perPage = ref<number>(3); // Specify perPage as number type
+const displayedPages = ref<number[]>([]); // Specify type for displayedPages
 
-    mounted() {
-        this.fetchProducts();
-    },
+let products = ref<any[]>([]); // Change to match your product data structure
+let displayedProducts = ref<any[]>([]); // Change to match your product data structure
 
-    methods: {
-        fetchProducts() {
-            axios.get('/api/products')
-                .then(response => {
-                    this.products = response.data;
-                    this.filteredProducts = this.products.slice(0, this.perPage);
-                    this.totalPages = Math.ceil(this.products.length / this.perPage);
-                    this.updateDisplayedPages();
-                })
-                .catch(error => {
-                    console.error('Error fetching products:', error);
-                });
-        },
-
-        prevPage() {
-            if (this.currentPage > 1) {
-                this.currentPage--;
-                this.updateDisplayedPages();
-            }
-        },
-
-        nextPage() {
-            if (this.currentPage < this.totalPages) {
-                this.currentPage++;
-                this.updateDisplayedPages();
-            }
-        },
-
-        goToPage(pageNumber) {
-            this.currentPage = pageNumber;
-            this.updateDisplayedPages();
-        },
-
-        updateDisplayedPages() {
-            const halfWindow = Math.floor((this.perPage - 1) / 2); // Half the number of pages to display before and after current page
-            const startPage = Math.max(1, this.currentPage - halfWindow);
-            const endPage = Math.min(this.totalPages, this.currentPage + halfWindow);
-
-            this.displayedPages = [];
-            for (let i = startPage; i <= endPage; i++) {
-                this.displayedPages.push(i);
-            }
-        },
-    },
-
+const fetchProducts = () => {
+    axios.get('/api/products')
+        .then(response => {
+            products.value = response.data;
+            displayedProducts.value = products.value.slice(0, perPage.value);
+            totalPages.value = Math.ceil(products.value.length / perPage.value);
+            updateDisplayedPages();
+        })
+        .catch(error => {
+            console.error('Error fetching products:', error);
+        });
 };
 
+const prevPage = () => {
+    if (currentPage.value > 1) {
+        currentPage.value--;
+        updateDisplayedPages();
+    }
+};
+
+const nextPage = () => {
+    if (currentPage.value < totalPages.value) {
+        currentPage.value++;
+        updateDisplayedPages();
+    }
+};
+
+const goToPage = (pageNumber: number) => { // Specify pageNumber as number type
+    currentPage.value = pageNumber;
+    updateDisplayedPages();
+};
+
+const updateDisplayedPages = () => {
+    const halfWindow = Math.floor((perPage.value - 1) / 2);
+    const startPage = Math.max(1, currentPage.value - halfWindow);
+    const endPage = Math.min(totalPages.value, currentPage.value + halfWindow);
+
+    displayedPages.value = [];
+    for (let i = startPage; i <= endPage; i++) {
+        displayedPages.value.push(i);
+    }
+
+    // Update displayed products based on current page
+    const startIndex = (currentPage.value - 1) * perPage.value;
+    displayedProducts.value = products.value.slice(startIndex, startIndex + perPage.value);
+};
+
+onMounted(fetchProducts);
 </script>
 
 <style scoped>
-
-
-
 .products-container {
     display: flex;
     flex-direction: column;

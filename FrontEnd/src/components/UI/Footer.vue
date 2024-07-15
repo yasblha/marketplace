@@ -73,9 +73,11 @@
     </footer>
 </template>
 <script>
-export default {
-    name: 'Footer',
-};
+import { ref } from 'vue';
+
+const Footer = {
+  name: 'Footer',
+}
 </script>
 
 <style scoped>
