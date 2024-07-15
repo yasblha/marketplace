@@ -1,5 +1,8 @@
-//const Product = require('../models/mongo_models/Product');
-const Product = require('../services/productService')
+const Product = require('../services/productService');
+const denormalizeProduct = require('../services/denormalizeProduct');
+const Media = require('../models/postgres_models/Media');
+const multer = require('multer');
+const upload = require('../middleware/upload');
 
 async function getAllProducts(req, res) {
     try {
@@ -29,49 +32,108 @@ async function getProductById(req, res) {
 }
 
 async function createProduct(req, res) {
-    try {
-        const { name, description, category, brand, price, stock_available, status } = req.body;
-        const productData = {
-            name,
-            description,
-            category,
-            brand,
-            price,
-            stock_available,
-            status
-        };
-
-        if (req.file) {
-            productData.image = req.file.path;
+    upload(req, res, async function (err) {
+        if (err instanceof multer.MulterError) {
+            console.error('Multer error:', err);
+            return res.status(400).json({ error: 'Erreur lors du téléchargement du fichier' });
+        } else if (err) {
+            console.error('Unknown error:', err);
+            return res.status(500).json({ error: 'Erreur interne du serveur' });
         }
 
-        const newSQLProduct = await Product.createProduct(productData);
-        const newMONGOProduct = await Product.createProduct(productData);
+        try {
+            const { name, description, category, brand, price, stock_available, status } = req.body;
+            const productData = {
+                name,
+                description,
+                category,
+                brand,
+                price,
+                stock_available,
+                status,
+                images: []
+            };
 
-        res.status(201).json({
-            message: 'Produit créé avec succès',
-            sqlProduct: newSQLProduct,
-            mongoProduct: newMONGOProduct,
-        });
-    } catch (error) {
-        console.error('Erreur lors de la création du produit :', error);
-        res.status(500).json({ error: 'Erreur interne du serveur' });
-    }
+            if (req.files && req.files.length > 0) {
+                productData.images = req.files.map(file => file.path);
+            }
+
+            const newProduct = await Product.createProduct(productData);
+            await denormalizeProduct(newProduct.newSQLProduct.id); // Dénormalisation
+            res.status(201).json({
+                message: 'Produit créé avec succès',
+                product: newProduct,
+            });
+        } catch (error) {
+            console.error('Erreur lors de la création du produit :', error);
+            res.status(500).json({ error: 'Erreur interne du serveur' });
+        }
+    });
+}
+
+async function uploadProductImages(req, res) {
+    upload(req, res, async function (err) {
+        if (err instanceof multer.MulterError) {
+            console.error('Multer error:', err);
+            return res.status(400).json({ error: 'Erreur lors du téléchargement du fichier' });
+        } else if (err) {
+            console.error('Unknown error:', err);
+            return res.status(500).json({ error: 'Erreur interne du serveur' });
+        }
+
+        try {
+            const { productId } = req.body;
+            const mediaData = req.files.map(file => ({
+                productId,
+                path: file.path
+            }));
+
+            await Media.bulkCreate(mediaData);
+            res.status(201).json({ message: 'Images uploadées avec succès' });
+        } catch (error) {
+            console.error('Erreur lors de l\'upload des images :', error);
+            res.status(500).json({ error: 'Erreur interne du serveur' });
+        }
+    });
 }
 
 async function updateProduct(req, res) {
-    try {
-        const productId = req.params.id;
-        const updateData = req.body;
-        const updatedProduct = await Product.updateProduct(productId, updateData);
-        if (!updatedProduct) {
-            return res.status(404).json({ message: 'Produit non trouvé' });
+    upload(req, res, async function (err) {
+        if (err instanceof multer.MulterError) {
+            return res.status(400).json({ error: 'Erreur lors du téléchargement du fichier' });
+        } else if (err) {
+            return res.status(500).json({ error: 'Erreur interne du serveur' });
         }
-        res.status(200).json({ message: 'Produit mis à jour avec succès', product: updatedProduct });
-    } catch (error) {
-        console.error('Erreur lors de la mise à jour du produit :', error);
-        res.status(500).json({ error: 'Erreur interne du serveur' });
-    }
+
+        try {
+            const productId = req.params.id;
+            const { name, description, category, brand, price, stock_available, status } = req.body;
+            const updateData = {
+                name,
+                description,
+                category,
+                brand,
+                price,
+                stock_available,
+                status,
+                images: []
+            };
+
+            if (req.files && req.files.length > 0) {
+                updateData.images = req.files.map(file => file.path);
+            }
+
+            const updatedProduct = await Product.updateProduct(productId, updateData);
+            if (!updatedProduct) {
+                return res.status(404).json({ message: 'Produit non trouvé' });
+            }
+            await denormalizeProduct(updatedProduct.updatedSQLProduct.id); // Dénormalisation
+            res.status(200).json({ message: 'Produit mis à jour avec succès', product: updatedProduct });
+        } catch (error) {
+            console.error('Erreur lors de la mise à jour du produit :', error);
+            res.status(500).json({ error: 'Erreur interne du serveur' });
+        }
+    });
 }
 
 async function deleteProduct(req, res) {
@@ -121,10 +183,11 @@ async function updateProductStock(req, res) {
         const productId = req.params.id;
         const stock = req.body.stock_available;
 
-        const updatedProduct = await Product.updateProduct(productId, { stock_available: stock });
+        const updatedProduct = await Product.updateProductStock(productId, { stock_available: stock });
         if (!updatedProduct) {
             return res.status(404).json({ message: 'Produit non trouvé' });
         }
+        await denormalizeProduct(updatedProduct.updatedSQLProduct.id);
         res.status(200).json({ message: 'Stock du produit mis à jour avec succès', product: updatedProduct });
     } catch (error) {
         console.error('Erreur lors de la mise à jour du stock du produit :', error);
@@ -132,4 +195,14 @@ async function updateProductStock(req, res) {
     }
 }
 
-module.exports = { updateProductStock ,getAllProducts, getProductById, createProduct, updateProduct, deleteProduct, searchProducts, getProductsByCategory };
+module.exports = {
+    updateProductStock,
+    getAllProducts,
+    getProductById,
+    createProduct,
+    updateProduct,
+    deleteProduct,
+    searchProducts,
+    getProductsByCategory,
+    uploadProductImages
+};

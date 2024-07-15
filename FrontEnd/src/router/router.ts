@@ -1,5 +1,5 @@
-// src/router/router.ts
 import { createRouter, createWebHistory } from 'vue-router';
+import { useAuthStore } from '@/stores/user';
 
 import Register from '../pages/Register.vue';
 import Login from '../pages/Login.vue';
@@ -7,68 +7,88 @@ import Home from "@/pages/Home.vue";
 import Products from "@/pages/Products.vue";
 import ForgotPassword from "@/pages/ForgotPassword.vue";
 import ConfirmEmail from "@/pages/ConfirmEmail.vue";
-import resetPassword from '@/pages/resetPassword.vue';
-import adminDashboard from "@/pages/admin_dashboard.vue";
+import ResetPassword from '@/pages/resetPassword.vue';
+import AdminDashboard from "@/pages/admin_dashboard.vue";
 import NotFound from "@/pages/NotFound.vue";
-
 
 const routes = [
     {
         path: '/register',
         name: 'Register',
-        component: Register
+        component: Register,
+        meta: { requiresAuth: false }
     },
     {
         path: '/login',
         name: 'Login',
-        component: Login
+        component: Login,
+        meta: { requiresAuth: false }
     },
     {
         path: '/home',
         name: 'Home',
-        component: Home
+        component: Home,
+        meta: { requiresAuth: false }
     },
     {
         path: '/products',
         name: 'Products',
-        component: Products
+        component: Products,
+        meta: { requiresAuth: false }
     },
     {
         path: '/forgot-password',
-        name:'ForgotPassword',
-        component: ForgotPassword
+        name: 'ForgotPassword',
+        component: ForgotPassword,
+        meta: { requiresAuth: false }
     },
     {
         path: '/confirm-email/:token',
-        name:'ConfirmEmail',
-        component: ConfirmEmail
+        name: 'ConfirmEmail',
+        component: ConfirmEmail,
+        meta: { requiresAuth: false }
     },
     {
         path: '/',
-        redirect:'/home',
+        redirect: '/home',
+        meta: { requiresAuth: false }
     },
     {
         path: '/reset-password/:resetToken',
-        name: 'reset-password',
-        component: resetPassword
+        name: 'ResetPassword',
+        component: ResetPassword,
+        meta: { requiresAuth: false }
     },
     {
         path: '/:catchAll(.*)',
         name: 'NotFound',
         component: NotFound,
+        meta: { requiresAuth: false }
     },
     {
-        path: '/dashboard',
-        name: 'adminDashboard',
-        component: adminDashboard,
-        meta: { requiresAuth: true, requiresAdmin: true } ,
+        path: '/admin/dashboard',
+        name: 'AdminDashboard',
+        component: AdminDashboard,
+        meta: { requiresAuth: true, requiresAdmin: true },
     }
 ];
-
 
 const router = createRouter({
     history: createWebHistory(),
     routes
+});
+
+// Garde de navigation pour vérifier l'authentification et les rôles
+router.beforeEach((to, from, next) => {
+    const authStore = useAuthStore();
+
+    if (to.meta.requiresAuth && !authStore.isAuthenticated) {
+        next({ name: 'Login' });
+    } else if (to.meta.requiresAdmin && authStore.user?.role !== 'admin') {
+        next({ name: 'Home' });
+    } else {
+        next();
+    }
 });
 
 export default router;

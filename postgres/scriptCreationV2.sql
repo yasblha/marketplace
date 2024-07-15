@@ -7,7 +7,10 @@ create table if not exists "Clients"
     lastname  varchar(255),
     email     varchar(255),
     password  varchar(255),
-    role      varchar(50)
+    role      varchar(50),
+    confirmed boolean(50),
+    reset_token text,
+
 );
 
 alter table "Clients"

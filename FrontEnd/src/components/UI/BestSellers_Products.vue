@@ -37,63 +37,13 @@ onMounted(() => {
     </div>
   </div>
   <div class="bestProducts">
-    <div class="product">
-      <img src="../../assets/image3.png" alt="Graphic Design">
-      <h2>Graphic Design</h2>
-      <p>English Department</p>
+    <div class="product" v-for="(product, index) in products" :key="index">
+      <img :src="product.image" alt="Graphic Design">
+      <h2>{{ product.title }}</h2>
+      <p>{{ product.description }}</p>
       <div class="prices">
-        <span class="priceNormal">$16.48</span>
-        <span class="priceBlue">$6.48</span>
-      </div>
-    </div>
-
-    <div class="product">
-      <img src="../../assets/image2.png" alt="Graphic Design">
-      <h2>Graphic Design</h2>
-      <p>English Department</p>
-      <div class="prices">
-        <span class="priceNormal">$16.48</span>
-        <span class="priceBlue">$6.48</span>
-      </div>
-    </div>
-
-    <div class="product">
-      <img src="../../assets/image1.png" alt="Graphic Design">
-      <h2>Graphic Design</h2>
-      <p>English Department</p>
-      <div class="prices">
-        <span class="priceNormal">$16.48</span>
-        <span class="priceBlue">$6.48</span>
-      </div>
-    </div>
-
-    <div class="product">
-      <img src="../../assets/image3.png" alt="Graphic Design">
-      <h2>Graphic Design</h2>
-      <p>English Department</p>
-      <div class="prices">
-        <span class="priceNormal">$16.48</span>
-        <span class="priceBlue">$6.48</span>
-      </div>
-    </div>
-
-    <div class="product">
-      <img src="../../assets/image2.png" alt="Graphic Design">
-      <h2>Graphic Design</h2>
-      <p>English Department</p>
-      <div class="prices">
-        <span class="priceNormal">$16.48</span>
-        <span class="priceBlue">$6.48</span>
-      </div>
-    </div>
-
-    <div class="product">
-      <img src="../../assets/image1.png" alt="Graphic Design">
-      <h2>Graphic Design</h2>
-      <p>English Department</p>
-      <div class="prices">
-        <span class="priceNormal">$16.48</span>
-        <span class="priceBlue">$6.48</span>
+        <span class="priceNormal">{{ product.priceNormal }}</span>
+        <span class="priceBlue">{{ product.priceBlue }}</span>
       </div>
     </div>
   </div>

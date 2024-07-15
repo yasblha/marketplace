@@ -18,6 +18,12 @@
                 <label for="password" class="form-label">Mot de passe :</label>
                 <input v-model="password" id="password" type="password" class="form-control" required />
               </div>
+              <div class="form-group">
+                <label for="rememberMe" class="form-label">
+                  <input type="checkbox" v-model="rememberMe" id="rememberMe" />
+                  Se souvenir de moi
+                </label>
+              </div>
               <button type="submit" class="btn btn-primary">Se connecter</button>
             </form>
             <div class="forgot-password">
@@ -75,7 +81,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
-import router from "@/router/router";
+import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/user';
 
 const props = defineProps({
@@ -88,6 +94,7 @@ const props = defineProps({
 const emit = defineEmits(['close']);
 
 const authStore = useAuthStore();
+const router = useRouter();
 
 const email = ref('');
 const password = ref('');
@@ -96,9 +103,17 @@ const firstName = ref('');
 const lastName = ref('');
 const passwordConfirm = ref('');
 const isLogin = ref(true);
+const rememberMe = ref(false);
 
 watch(() => props.isVisible, (newValue) => {
-  console.log('Modal visibility changed:', newValue);
+  if (!newValue) {
+    email.value = '';
+    password.value = '';
+    role.value = '';
+    firstName.value = '';
+    lastName.value = '';
+    passwordConfirm.value = '';
+  }
 });
 
 const isPasswordValid = computed(() => {
@@ -116,13 +131,17 @@ const isFormValid = computed(() => {
 
 async function handleLogin() {
   try {
-    await authStore.login(email.value, password.value);
+    const response = await authStore.login(email.value, password.value);
+    if (rememberMe.value) {
+      localStorage.setItem('authToken', response.token);
+    } else {
+      sessionStorage.setItem('authToken', response.token);
+    }
     if (authStore.user?.role === 'admin') {
-      router.push('/dashboard');
+      router.push('/admin/dashboard');
     } else {
       router.push('/home');
     }
-    alert('Connexion réussie');
     closeModal();
   } catch (error) {
     console.error('Échec de la connexion:', error);

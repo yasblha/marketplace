@@ -13,15 +13,16 @@
 </template>
 
 <script setup lang="ts">
-import axiosInstance from "@/services/api.js";
-import { ref } from "vue";
+import { ref } from 'vue';
+import { useAuthStore } from '@/stores/user';
 
 const email = ref('');
+const authStore = useAuthStore();
 
 async function requestReset() {
   try {
     console.log("Sending reset request for:", email.value);
-    await axiosInstance.post('/api/auth/request-password-reset', { email: email.value });
+    await authStore.requestPasswordReset(email.value);
     alert('Password reset email sent');
   } catch (error) {
     console.error("Reset request failed:", error);

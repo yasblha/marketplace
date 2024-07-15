@@ -1,7 +1,7 @@
 <template>
   <nav class="navbar">
     <div class="title">
-      <router-link class="navbar-brand" to="/home">Bandage</router-link>
+      <router-link class="navbar-brand" to="/home">MAMBAFIT</router-link>
     </div>
 
     <div class="links">
@@ -10,12 +10,21 @@
       <li class="nav-item"><router-link class="nav-link" to="/about">About</router-link></li>
       <li class="nav-item"><router-link class="nav-link" to="/blog">Blog</router-link></li>
       <li class="nav-item"><router-link class="nav-link" to="/contact">Contact</router-link></li>
-      <li class="nav-item"><router-link class="nav-link" to="/pages">Pages</router-link></li>
+      <li class="nav-item"><router-link class="nav-link" to="/Products">Products</router-link></li>
     </div>
 
     <ul class="linkTwo">
-      <li class="nav-item"><a class="nav-link2" href="#" @click.prevent="$emit('openAuthModal')">Login/Register</a></li>
-      <li class="nav-item"><router-link class="nav-link2" to="/profile"><img src="@/assets/Vector.svg" alt="profile"></router-link></li>
+      <li v-if="!isAuthenticated" class="nav-item">
+        <a class="nav-link2" href="#" @click.prevent="$emit('openAuthModal')">Login</a>
+      </li>
+      <li v-else class="nav-item profile-menu">
+        <img src="@/assets/user.svg" alt="profile" @click="toggleMenu" />
+        <ul v-if="showMenu" class="profile-dropdown">
+          <li><router-link to="/profile">Profile</router-link></li>
+          <li v-if="isAdmin"><router-link to="/admin/dashboard">Dashboard</router-link></li>
+          <li><a href="#" @click.prevent="logout">Logout</a></li>
+        </ul>
+      </li>
       <li class="nav-item"><router-link class="nav-link2" to="/cart"><img src="@/assets/Panier.svg" alt="cart"></router-link></li>
       <li class="nav-item"><router-link class="nav-link2" to="/wishlist"><img src="@/assets/hart.svg" alt="wishlist"></router-link></li>
     </ul>
@@ -23,26 +32,45 @@
 </template>
 
 <script setup lang="ts">
-defineEmits(['openAuthModal']);
+import { ref, computed, watchEffect } from 'vue';
+import { useAuthStore } from '@/stores/user';
+
+const emit = defineEmits(['openAuthModal']);
+const authStore = useAuthStore();
+const isAuthenticated = computed(() => authStore.isAuthenticated);
+const isAdmin = computed(() => authStore.user && authStore.user.role === 'admin');
+
+console.log('isAuthenticated:', isAuthenticated.value);
+console.log('isAdmin:', isAdmin.value);
+
+const showMenu = ref(false);
+const toggleMenu = () => {
+  showMenu.value = !showMenu.value;
+};
+
+const logout = () => {
+  authStore.logout();
+};
+
+watchEffect(() => {
+  console.log('Auth state changed, isAuthenticated:', isAuthenticated.value);
+  console.log('User role:', authStore.user ? authStore.user.role : 'No user');
+});
 </script>
 
 <style scoped>
 .navbar {
   display: flex;
-  /* justify-content: space-between; */
   width: 100%;
   background-color: white;
-  /* padding: 10px 20px; */
+  padding: 19px;
   color: black;
-  PADDING: 19px;
 }
 
 .title {
-
   margin: auto;
   font-size: 20px;
 }
-
 
 .links {
   display: flex;
@@ -66,7 +94,6 @@ defineEmits(['openAuthModal']);
   margin: auto;
 }
 
-
 .linkTwo li {
   list-style: none;
   margin-left: 14px;
@@ -79,12 +106,39 @@ defineEmits(['openAuthModal']);
 .linkTwo li a {
   color: #23a6f0;
   font-weight: 500;
-
 }
 
-/* .navbar-brand {
-    color: black;
-    text-decoration: none;
-    font-size: 1.5em;
-} */
+.profile-menu {
+  position: relative;
+}
+
+.profile-menu img {
+  width: 20px;
+  height: 20px;
+}
+
+.profile-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  list-style: none;
+  padding: 10px;
+  border-radius: 4px;
+  width: 150px;
+}
+
+.profile-dropdown li {
+  padding: 10px;
+}
+
+.profile-dropdown li a {
+  color: black;
+  text-decoration: none;
+}
+
+.profile-dropdown li a:hover {
+  text-decoration: underline;
+}
 </style>

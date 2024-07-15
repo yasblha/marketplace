@@ -1,61 +1,31 @@
-<!-- Modal.vue -->
+<!-- components/common/Modal.vue -->
 <template>
-  <Teleport to="body">
-    <div v-if="isOpen" class="modal-overlay" @click="closeOnOverlayClick ? close() : null">
-      <div class="modal-container" @click.stop>
-        <div class="modal-header">
-          <slot name="header">
-            <h3>{{ title }}</h3>
-          </slot>
-          <button v-if="showCloseButton" class="modal-close" @click="close">&times;</button>
-        </div>
-        <div class="modal-body">
-          <slot></slot>
-        </div>
-        <div class="modal-footer">
-          <slot name="footer">
-            <button @click="close">Fermer</button>
-          </slot>
-        </div>
+  <div v-if="modelValue" class="modal-overlay" @click.self="close">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>{{ title }}</h3>
+        <button @click="close">Close</button>
+      </div>
+      <div class="modal-body">
+        <slot></slot>
       </div>
     </div>
-  </Teleport>
+  </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { ref, watch } from 'vue';
+import { defineProps, defineEmits } from 'vue';
 
 const props = defineProps({
-  modelValue: {
-    type: Boolean,
-    default: false
-  },
-  title: {
-    type: String,
-    default: ''
-  },
-  closeOnOverlayClick: {
-    type: Boolean,
-    default: true
-  },
-  showCloseButton: {
-    type: Boolean,
-    default: true
-  }
+  modelValue: Boolean,
+  title: String
 });
 
-const emit = defineEmits(['update:modelValue', 'close']);
-
-const isOpen = ref(props.modelValue);
-
-watch(() => props.modelValue, (newValue) => {
-  isOpen.value = newValue;
-});
+const emit = defineEmits(['update:modelValue']);
 
 const close = () => {
-  isOpen.value = false;
   emit('update:modelValue', false);
-  emit('close');
 };
 </script>
 
@@ -64,56 +34,27 @@ const close = () => {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
-  justify-content: center;
   align-items: center;
-  z-index: 1000;
+  justify-content: center;
 }
-
-.modal-container {
-  background-color: white;
+.modal {
+  background: white;
+  padding: 1rem;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   max-width: 500px;
   width: 100%;
-  max-height: 80vh;
-  display: flex;
-  flex-direction: column;
-  color: black;
 }
-
 .modal-header {
-  padding: 1rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #e0e0e0;
 }
 
-.modal-close {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: black;
-}
-
-.modal-body {
-  padding: 1rem;
-  overflow-y: auto;
-}
-
-.modal-footer {
-  padding: 1rem;
-  border-top: 1px solid #e0e0e0;
-  display: flex;
-  justify-content: flex-end;
-}
-
-.modal-container * {
+h3 {
   color: black;
 }
 </style>

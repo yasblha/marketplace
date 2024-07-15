@@ -57,7 +57,6 @@ import AuthModal from '@/pages/AuthModal.vue';
 const isAuthModalVisible = ref(false);
 
 function openAuthModal() {
-  console.log('Opening auth modal');
   isAuthModalVisible.value = true;
 }
 
@@ -162,7 +161,6 @@ const products = [
   color: #808080ad;
 }
 
-/* Nouveaux styles pour la section best-sellers */
 .best-sellers-section {
   padding: 40px 20px;
   width: 100%;
@@ -213,7 +211,6 @@ const products = [
   }
 }
 
-/* Styles pour la section newsletter */
 .newsletter-section {
   background-color: #f8f8f8;
   padding: 40px 0;

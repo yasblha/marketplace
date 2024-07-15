@@ -7,6 +7,7 @@ const credentials = require('./middleware/credentials');
 const errorHandler = require('./middleware/error_handler');
 const authRoutes = require('./routes/api/auth');
 const products = require('./routes/api/products')
+const uploadRoutes = require('./routes/api/uploadRoute')
 const cron = require('node-cron');
 const upload = require('./middleware/upload');
 const cookieParser = require('cookie-parser');
@@ -30,20 +31,13 @@ app.use(cookieParser());
 
 app.use('/api/auth', authRoutes);
 app.use('/api/products', products);
+app.use('/api/upload', uploadRoutes);
+
 
 cron.schedule('0 0 * * *', checkPasswordRenewal);
 
 app.get('/', (req, res) => {
     res.send('Welcome to my server!');
-});
-
-app.post('/api/upload', upload.single('image'), (req, res) => {
-    try {
-        res.status(201).json({ message: 'Image téléchargée avec succès', path: req.file.path });
-    } catch (error) {
-        console.error('Erreur lors du téléchargement de l\'image :', error);
-        res.status(500).json({ error: 'Erreur interne du serveur' });
-    }
 });
 
 app.use(errorHandler);

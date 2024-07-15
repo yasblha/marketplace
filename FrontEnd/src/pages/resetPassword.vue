@@ -23,12 +23,13 @@
 </template>
 
 <script setup lang="ts">
-import axiosInstance from "@/services/api.js";
 import { ref, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { useAuthStore } from '@/stores/user';
 
 const route = useRoute();
 const router = useRouter();
+const authStore = useAuthStore();
 
 const password = ref('');
 const confirmPassword = ref('');
@@ -48,7 +49,11 @@ async function resetPassword() {
     return;
   }
 
-  const resetToken = route.params.resetToken;
+  let resetToken = route.params.resetToken;
+  if (Array.isArray(resetToken)) {
+    resetToken = resetToken[0];
+  }
+
   if (!resetToken) {
     alert('Token invalide ou manquant.');
     return;
@@ -56,11 +61,7 @@ async function resetPassword() {
 
   try {
     console.log("Sending reset request for new password");
-    await axiosInstance.post('/api/auth/reset-password', {
-      token: resetToken,
-      newPassword: password.value,
-      newPasswordConfirm: confirmPassword.value
-    });
+    await authStore.resetPassword(resetToken, password.value, confirmPassword.value);
     alert('Mot de passe réinitialisé avec succès');
     router.push('/login');
   } catch (error) {

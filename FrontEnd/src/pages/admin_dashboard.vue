@@ -15,6 +15,9 @@
         <li @click="activeMenu = 'list'" :class="{ 'active': activeMenu === 'list' }">
           <i class="fas fa-list"></i> List
         </li>
+        <li @click="logout">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </li>
       </ul>
     </div>
 
@@ -39,10 +42,22 @@
 import ProductManagement from '@/components/admin/ProductManagement.vue';
 import UserManagement from '@/components/admin/UserManagement.vue';
 import ListItems from '@/components/admin/ListItems.vue';
-
 import { ref } from 'vue';
+import { useAuthStore } from '@/stores/user';
+import { useRouter } from 'vue-router';
 
 const activeMenu = ref('products');
+const authStore = useAuthStore();
+const router = useRouter();
+
+const logout = async () => {
+  try {
+    await authStore.logout();
+    router.push('/');
+  } catch (error) {
+    console.error('Erreur de déconnexion:', error);
+  }
+};
 </script>
 
 <style scoped>

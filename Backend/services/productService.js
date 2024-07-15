@@ -1,5 +1,6 @@
 const ProductSQL = require('../models/postgres_models/ProductPg');
 const ProductMongo = require('../models/mongo_models/Product');
+const denormalizeProduct = require('../services/denormalizeProduct');
 
 class ProductService {
     static async getProducts() {
@@ -19,10 +20,11 @@ class ProductService {
             console.log('Tentative de création de produit:', productData);
             const newSQLProduct = await ProductSQL.createProduct(productData);
             console.log('Produit créé dans PostgreSQL:', newSQLProduct);
-            const newMongoProduct = await ProductMongo.create(productData);
-            console.log('Produit créé dans MongoDB:', newMongoProduct);
-            return { newSQLProduct, newMongoProduct };
-            //return { newSQLProduct }
+
+            // Dénormaliser et créer dans MongoDB
+            await denormalizeProduct(newSQLProduct.id);
+
+            return { newSQLProduct };
         } catch (error) {
             console.error('Erreur dans le service lors de la création du produit:', error);
             throw error;
@@ -32,8 +34,11 @@ class ProductService {
     static async updateProduct(productId, updateData) {
         try {
             const updatedSQLProduct = await ProductSQL.updateProduct(productId, updateData);
-            const updatedMongoProduct = await ProductMongo.findByIdAndUpdate(productId, updateData, { new: true });
-            return { updatedSQLProduct, updatedMongoProduct };
+
+            // Dénormaliser et mettre à jour dans MongoDB
+            await denormalizeProduct(updatedSQLProduct.id);
+
+            return { updatedSQLProduct };
         } catch (error) {
             throw error;
         }
@@ -42,8 +47,11 @@ class ProductService {
     static async deleteProduct(productId) {
         try {
             const deletedSQLProduct = await ProductSQL.deleteProduct(productId);
-            const deletedMongoProduct = await ProductMongo.findByIdAndDelete(productId);
-            return { deletedSQLProduct, deletedMongoProduct };
+
+            // Supprimer également dans MongoDB
+            await ProductMongo.findByIdAndDelete(productId);
+
+            return { deletedSQLProduct };
         } catch (error) {
             throw error;
         }
@@ -64,12 +72,15 @@ class ProductService {
     static async updateProductStock(productId, newStock) {
         try {
             const updatedSQLProduct = await ProductSQL.updateProductStock(productId, newStock);
-            const updatedMongoProduct = await ProductMongo.findByIdAndUpdate(
+
+            // Dénormaliser et mettre à jour le stock dans MongoDB
+            await ProductMongo.findByIdAndUpdate(
                 productId,
                 { stock_available: newStock },
                 { new: true }
             );
-            return { updatedSQLProduct, updatedMongoProduct };
+
+            return { updatedSQLProduct };
         } catch (error) {
             throw error;
         }

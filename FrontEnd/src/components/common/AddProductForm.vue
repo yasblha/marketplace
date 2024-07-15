@@ -1,56 +1,51 @@
 <template>
-  <form @submit.prevent="submitForm">
+  <form @submit.prevent="handleSubmit">
     <div v-for="field in formFields" :key="field.name">
-      <label :for="field.name">{{ field.label }}:</label>
-      <input v-if="field.type !== 'select' && field.type !== 'file' && field.type !== 'textarea'"
-             :type="field.type"
-             :id="field.name"
-             v-model="productData[field.name as keyof ProductData]"
-             required
-      />
-      <textarea v-if="field.type === 'textarea'"
-                :id="field.name"
-                v-model="productData[field.name as keyof ProductData]"
-                required
-      ></textarea>
-      <select v-else-if="field.type === 'select'"
-              :id="field.name"
-              v-model="productData[field.name as keyof ProductData]"
-              required
-      >
-        <option v-for="option in field.options" :key="option" :value="option">
-          {{ option }}
-        </option>
-      </select>
-    </div>
-
-    <div>
-      <label for="images">Images:</label>
+      <label :for="field.name">{{ field.label }}</label>
       <input
-          type="file"
-          id="images"
-          @change="handleFileUpload"
-          accept="image/*"
-          multiple
+          v-if="field.type === 'text'"
+          :id="field.name"
+          v-model="productData[field.name]"
+          :type="field.type"
       />
-      <div v-if="imagePreviews.length > 0">
-        <p>Selected images:</p>
-        <ul>
-          <li v-for="(image, index) in imagePreviews" :key="index">
-            <img :src="image" alt="Preview" style="max-width: 100px; max-height: 100px;" />
-            <button type="button" @click="removeImage(index)">Remove</button>
-          </li>
-        </ul>
+      <textarea
+          v-else-if="field.type === 'textarea'"
+          :id="field.name"
+          v-model="productData[field.name]"
+      ></textarea>
+      <select
+          v-else-if="field.type === 'select'"
+          :id="field.name"
+          v-model="productData[field.name]"
+      >
+        <option v-for="option in field.options" :key="option" :value="option">{{ option }}</option>
+      </select>
+      <input
+          v-else-if="field.type === 'number'"
+          :id="field.name"
+          v-model="productData[field.name]"
+          :type="field.type"
+      />
+      <span v-if="errors[field.name]">{{ errors[field.name] }}</span>
+    </div>
+    <div>
+      <label for="images">Images</label>
+      <input type="file" id="images" multiple @change="handleFileChange" />
+      <div class="image-previews">
+        <div v-for="(image, index) in images" :key="index" class="image-preview">
+          <img :src="image.url" :alt="`Image ${index + 1}`" />
+          <button @click.prevent="removeImage(index)">X</button>
+        </div>
       </div>
     </div>
-
-    <button type="submit">{{ isEditing ? 'Update' : 'Add' }} Product</button>
+    <button type="submit" :disabled="isSubmitting">Submit</button>
+    <div v-if="serverError">{{ serverError }}</div>
   </form>
 </template>
 
-
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
+import { z } from 'zod';
 import { useProductStore } from '@/stores/products';
 
 interface ProductData {
@@ -62,7 +57,6 @@ interface ProductData {
   price: number;
   stock_available: number;
   status: string;
-  images: string[]; // store image paths
 }
 
 interface FormField {
@@ -101,85 +95,111 @@ const productData = ref<ProductData>({
   price: 0,
   stock_available: 0,
   status: 'available',
-  images: [],
 });
-
-const imagePreviews = ref<string[]>([]);
 
 const isEditing = computed(() => !!props.initialData?._id);
 
-watch(() => props.initialData, (newVal) => {
-  if (newVal) {
-    productData.value = {
-      name: newVal.name || '',
-      description: newVal.description || '',
-      category: newVal.category || '',
-      brand: newVal.brand || '',
-      price: newVal.price || 0,
-      stock_available: newVal.stock_available || 0,
-      status: newVal.status || 'available',
-      images: newVal.images || [],
-      _id: newVal._id,
-    };
-    imagePreviews.value = newVal.images || [];
+watch(props.initialData, (newValue) => {
+  if (newValue) {
+    Object.assign(productData.value, newValue);
   }
-}, { deep: true });
+}, { immediate: true });
 
-const handleFileUpload = async (event: Event) => {
-  const target = event.target as HTMLInputElement;
-  if (target.files) {
-    const files = Array.from(target.files);
+const errors = ref<Record<string, string>>({});
+const isSubmitting = ref(false);
+const serverError = ref<string | null>(null);
+
+const images = ref<{ file: File; url: string }[]>([]);
+
+const validationSchema = z.object({
+  name: z.string().nonempty('Product Name is required'),
+  description: z.string().nonempty('Description is required'),
+  category: z.string().nonempty('Category is required'),
+  brand: z.string().nonempty('Brand is required'),
+  price: z.number().min(0, 'Price must be a positive number'),
+  stock_available: z.number().min(0, 'Stock Available must be a positive number'),
+  status: z.enum(['available', 'out_of_stock', 'discontinued']),
+});
+
+const validate = () => {
+  try {
+    validationSchema.parse(productData.value);
+    errors.value = {};
+    return true;
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      errors.value = error.errors.reduce((acc, err) => {
+        acc[err.path[0]] = err.message;
+        return acc;
+      }, {} as Record<string, string>);
+    }
+    return false;
+  }
+};
+
+const handleFileChange = (event: Event) => {
+  const files = (event.target as HTMLInputElement).files;
+  if (files) {
     for (const file of files) {
-      const formData = new FormData();
-      formData.append('file', file);
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData
-      });
-      const data = await response.json();
-      productData.value.images.push(data.path);
-      imagePreviews.value.push(URL.createObjectURL(file));
+      const url = URL.createObjectURL(file);
+      images.value.push({ file, url });
     }
   }
 };
 
 const removeImage = (index: number) => {
-  productData.value.images.splice(index, 1);
-  imagePreviews.value.splice(index, 1);
+  images.value.splice(index, 1);
 };
 
-const submitForm = async () => {
-  try {
-    const formData = new FormData();
-    Object.entries(productData.value).forEach(([key, value]) => {
-      if (key !== '_id' && key !== 'images' && value !== undefined && value !== null) {
-        formData.append(key, value.toString());
+const handleSubmit = async () => {
+  if (isSubmitting.value) {
+    console.log('Submission is already in progress');
+    return; // Prevent multiple submissions
+  }
+
+  if (validate()) {
+    isSubmitting.value = true;
+    serverError.value = null;
+    console.log('Submitting the form', productData.value);
+
+    try {
+      const formData = new FormData();
+      Object.entries(productData.value).forEach(([key, value]) => {
+        formData.append(key, value as string | Blob);
+      });
+      images.value.forEach((image) => {
+        formData.append('images', image.file); // Ajout des fichiers sous le champ 'images'
+      });
+
+      console.log('FormData:', Array.from(formData.entries()));
+
+      if (isEditing.value && productData.value._id) {
+        await productStore.updateProduct(productData.value._id, formData);
+        emit('product-updated');
+      } else {
+        await productStore.createProduct(formData);
+        emit('product-added');
       }
-    });
 
-    if (isEditing.value && productData.value._id) {
-      await productStore.updateProduct(productData.value._id, formData);
-      emit('product-updated');
-    } else {
-      await productStore.createProduct(formData);
-      emit('product-added');
+      if (!isEditing.value) {
+        productData.value = {
+          name: '',
+          description: '',
+          category: '',
+          brand: '',
+          price: 0,
+          stock_available: 0,
+          status: 'available',
+        };
+        images.value = [];
+      }
+    } catch (err) {
+      console.error('Error submitting form:', err);
+      serverError.value = 'An error occurred while submitting the form.';
+    } finally {
+      isSubmitting.value = false;
+      console.log('Submission finished');
     }
-
-    if (!isEditing.value) {
-      productData.value = {
-        name: '',
-        description: '',
-        category: '',
-        brand: '',
-        price: 0,
-        stock_available: 0,
-        status: 'available',
-        images: []
-      };
-      imagePreviews.value = [];
-    }
-  } catch (err) {
-    console.error('Error submitting form:', err);
   }
 };
 </script>
@@ -189,10 +209,12 @@ form {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  color: black;
 }
 
 label {
   font-weight: bold;
+  color: black;
 }
 
 input, select, textarea {
@@ -221,5 +243,31 @@ button {
 button:hover {
   background-color: #45a049;
 }
-</style>
 
+.image-previews {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.image-preview {
+  position: relative;
+}
+
+.image-preview img {
+  max-width: 100px;
+  max-height: 100px;
+  object-fit: cover;
+}
+
+.image-preview button {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: red;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+}
+</style>

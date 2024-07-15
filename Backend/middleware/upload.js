@@ -1,7 +1,6 @@
 const multer = require('multer');
 const path = require('path');
 
-
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, 'uploads/');
@@ -28,6 +27,6 @@ const upload = multer({
     limits: {
         files: 5
     }
-});
+}).array('images', 5);
 
 module.exports = upload;

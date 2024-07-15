@@ -1,3 +1,4 @@
+<!-- pages/AdminDashboard.vue -->
 <template>
   <div>
     <button @click="showProductModal = true">Add Product</button>
@@ -11,7 +12,7 @@
         :onDelete="deleteProduct"
     />
 
-    <Modal v-model="showProductModal" :title="modalTitle">
+    <Modal v-model="showProductModal" title="Add Product">
       <AddProductForm
           :initialData="selectedProduct"
           @product-added="onProductAdded"
@@ -51,7 +52,6 @@ interface Product {
   image: string | null;
 }
 
-
 interface Column<T> {
   key: keyof T & string;
   label: string;
@@ -61,12 +61,7 @@ interface Column<T> {
 const productStore = useProductStore();
 const showProductModal = ref(false);
 const showProductDetailsModal = ref(false);
-//const selectedProduct = ref<Product | undefined>(undefined);
 const selectedProduct = ref<Partial<Product> | undefined>(undefined);
-//const selectedProduct = ref<Product | undefined>(undefined);
-
-
-
 
 const combinedProducts = computed(() => {
   console.log('Computing combined products:', productStore.products);

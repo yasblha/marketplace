@@ -1,5 +1,6 @@
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
+import { useAuthStore } from '@/stores/user';
 import axiosInstance from "@/services/api";
 
 interface Product {
@@ -16,51 +17,130 @@ interface Product {
 
 export const useProductStore = defineStore('product', () => {
     const products = ref<Product[]>([]);
+    const authStore = useAuthStore();  // Initialize authStore correctly
+
     const fetchProducts = async (): Promise<void> => {
-        const response = await axiosInstance.get('/products/get');
-        products.value = response.data.mongoProducts;
-        console.log(response.data);
-        console.log(products.value);
+        try {
+            const response = await axiosInstance.get('/products');
+            products.value = response.data.mongoProducts;
+            console.log('Fetched products:', products.value);
+        } catch (error) {
+            console.error('Error fetching products:', error);
+            throw new Error('Failed to fetch products');
+        }
     };
 
     const getProductById = async (id: string): Promise<Product> => {
-        const response = await axiosInstance.get<Product>(`/products/${id}`);
-        return response.data;
+        try {
+            const response = await axiosInstance.get<Product>(`/products/${id}`);
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching product by ID:', error);
+            throw new Error('Failed to fetch product by ID');
+        }
     };
 
     const createProduct = async (productData: FormData): Promise<void> => {
-        const response = await axiosInstance.post<Product>('/products', productData, {
-            headers: { 'Content-Type': 'multipart/form-data' }
-        });
-        products.value.push(response.data);
+        try {
+            if (!authStore.token) {
+                throw new Error('Token non disponible');
+            }
+            console.log('Creating product with user data:', authStore.user);
+            const response = await axiosInstance.post<Product>('/products', productData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'Authorization': `Bearer ${authStore.token}`
+                }
+            });
+            products.value.push(response.data);
+            console.log('Product created:', response.data);
+        } catch (error) {
+            console.error('Error creating product:', error);
+            throw new Error('Failed to create product');
+        }
+    };
+
+    const uploadProductImages = async (formData: FormData): Promise<void> => {
+        try {
+            await axiosInstance.post('/upload', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'Authorization': `Bearer ${authStore.token}`
+                }
+            });
+            console.log('Images uploaded successfully');
+        } catch (error) {
+            console.error('Error uploading images:', error);
+            throw new Error('Failed to upload images');
+        }
     };
 
     const updateProduct = async (id: string, productData: FormData): Promise<void> => {
-        const response = await axiosInstance.put<Product>(`/products/${id}`, productData, {
-            headers: { 'Content-Type': 'multipart/form-data' }
-        });
-        const index = products.value.findIndex(p => p._id === id);
-        if (index !== -1) {
-            products.value[index] = response.data;
+        try {
+            const response = await axiosInstance.put<Product>(`/products/${id}`, productData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'Authorization': `Bearer ${authStore.token}`
+                }
+            });
+            const index = products.value.findIndex(p => p._id === id);
+            if (index !== -1) {
+                products.value[index] = response.data;
+            }
+            console.log('Product updated:', response.data);
+        } catch (error) {
+            console.error('Error updating product:', error);
+            throw new Error('Failed to update product');
         }
     };
 
     const deleteProduct = async (id: string): Promise<void> => {
-        await axiosInstance.delete(`/products/${id}`);
-        products.value = products.value.filter(p => p._id !== id);
+        try {
+            await axiosInstance.delete(`/products/${id}`, {
+                headers: {
+                    'Authorization': `Bearer ${authStore.token}`
+                }
+            });
+            products.value = products.value.filter(p => p._id !== id);
+            console.log(`Product with ID ${id} deleted`);
+        } catch (error) {
+            console.error('Error deleting product:', error);
+            throw new Error('Failed to delete product');
+        }
     };
 
     const updateProductStock = async (id: string, stockData: { stock_available: number }): Promise<void> => {
-        const response = await axiosInstance.patch<Product>(`/products/${id}/stock`, stockData);
-        const index = products.value.findIndex(p => p._id === id);
-        if (index !== -1) {
-            products.value[index] = { ...products.value[index], ...response.data };
+        try {
+            const response = await axiosInstance.patch<Product>(`/products/${id}/stock`, stockData, {
+                headers: {
+                    'Authorization': `Bearer ${authStore.token}`
+                }
+            });
+            const index = products.value.findIndex(p => p._id === id);
+            if (index !== -1) {
+                products.value[index] = { ...products.value[index], ...response.data };
+            }
+            console.log('Product stock updated:', response.data);
+        } catch (error) {
+            console.error('Error updating product stock:', error);
+            throw new Error('Failed to update product stock');
         }
     };
 
     const searchProducts = async (query: string): Promise<void> => {
-        const response = await axiosInstance.get<Product[]>(`/products/search`, { params: { q: query } });
-        products.value = response.data;
+        try {
+            const response = await axiosInstance.get<Product[]>('/products/search', {
+                headers: {
+                    'Authorization': `Bearer ${authStore.token}`
+                },
+                params: { q: query }
+            });
+            products.value = response.data;
+            console.log('Products found:', products.value);
+        } catch (error) {
+            console.error('Error searching products:', error);
+            throw new Error('Failed to search products');
+        }
     };
 
     return {
@@ -68,6 +148,7 @@ export const useProductStore = defineStore('product', () => {
         fetchProducts,
         getProductById,
         createProduct,
+        uploadProductImages,
         updateProduct,
         deleteProduct,
         updateProductStock,
