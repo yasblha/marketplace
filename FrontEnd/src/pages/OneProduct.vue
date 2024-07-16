@@ -51,11 +51,11 @@ onMounted(() => {
 });
 
 const handleAddToCart = ({ productId, quantity }: { productId: string; quantity: number }) => {
-  console.log('Product added to cart:', productId, 'Quantity:', quantity);
   cartStore.addToCart(productId, quantity);
-  console.log('Updated Cart in Product.vue:', cartStore.cart);
 };
 </script>
+
+
 
 
 

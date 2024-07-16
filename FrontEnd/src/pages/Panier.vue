@@ -1,4 +1,3 @@
-<!-- Cart.vue -->
 <template>
     <NavigationBar />
   
@@ -56,27 +55,27 @@
   </template>
   
   <script setup lang="ts">
-  import { toRefs, computed } from 'vue';
+  import { computed } from 'vue';
   import { useCartStore } from '@/stores/cart';
   import NavigationBar from "../components/UI/NavigationBar.vue";
   import Footer from "../components/UI/Footer.vue";
   
   const cartStore = useCartStore();
-  const { cart, cartTotal } = toRefs(cartStore);
+  console.log('Cart store initialized:', cartStore);
   
-  const cartItems = computed(() => cart.value || []);
-  const total = computed(() => cartTotal.value || 0);
+  const cartItems = computed(() => cartStore.cartItems);
+  const cartTotal = computed(() => cartStore.cartTotal);
   
-  console.log('Cart Total in Cart.vue:', total.value.toFixed(2));
-  console.log('Cart Items in Cart.vue:', cartItems.value);
+  console.log('Cart Total in Panier.vue:', cartTotal.value.toFixed(2));
+  console.log('Cart Items in Panier.vue:', cartItems.value);
   
   const removeProduct = (productId: string) => {
     console.log('Removing product from cart:', productId);
     cartStore.removeFromCart(productId);
+    console.log('Updated Cart in Panier.vue:', cartStore.cart);
+    console.log('Updated Products in Panier.vue:', cartStore.products);
   };
   </script>
-  
-  
   
   
   

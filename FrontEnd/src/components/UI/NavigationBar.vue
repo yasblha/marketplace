@@ -133,6 +133,6 @@ export default {
     }
 }
 
-@import '@fortawesome/fontawesome-free/css/all.css';
+/* @import '@fortawesome/fontawesome-free/css/all.css'; */
 /* Import Font Awesome CSS */
 </style>

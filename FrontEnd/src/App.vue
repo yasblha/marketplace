@@ -5,6 +5,10 @@ import HelloWorld from './components/HelloWorld.vue';
 import NavigationBar from './components/UI/NavigationBar.vue';
 import '@fortawesome/fontawesome-free/css/all.css';
 
+import { useCartStore } from '@/stores/cart';
+
+const cartStore = useCartStore();
+cartStore.loadState();
 
 
 </script>
