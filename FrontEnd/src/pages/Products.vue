@@ -97,12 +97,20 @@ const categories = computed(() => {
   return Array.from(uniqueCategories);
 });
 
+const addPopularityToProducts = (products: any[]): Product[] => {
+  return products.map(product => ({
+    ...product,
+    popularity: product.popularity ?? 0 // Ajouter la popularité avec une valeur par défaut de 0 si elle n'est pas présente
+  }));
+};
+
 onMounted(async () => {
   isLoading.value = true;
   try {
     await productStore.fetchProducts();
-    products.value = productStore.products;
+    products.value = addPopularityToProducts(productStore.products);
     filteredProducts.value = products.value;
+    console.log(products.value[5]);
   } catch (err) {
     error.value = 'Error fetching products';
     console.error(err);

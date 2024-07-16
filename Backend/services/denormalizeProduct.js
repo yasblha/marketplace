@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const ProductMongo = require("../models/mongo_models/Product");
 const ProductSQL = require("../models/postgres_models/ProductPg");
+const Media = require("../models/postgres_models/Media");
 
 module.exports = async function denormalizeProduct(productId) {
     try {
@@ -13,9 +14,19 @@ module.exports = async function denormalizeProduct(productId) {
             throw new Error('Product not found');
         }
 
+        const images = await Media.findAll({
+            where: { productId: productId },
+            attributes: ["path"]
+        });
+
+        //const imagePaths = images.map(image => image.path);
+        const imagePaths = images.map(image => image.dataValues.path);
+        console.log('images paths',imagePaths);
+        console.log('tpoutes les images',images);
+
         // Préparation des données pour MongoDB
         const productForMongo = {
-            _id: new mongoose.Types.ObjectId(productDenormalized.id.toString().padStart(24, '0')), // Conversion en ObjectId
+            _id: new mongoose.Types.ObjectId(productDenormalized.id.toString().padStart(24, '0')),
             name: productDenormalized.name,
             description: productDenormalized.description,
             category: productDenormalized.category,
@@ -23,7 +34,7 @@ module.exports = async function denormalizeProduct(productId) {
             price: productDenormalized.price,
             stock_available: productDenormalized.stock_available,
             status: productDenormalized.status,
-            image: productDenormalized.image
+            images: imagePaths
         };
 
         // Mise à jour ou insertion du produit dans MongoDB

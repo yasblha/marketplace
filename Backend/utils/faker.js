@@ -1,44 +1,52 @@
-const { faker } = require('@faker-js/faker');
-const db = require('../config/postgres');
+import { faker } from '@faker-js/faker';
+import mongoose from 'mongoose';
+import sequelize from '../config/postgres';
+import ProductMongo from '../models/mongo_models/Product';
+import ProductPg from '../models/postgres_models/ProductPg';
+import denormalizeProduct from '../services/denormalizeProduct';
+import '../config/mongodb'; // S'assure que la connexion MongoDB est établie
 
-// Fonction pour générer des données utilisateur
-function generateUserData() {
-    return {
-        firstName: faker.person.firstName(),
-        lastName: faker.person.lastName(),
-        email: faker.internet.email(),
-        password: faker.internet.password(),
-        role: faker.person.jobTitle()
-    };
-}
-
-// Fonction pour insérer des données dans la base de données
-async function insertUserData(userData) {
-    const query = `
-        INSERT INTO "User" (firstname,lastname, email, password, role)
-        VALUES ($1, $2, $3, $4, $5)
-            RETURNING *;
-    `;
-    const values = [userData.firstName, userData.lastName , userData.email, userData.password, userData.role];
+async function injectProducts() {
     try {
-        const result = await db.query(query, values);
-        console.log('Data inserted:', result.rows[0]);
-        return result.rows[0];
-    } catch (err) {
-        console.error('Error inserting data:', err);
-        throw err;
+        await sequelize.sync();
+
+        for (let i = 0; i < 20; i++) {
+            const productData = {
+                name: faker.commerce.productName(),
+                description: faker.lorem.paragraph(),
+                category: faker.commerce.department(),
+                brand: faker.company.name(),
+                price: parseFloat(faker.commerce.price()),
+                stock_available: faker.number.int({ min: 1, max: 100 }), // Utilise la méthode mise à jour
+                status: 'available',
+                images: ['uploads/default-product-image.png']
+            };
+
+            // Création du produit dans PostgreSQL
+            const sqlProduct = await ProductPg.create({
+                name: productData.name,
+                description: productData.description,
+                category: productData.category,
+                brand: productData.brand,
+                price: productData.price,
+                stock_available: productData.stock_available,
+                status: productData.status,
+                image: JSON.stringify(productData.images)
+            });
+
+            // Dénormalisation et création dans MongoDB
+            await denormalizeProduct(sqlProduct.id);
+
+            console.log(`Produit ajouté: ${productData.name}`);
+        }
+
+        console.log('20 produits ont été ajoutés à la base de données.');
+    } catch (error) {
+        console.error('Erreur lors de l\'injection des produits:', error);
+    } finally {
+        await mongoose.disconnect();
+        await sequelize.close();
     }
 }
 
-// Fonction pour générer et insérer des données au démarrage de l'application
-async function generateAndInsertData(numUsers) {
-    const insertedUsers = [];
-    for (let i = 0; i < numUsers; i++) {
-        const userData = generateUserData();
-        const insertedUser = await insertUserData(userData);
-        insertedUsers.push(insertedUser);
-    }
-    return insertedUsers;
-}
-
-module.exports = generateAndInsertData;
+export default injectProducts;

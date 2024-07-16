@@ -12,6 +12,9 @@ const cron = require('node-cron');
 const upload = require('./middleware/upload');
 const cookieParser = require('cookie-parser');
 const { checkPasswordRenewal } = require('./services/reset_mail');
+//import injectProducts from './utils/faker';
+const path = require('path');
+
 
 require('dotenv').config();
 
@@ -32,6 +35,8 @@ app.use(cookieParser());
 app.use('/api/auth', authRoutes);
 app.use('/api/products', products);
 app.use('/api/upload', uploadRoutes);
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 
 
 cron.schedule('0 0 * * *', checkPasswordRenewal);
@@ -46,6 +51,8 @@ const server = app.listen(PORT, () => {
     console.log(`App is listening at http://localhost:${PORT}`);
     //init();
 });
+
+//injectProducts();
 
 process.on("unhandledRejection", err => {
     console.error(`Unhandled Rejection: ${err.message}`);

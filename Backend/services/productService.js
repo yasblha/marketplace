@@ -6,6 +6,7 @@ class ProductService {
     static async getProducts() {
         const sqlProducts = await ProductSQL.getProducts();
         const mongoProducts = await ProductMongo.find();
+
         return { sqlProducts, mongoProducts };
     }
 
@@ -46,7 +47,11 @@ class ProductService {
 
     static async deleteProduct(productId) {
         try {
-            const deletedSQLProduct = await ProductSQL.deleteProduct(productId);
+            const parsedId = parseInt(productId, 10);
+            if (isNaN(parsedId)) {
+                throw new Error('Invalid product ID');
+            }
+            const deletedSQLProduct = await ProductSQL.deleteProduct(parsedId);
 
             // Supprimer également dans MongoDB
             await ProductMongo.findByIdAndDelete(productId);

@@ -3,6 +3,9 @@ const denormalizeProduct = require('../services/denormalizeProduct');
 const Media = require('../models/postgres_models/Media');
 const multer = require('multer');
 const upload = require('../middleware/upload');
+const { faker } = require ('@faker-js/faker');
+//const ProductPg = require('../models/postgres_models/ProductPg');
+
 
 async function getAllProducts(req, res) {
     try {
@@ -59,6 +62,16 @@ async function createProduct(req, res) {
             }
 
             const newProduct = await Product.createProduct(productData);
+            const productId = newProduct.newSQLProduct.id;
+
+            if (productData.images.length > 0) {
+                const mediaData = productData.images.map(path => ({
+                    productId,
+                    path
+                }));
+                await Media.bulkCreate(mediaData);
+            }
+
             await denormalizeProduct(newProduct.newSQLProduct.id); // Dénormalisation
             res.status(201).json({
                 message: 'Produit créé avec succès',
@@ -70,6 +83,7 @@ async function createProduct(req, res) {
         }
     });
 }
+
 
 async function uploadProductImages(req, res) {
     upload(req, res, async function (err) {
@@ -96,6 +110,7 @@ async function uploadProductImages(req, res) {
         }
     });
 }
+
 
 async function updateProduct(req, res) {
     upload(req, res, async function (err) {
@@ -195,6 +210,33 @@ async function updateProductStock(req, res) {
     }
 }
 
+async function injectProducts(req, res) {
+    try {
+        for (let i = 0; i < 20; i++) {
+            const productData = {
+                name: faker.commerce.productName(),
+                description: faker.lorem.paragraph(),
+                category: faker.commerce.department(),
+                brand: faker.company.name(),
+                price: parseFloat(faker.commerce.price()),
+                stock_available: faker.number.int({ min: 1, max: 100 }),
+                status: 'available',
+                images: ['/Users/yassineboulahnine/Desktop/Projects/marketplace/logoMammba.png']
+            };
+
+            // Appeler la fonction createProduct pour créer le produit
+            await Product.createProduct(productData);
+            console.log(`Produit ajouté: ${productData.name}`);
+        }
+
+        console.log('20 produits ont été ajoutés à la base de données.');
+        res.status(200).json({ message: '20 produits ont été ajoutés à la base de données.' });
+    } catch (error) {
+        console.error('Erreur lors de l\'injection des produits:', error);
+        res.status(500).json({ error: 'Erreur interne du serveur' });
+    }
+}
+
 module.exports = {
     updateProductStock,
     getAllProducts,
@@ -204,5 +246,6 @@ module.exports = {
     deleteProduct,
     searchProducts,
     getProductsByCategory,
-    uploadProductImages
+    uploadProductImages,
+    injectProducts
 };

@@ -1,6 +1,10 @@
 {
   "development": {
-    "use_env_variable": "DATABASE_URL"
+    "username": "user",
+    "password": "admin",
+    "database": "marketplace",
+    "host": "localhost",
+    "dialect": "postgres"
   },
   "test": {
     "username": "user",
@@ -10,6 +14,10 @@
     "dialect": "postgres"
   },
   "production": {
-    "use_env_variable": "DATABASE_URL"
+    "username": "user",
+    "password": "admin",
+    "database": "marketplace",
+    "host": "localhost",
+    "dialect": "postgres"
   }
 }

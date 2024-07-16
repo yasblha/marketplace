@@ -1,7 +1,7 @@
-<!-- pages/AdminDashboard.vue -->
 <template>
   <div>
     <button @click="showProductModal = true">Add Product</button>
+    <button @click="handleInjectProducts">Inject Products</button> <!-- Bouton d'injection -->
 
     <Table
         :items="combinedProducts"
@@ -111,6 +111,15 @@ const deleteProduct = async (product: Product) => {
     } catch (error) {
       console.error('Error deleting product:', error);
     }
+  }
+};
+
+const handleInjectProducts = async () => {
+  try {
+    const message = await productStore.injectProducts();
+    alert(message);
+  } catch (error) {
+    alert('Failed to inject products');
   }
 };
 

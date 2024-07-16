@@ -2,7 +2,7 @@
   <div class="dashboard-container">
     <div class="sidebar">
       <div class="logo">
-        <img src="../assets/logo.svg" alt="Logo" />
+        <!--<img src="/Users/yassineboulahnine/Desktop/Projects/marketplace/logoMammba.png" alt="Logo" />-->
         <span>Admin Dashboard</span>
       </div>
       <ul class="menu">

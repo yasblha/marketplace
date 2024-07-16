@@ -2,7 +2,7 @@
   <div class="itemsView">
     <a v-for="product in products" :key="product._id" :href="'/product/' + product._id">
       <div class="OneProduct">
-        <img :src="defaultImage" :alt="product.name">
+        <img :src="getImage(product)" :alt="product.name">
         <h2>{{ product.name }}</h2>
         <p>{{ product.category }}</p>
         <div class="prices">
@@ -13,11 +13,8 @@
   </div>
 </template>
 
-
-
-
 <script setup lang="ts">
-import { defineProps, ref } from 'vue';
+import { defineProps } from 'vue';
 import defaultImage from '@/assets/image1.png';
 
 interface Product {
@@ -36,15 +33,21 @@ const props = defineProps<{
   products: Product[]
 }>();
 
-//const defaultImage = ref(require('@/assets/default-product-image.jpg'));
+const getImage = (product: Product) => {
+  if (product.images && product.images.length > 0) {
+    const baseUrl = 'http://localhost:3000';
+    console.log('image path:', product.images[0]);
+    const imageUrl = `${baseUrl}/${product.images[0]}`;
+    console.log('urlImage', imageUrl);
+
+    return imageUrl;
+    //return product.images[0];
+  }
+  return defaultImage;
+};
 
 console.log(props.products);
-// Si vous voulez ajouter une logique pour calculer un prix réduit
-// const calculateDiscountedPrice = (price: number) => {
-//   return price * 0.9; // 10% de réduction
-// };
 </script>
-
 
 <style scoped>
 div.itemsView {
@@ -72,7 +75,7 @@ div.OneProduct h2 {
   font-size: 19px;
   color: black;
   margin-top: 6px;
-}composcomc
+}
 
 div.OneProduct p {
   font-size: 14px;

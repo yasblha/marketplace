@@ -143,6 +143,15 @@ export const useProductStore = defineStore('product', () => {
         }
     };
 
+    const injectProducts = async () => {
+        try {
+            const response = await axiosInstance.post('/products/inject-products');
+            console.log(response.data.message);
+        } catch (error) {
+            console.error('Error injecting products:', error);
+        }
+    };
+
     return {
         products,
         fetchProducts,
@@ -153,5 +162,6 @@ export const useProductStore = defineStore('product', () => {
         deleteProduct,
         updateProductStock,
         searchProducts,
+        injectProducts
     };
 });

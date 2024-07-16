@@ -16,4 +16,7 @@ router.put('/:id', authenticateAdmin, productControllers.updateProduct);
 router.delete('/:id', authenticateAdmin, productControllers.deleteProduct);
 router.patch('/:id/stock', authenticateAdmin, productControllers.updateProductStock);
 
+router.post('/inject-products', productControllers.injectProducts);
+
+
 module.exports = router;

@@ -137,12 +137,15 @@ const toggleSelectAll = () => {
 };
 
 const deleteSelected = async () => {
-  for (const id of selectedItems.value) {
-    const item = props.items.find(i => i._id === id);
-    if (item) await props.onDelete(item);
+  if (confirm('Êtes-vous sûr de vouloir supprimer les produits sélectionnés ?')) {
+    for (const id of selectedItems.value) {
+      const item = props.items.find(i => i._id === id);
+      if (item) await props.onDelete(item);
+    }
+    selectedItems.value = [];
   }
-  selectedItems.value = [];
 };
+
 
 const exportCSV = () => {
   const headers = props.columns.map(col => col.label).join(',');

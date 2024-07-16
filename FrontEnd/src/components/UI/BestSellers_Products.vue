@@ -1,11 +1,76 @@
-<script setup>
-import { ref, onMounted } from 'vue';
+<template>
+  <div>
+    <div class="Categorie">
+      <button @click="slide('left')" class="carousel-button left">‹</button>
+      <div class="carousel">
+        <ul ref="categoryList" :style="{ transform: `translateX(${-currentIndex * (100 / visibleCategories)}%)` }">
+          <li v-for="(category, index) in categories" :key="index">
+            <a href="#" @click.prevent="filterByCategory(category)">{{ category }}</a>
+          </li>
+        </ul>
+      </div>
+      <button @click="slide('right')" class="carousel-button right">›</button>
+    </div>
+    <div class="bestProducts">
+      <div class="OneProduct" v-for="(product, index) in limitedFilteredProducts" :key="index">
+        <img :src="getImage(product)" :alt="product.name" />
+        <h2>{{ product.name }}</h2>
+        <p>{{ product.category }}</p>
+        <div class="prices">
+          <span class="priceNormal">${{ product.price.toFixed(2) }}</span>
+        </div>
+      </div>
+    </div>
+    <div v-if="isLoading">Loading...</div>
+    <div v-if="error">{{ error }}</div>
+  </div>
+</template>
 
+<script setup lang="ts">
+import { ref, onMounted, computed } from 'vue';
+import { useProductStore } from '@/stores/products';
+import defaultImage from '@/assets/image1.png';
+
+interface Product {
+  _id: string;
+  name: string;
+  description: string;
+  category: string;
+  brand: string;
+  price: number;
+  stock_available: number;
+  status: string;
+  images: string[];
+}
+
+const productStore = useProductStore();
+const products = ref<Product[]>([]);
+const filteredProducts = ref<Product[]>([]);
+const categories = ref<string[]>([]);
+const isLoading = ref(false);
+const error = ref<string | null>(null);
 const currentIndex = ref(0);
-const categoryList = ref(null);
+const visibleCategories = ref(3);
 
-const slide = (direction) => {
-  const maxIndex = 6; // Nombre total de catégories - 1
+const limitedFilteredProducts = computed(() => filteredProducts.value.slice(0, 6));
+
+onMounted(async () => {
+  isLoading.value = true;
+  try {
+    await productStore.fetchProducts();
+    products.value = productStore.products;
+    filteredProducts.value = products.value;
+    categories.value = [...new Set(products.value.map(product => product.category))];
+  } catch (err) {
+    error.value = 'Error fetching products';
+    console.error(err);
+  } finally {
+    isLoading.value = false;
+  }
+});
+
+const slide = (direction: 'left' | 'right') => {
+  const maxIndex = categories.value.length - visibleCategories.value;
   if (direction === 'left' && currentIndex.value > 0) {
     currentIndex.value--;
   } else if (direction === 'right' && currentIndex.value < maxIndex) {
@@ -13,41 +78,22 @@ const slide = (direction) => {
   }
 };
 
-onMounted(() => {
-  if (categoryList.value) {
-    categoryList.value.style.width = `${7 * 100}px`; // 7 est le nombre total de catégories
-  }
-});
-</script>
+const filterByCategory = (category: string) => {
+  filteredProducts.value = products.value.filter(product => product.category === category);
+};
 
-<template>
-  <div class="Categorie">
-    <ul ref="categoryList" :style="{ transform: `translateX(${-currentIndex * 100}px)` }">
-      <li>BESTSELLER PRODUCTS</li>
-      <li><a href="">Men</a></li>
-      <li><a href="">Women</a></li>
-      <li><a href="">Accessories</a></li>
-      <li><a href="">Shoes</a></li>
-      <li><a href="">Bags</a></li>
-      <li><a href="">Watches</a></li>
-    </ul>
-    <div class="fleches">
-      <a href="#" @click.prevent="slide('left')"><img src="../../assets/fg.svg" alt="Left Arrow"></a>
-      <a href="#" @click.prevent="slide('right')"><img src="../../assets/fd.svg" alt="Right Arrow"></a>
-    </div>
-  </div>
-  <div class="bestProducts">
-    <div class="product" v-for="(product, index) in products" :key="index">
-      <img :src="product.image" alt="Graphic Design">
-      <h2>{{ product.title }}</h2>
-      <p>{{ product.description }}</p>
-      <div class="prices">
-        <span class="priceNormal">{{ product.priceNormal }}</span>
-        <span class="priceBlue">{{ product.priceBlue }}</span>
-      </div>
-    </div>
-  </div>
-</template>
+const getImage = (product: Product) => {
+  if (product.images && product.images.length > 0) {
+    const baseUrl = 'http://localhost:3000'; // Changez cela en fonction de votre configuration
+    const imageUrl = `${baseUrl}/${product.images[0]}`;
+    console.log('Image URL:', imageUrl); // Vérifiez l'URL complète
+    return imageUrl;
+  }
+  return defaultImage;
+};
+
+//console.log(props.products);
+</script>
 
 <style scoped>
 .Categorie {
@@ -58,13 +104,18 @@ onMounted(() => {
   overflow: hidden;
 }
 
+.carousel {
+  flex: 1;
+  overflow: hidden;
+}
+
 .Categorie ul {
   display: flex;
-  gap: 20px;
+  transition: transform 0.3s ease;
   list-style: none;
   margin: 0;
   padding: 0;
-  transition: transform 0.3s ease;
+  gap: 20px;
 }
 
 .Categorie ul li {
@@ -72,9 +123,11 @@ onMounted(() => {
   text-align: center;
 }
 
-.fleches {
-  display: flex;
-  gap: 10px;
+.carousel-button {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  cursor: pointer;
 }
 
 .bestProducts {
@@ -85,21 +138,24 @@ onMounted(() => {
   width: 100%;
 }
 
-.product {
+.OneProduct {
   text-align: center;
+  padding: 17px;
 }
 
-.product img {
+.OneProduct img {
   width: 100%;
   max-width: 200px;
+  height: 200px;
+  object-fit: cover;
 }
 
-.product h2 {
+.OneProduct h2 {
   font-size: 18px;
   margin: 10px 0;
 }
 
-.product p {
+.OneProduct p {
   color: grey;
   font-size: 14px;
   margin: 5px 0;

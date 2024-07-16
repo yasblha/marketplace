@@ -25,6 +25,7 @@
           :id="field.name"
           v-model="productData[field.name]"
           :type="field.type"
+          @input="validateNumberInput(field.name)"
       />
       <span v-if="errors[field.name]">{{ errors[field.name] }}</span>
     </div>
@@ -99,7 +100,7 @@ const productData = ref<ProductData>({
 
 const isEditing = computed(() => !!props.initialData?._id);
 
-watch(props.initialData, (newValue) => {
+watch(() => props.initialData, (newValue) => {
   if (newValue) {
     Object.assign(productData.value, newValue);
   }
@@ -116,8 +117,8 @@ const validationSchema = z.object({
   description: z.string().nonempty('Description is required'),
   category: z.string().nonempty('Category is required'),
   brand: z.string().nonempty('Brand is required'),
-  price: z.number().min(0, 'Price must be a positive number'),
-  stock_available: z.number().min(0, 'Stock Available must be a positive number'),
+  price: z.number().positive('Price must be a positive number'),
+  stock_available: z.number().nonnegative('Stock Available must be a non-negative number'),
   status: z.enum(['available', 'out_of_stock', 'discontinued']),
 });
 
@@ -129,11 +130,18 @@ const validate = () => {
   } catch (error) {
     if (error instanceof z.ZodError) {
       errors.value = error.errors.reduce((acc, err) => {
-        acc[err.path[0]] = err.message;
+        acc[err.path[0] as string] = err.message;
         return acc;
       }, {} as Record<string, string>);
     }
     return false;
+  }
+};
+
+const validateNumberInput = (fieldName: keyof ProductData) => {
+  const value = productData.value[fieldName];
+  if (typeof value === 'number' && value < 0) {
+    productData.value[fieldName] = 0 as never;
   }
 };
 
