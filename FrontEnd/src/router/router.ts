@@ -9,6 +9,8 @@ import ForgotPassword from "@/pages/ForgotPassword.vue";
 import ConfirmEmail from "@/pages/ConfirmEmail.vue";
 import ResetPassword from '@/pages/resetPassword.vue';
 import AdminDashboard from "@/pages/admin_dashboard.vue";
+import ProductDetails from "@/pages/ProductDetails.vue";
+import Cart from "@/pages/Cart.vue";
 import NotFound from "@/pages/NotFound.vue";
 
 const routes = [
@@ -70,7 +72,20 @@ const routes = [
         name: 'AdminDashboard',
         component: AdminDashboard,
         meta: { requiresAuth: true, requiresAdmin: true },
+    },
+    {
+        path: '/product/:id',
+        name: 'ProductDetails',
+        component: ProductDetails,
+        meta: { requiresAuth: false }
+    },
+    {
+        path: '/cart',
+        name: 'Cart',
+        component: Cart,
+        meta: { requiresAuth: false }
     }
+
 ];
 
 const router = createRouter({

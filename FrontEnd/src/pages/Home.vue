@@ -24,7 +24,7 @@
     <section class="best-sellers-section">
       <div class="best-sellers-container">
         <div class="featured-item">
-          <img src="../assets/card_items.jpg" alt="Featured item" />
+          <img src="../assets/ui_assets/card_items.jpg" alt="Featured item" />
         </div>
         <div class="best-sellers-list">
           <BestSellers_Products />
@@ -69,19 +69,19 @@ const products = [
     tag: "Your Space",
     title: "Unique Life",
     cta: "Explore Items",
-    image: new URL('../assets/image2.png', import.meta.url).href
+    image: new URL('../assets/ui_assets/image2.png', import.meta.url).href
   },
   {
     tag: "Ends Today",
     title: "Elements Style",
     cta: "Explore Items",
-    image: new URL('../assets/image1.png', import.meta.url).href
+    image: new URL('../assets/ui_assets/image1.png', import.meta.url).href
   },
   {
     tag: "Your Space",
     title: "Unique Life",
     cta: "Explore Items",
-    image: new URL('../assets/image3.png', import.meta.url).href
+    image: new URL('../assets/ui_assets/image3.png', import.meta.url).href
   }
 ];
 </script>
@@ -92,7 +92,7 @@ const products = [
 }
 
 .hero-section {
-  background-image: url('../assets/dumbels.jpg');
+  background-image: url('../assets/ui_assets/dumbels.jpg');
   background-size: cover;
   background-position: center;
   min-height: 40vw;

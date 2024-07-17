@@ -18,15 +18,15 @@
         <a class="nav-link2" href="#" @click.prevent="$emit('openAuthModal')">Login</a>
       </li>
       <li v-else class="nav-item profile-menu">
-        <img src="@/assets/user.svg" alt="profile" @click="toggleMenu" />
+        <img src="@/assets/ui_assets/user.svg" alt="profile" @click="toggleMenu" />
         <ul v-if="showMenu" class="profile-dropdown">
           <li><router-link to="/profile">Profile</router-link></li>
           <li v-if="isAdmin"><router-link to="/admin/dashboard">Dashboard</router-link></li>
           <li><a href="#" @click.prevent="logout">Logout</a></li>
         </ul>
       </li>
-      <li class="nav-item"><router-link class="nav-link2" to="/cart"><img src="@/assets/Panier.svg" alt="cart"></router-link></li>
-      <li class="nav-item"><router-link class="nav-link2" to="/wishlist"><img src="@/assets/hart.svg" alt="wishlist"></router-link></li>
+      <li class="nav-item"><router-link class="nav-link2" to="/cart"><img src="../../assets/ui_assets/Panier.svg" alt="cart"></router-link></li>
+      <li class="nav-item"><router-link class="nav-link2" to="/wishlist"><img src="../../assets/ui_assets/hart.svg" alt="wishlist"></router-link></li>
     </ul>
   </nav>
 </template>

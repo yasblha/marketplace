@@ -26,6 +26,7 @@
           v-model="productData[field.name]"
           :type="field.type"
           @input="validateNumberInput(field.name)"
+          step="0.01"
       />
       <span v-if="errors[field.name]">{{ errors[field.name] }}</span>
     </div>

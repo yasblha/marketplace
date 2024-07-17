@@ -29,7 +29,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import { useProductStore } from '@/stores/products';
-import defaultImage from '@/assets/image1.png';
+import defaultImage from '@/assets/ui_assets/image1.png';
 
 interface Product {
   _id: string;
@@ -84,9 +84,9 @@ const filterByCategory = (category: string) => {
 
 const getImage = (product: Product) => {
   if (product.images && product.images.length > 0) {
-    const baseUrl = 'http://localhost:3000'; // Changez cela en fonction de votre configuration
+    const baseUrl = 'http://localhost:3000';
     const imageUrl = `${baseUrl}/${product.images[0]}`;
-    console.log('Image URL:', imageUrl); // Vérifiez l'URL complète
+    console.log('Image URL:', imageUrl);
     return imageUrl;
   }
   return defaultImage;
