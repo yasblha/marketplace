@@ -1,4 +1,3 @@
-<!-- Paiement_product.vue -->
 <template>
   <div class="buttons">
     <button @click="emitAddToCart" :disabled="!isInStock">
@@ -12,6 +11,9 @@
         <button class="plus" @click="increaseQuantity">+</button>
       </div>
     </div>
+    <div v-if="showConfirmation" class="confirmation-message">
+      Product added to cart!
+    </div>
   </div>
 </template>
 
@@ -24,6 +26,7 @@ const emit = defineEmits(['addToCart']);
 
 const quantity = ref(1);
 const cartStore = useCartStore();
+const showConfirmation = ref(false);
 
 const product = computed(() => {
   return cartStore.products.find(p => p._id === props.productId);
@@ -61,8 +64,14 @@ const validateQuantity = () => {
 const emitAddToCart = () => {
   if (quantity.value <= maxQuantity.value && product.value) {
     console.log('Adding product to cart:', product.value._id, 'Quantity:', quantity.value);
-    cartStore.addToCart(product.value._id, quantity.value);
+    cartStore.addToCart(product.value._id, quantity.value); // Ajout ici
     emit('addToCart', { productId: product.value._id, quantity: quantity.value });
+
+    // Afficher le message de confirmation
+    showConfirmation.value = true;
+    setTimeout(() => {
+      showConfirmation.value = false;
+    }, 2000); // Masquer le message après 2 secondes
   } else {
     alert('Le produit n\'est plus en stock.');
   }

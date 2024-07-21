@@ -1,4 +1,3 @@
-<!-- Product.vue -->
 <template>
   <NavigationBar />
 
@@ -34,12 +33,10 @@ import Paiement_product from "../components/UI/Buttons/Paiement_product.vue";
 import Sizes from "../components/UI/Buttons/Sizes.vue";
 import { products } from './../products_simulate/products_data';
 import type { Product } from './../products_simulate/products_data';
-import { useCartStore } from '@/stores/cart';
 
 const route = useRoute();
 const productId = route.params.id as string;
 const product = ref<Product | null>(null);
-const cartStore = useCartStore();
 
 const fetchProductById = (id: string): Product | undefined => {
   return products.find(product => product._id === id);
@@ -51,13 +48,10 @@ onMounted(() => {
 });
 
 const handleAddToCart = ({ productId, quantity }: { productId: string; quantity: number }) => {
-  cartStore.addToCart(productId, quantity);
+  // Pas besoin de ré-appeler addToCart ici
+  console.log(`Product ${productId} with quantity ${quantity} added to cart.`);
 };
 </script>
-
-
-
-
 
 
 

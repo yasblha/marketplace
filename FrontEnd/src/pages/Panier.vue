@@ -1,6 +1,6 @@
 <template>
     <NavigationBar />
-  
+    
     <section>
       <div class="titles">
         <h2>Your cart</h2>
@@ -46,17 +46,18 @@
             <span>Total</span>
             <span>${{ cartTotal.toFixed(2) }}</span>
           </div>
-          <button>Continue to checkout</button>
+          <button @click="redirectToCheckout">Continue to checkout</button>
         </div>
       </div>
     </section>
-  
+    
     <Footer />
   </template>
   
   <script setup lang="ts">
   import { computed } from 'vue';
   import { useCartStore } from '@/stores/cart';
+  import { stripePromise } from '@/stripe';
   import NavigationBar from "../components/UI/NavigationBar.vue";
   import Footer from "../components/UI/Footer.vue";
   
@@ -75,7 +76,39 @@
     console.log('Updated Cart in Panier.vue:', cartStore.cart);
     console.log('Updated Products in Panier.vue:', cartStore.products);
   };
+  
+  const redirectToCheckout = async () => {
+    const stripe = await stripePromise;
+    
+    // Replace this URL with your backend endpoint that creates the checkout session
+    const response = await fetch('/create-checkout-session', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        items: cartItems.value.map(product => ({
+          id: product._id,
+          quantity: product.quantity,
+          name: product.name,
+          price: product.price
+        }))
+      })
+    });
+  
+    const session = await response.json();
+  
+    // Redirect to Stripe Checkout
+    const { error } = await stripe.redirectToCheckout({
+      sessionId: session.id
+    });
+  
+    if (error) {
+      console.error("Error redirecting to checkout:", error);
+    }
+  };
   </script>
+  
   
   
   
