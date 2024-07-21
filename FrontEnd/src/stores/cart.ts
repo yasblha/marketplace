@@ -1,4 +1,3 @@
-// src/stores/cart.ts
 import { defineStore } from 'pinia';
 import { products } from '../products_simulate/products_data';
 
@@ -61,6 +60,25 @@ export const useCartStore = defineStore('cart', {
         console.log('Product removed from cart:', productId);
         console.log('Current cart in store:', this.cart);
         console.log('Available products in store:', this.products);
+      }
+    },
+    updateCartQuantity(productId: string, quantity: number) {
+      const cartProduct = this.cart.find(p => p._id === productId);
+      const product = this.products.find(p => p._id === productId);
+      if (cartProduct && product) {
+        const difference = quantity - cartProduct.quantity;
+        if (product.stock_available >= difference) {
+          cartProduct.quantity = quantity;
+          product.stock_available -= difference;
+          if (cartProduct.quantity <= 0) {
+            this.removeFromCart(productId);
+          } else {
+            this.persistState();
+          }
+          console.log('Product quantity updated:', productId, 'New Quantity:', quantity);
+        } else {
+          alert('Le produit n\'est plus en stock.');
+        }
       }
     },
     persistState() {

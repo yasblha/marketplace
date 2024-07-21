@@ -22,7 +22,9 @@
                 <div class="Qte">
                   <label for="quantitySelect">Quantité </label>
                   <div class="custom-select-container">
+                    <button @click="decreaseQuantity(product)">-</button>
                     <span>{{ product.quantity }}</span>
+                    <button @click="increaseQuantity(product)">+</button>
                   </div>
                 </div>
                 <div class="priceDelete">
@@ -78,46 +80,56 @@
     console.log('Updated Products in Panier.vue:', cartStore.products);
   };
   
+  const decreaseQuantity = (product) => {
+    cartStore.updateCartQuantity(product._id, product.quantity - 1);
+  };
+  
+  const increaseQuantity = (product) => {
+    cartStore.updateCartQuantity(product._id, product.quantity + 1);
+  };
+  
   const redirectToCheckout = async () => {
     const stripe = await stripePromise;
   
     try {
-      const response = await axios.post('https://api.stripe.com/v1/checkout/sessions', {
-        payment_method_types: ['card'],
-        line_items: cartItems.value.map(product => ({
-          price_data: {
-            currency: 'usd',
-            product_data: {
-              name: product.name,
-            },
-            unit_amount: product.price * 100, // amount in cents
-          },
+      const response = await axios.post('http://localhost:4242/create-payment-intent', {
+        items: cartItems.value.map(product => ({
+          id: product._id,
           quantity: product.quantity,
-        })),
-        mode: 'payment',
-        success_url: window.location.origin + '/success',
-        cancel_url: window.location.origin + '/cancel',
-      }, {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'Authorization': `Bearer ${import.meta.env.VITE_STRIPE_SECRET_KEY}` // Use your secret key here
+          name: product.name,
+          price: product.price
+        }))
+      });
+  
+      const { clientSecret } = response.data;
+  
+      const result = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: {
+          card: elements.getElement(CardElement),
+          billing_details: {
+            name: 'Test User',
+          },
+        },
+      });
+  
+      if (result.error) {
+        console.error("Payment failed:", result.error.message);
+      } else {
+        if (result.paymentIntent.status === 'succeeded') {
+          console.log("Payment succeeded!");
+          window.location.href = "/success";
         }
-      });
-  
-      const session = response.data;
-  
-      const { error } = await stripe.redirectToCheckout({
-        sessionId: session.id
-      });
-  
-      if (error) {
-        console.error("Error redirecting to checkout:", error);
       }
     } catch (error) {
-      console.error("Error creating checkout session:", error);
+      console.error("Error creating payment intent:", error);
     }
   };
   </script>
+  
+  <style scoped>
+  /* Add your styles here */
+  </style>
+  
   
   
   
