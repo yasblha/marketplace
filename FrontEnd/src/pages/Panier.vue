@@ -57,7 +57,8 @@
   <script setup lang="ts">
   import { computed } from 'vue';
   import { useCartStore } from '@/stores/cart';
-  import { stripePromise } from '@/stripe';
+  import { stripePromise } from '../../functions/stripe';
+  import axios from 'axios';
   import NavigationBar from "../components/UI/NavigationBar.vue";
   import Footer from "../components/UI/Footer.vue";
   
@@ -79,35 +80,47 @@
   
   const redirectToCheckout = async () => {
     const stripe = await stripePromise;
-    
-    // Replace this URL with your backend endpoint that creates the checkout session
-    const response = await fetch('/create-checkout-session', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        items: cartItems.value.map(product => ({
-          id: product._id,
+  
+    try {
+      const response = await axios.post('https://api.stripe.com/v1/checkout/sessions', {
+        payment_method_types: ['card'],
+        line_items: cartItems.value.map(product => ({
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: product.name,
+            },
+            unit_amount: product.price * 100, // amount in cents
+          },
           quantity: product.quantity,
-          name: product.name,
-          price: product.price
-        }))
-      })
-    });
+        })),
+        mode: 'payment',
+        success_url: window.location.origin + '/success',
+        cancel_url: window.location.origin + '/cancel',
+      }, {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Authorization': `Bearer ${import.meta.env.VITE_STRIPE_SECRET_KEY}` // Use your secret key here
+        }
+      });
   
-    const session = await response.json();
+      const session = response.data;
   
-    // Redirect to Stripe Checkout
-    const { error } = await stripe.redirectToCheckout({
-      sessionId: session.id
-    });
+      const { error } = await stripe.redirectToCheckout({
+        sessionId: session.id
+      });
   
-    if (error) {
-      console.error("Error redirecting to checkout:", error);
+      if (error) {
+        console.error("Error redirecting to checkout:", error);
+      }
+    } catch (error) {
+      console.error("Error creating checkout session:", error);
     }
   };
   </script>
+  
+  
+  
   
   
   

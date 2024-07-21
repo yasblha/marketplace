@@ -8,6 +8,8 @@ import Products from '../pages/Products.vue';
 import OneProduct from '../pages/OneProduct.vue';
 import Panier from '../pages/Panier.vue';
 import Favorites from '../pages/Favorites.vue';
+import Success from '../pages/PaymentSucces.vue';
+import Cancel from '../pages/PaymentCancel.vue';
 
 
 
@@ -49,8 +51,17 @@ const routes = [
         path: '/favorites',
         name: 'Favorites',
         component: Favorites
+    },
+    {
+        path: '/success',
+        name: 'Success',
+        component: Success
+    },
+    {
+        path: '/cancel',
+        name: 'Cancel',
+        component: Cancel
     }
-
 
 ];
 
