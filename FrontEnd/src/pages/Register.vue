@@ -42,6 +42,9 @@
 import { ref, computed } from 'vue';
 import axiosInstance from '@/services/api';
 import router from "@/router/router";
+import { useAuthStore } from '@/stores/user';
+const userStore = useAuthStore();
+
 
 const form = ref({
   role: '',
@@ -64,10 +67,10 @@ const isFormValid = computed(() => {
 async function handleSubmit() {
   try {
     console.log("Form data:", form.value);
-    const response = await axiosInstance.post('/api/auth/register', form.value);
-    alert(`User registered successfully! Response:\n${JSON.stringify(response.data)}`);
-    console.log(response.data);
-    router.push(`/${response.data.user.role}/login`);
+    const response = await userStore.register(form.value);
+    alert(`User registered successfully! Response:\n${JSON.stringify(response)}`);
+    console.log(response);
+    router.push(`/${response.user.role}/login`);
   } catch (error: any) {
     console.log("Form data on error:", form.value);
     console.error("Error during registration:", error);

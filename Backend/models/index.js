@@ -8,11 +8,15 @@ const env = process.env.NODE_ENV || 'development';
 const config = require(path.join(__dirname, '/../config/config.json'))[env];
 const db = {};
 
+const denormalizeProduct = require('../services/denormalizeProduct');
+
+const { Product: ProductMongo } = require('../models/mongo_models/Product');
+
 let sequelize;
 if (config.use_env_variable) {
-  sequelize = new Sequelize(process.env[config.use_env_variable], config);
+    sequelize = new Sequelize(process.env[config.use_env_variable], config);
 } else {
-  sequelize = new Sequelize(config.database, config.username, config.password, config);
+    sequelize = new Sequelize(config.database, config.username, config.password, config);
 }
 
 sequelize.authenticate()
@@ -23,30 +27,42 @@ sequelize.authenticate()
         console.error('Unable to connect to the database:', err);
     });
 
-// Read all model files and import them into Sequelize
+// Lire tous les fichiers de modèles et les importer dans Sequelize
 fs
     .readdirSync(__dirname)
     .filter(file => {
-      return (
-          file.indexOf('.') !== 0 && // Ignore hidden files
-          file !== basename && // Ignore this file
-          file.slice(-3) === '.js' && // Only import .js files
-          file.indexOf('.test.js') === -1 // Ignore test files
-      );
+        return (
+            file.indexOf('.') !== 0 && // Ignorer les fichiers cachés
+            file !== basename && // Ignorer ce fichier
+            file.slice(-3) === '.js' && // Importer uniquement les fichiers .js
+            file.indexOf('.test.js') === -1 // Ignorer les fichiers de test
+        );
     })
     .forEach(file => {
-      const model = require(path.join(__dirname, file))(sequelize, Sequelize.DataTypes);
-      db[model.name] = model;
+        const model = require(path.join(__dirname, file))(sequelize, Sequelize.DataTypes);
+        db[model.name] = model;
     });
 
-// Associate models if the associate function exists
+// Associer les modèles s'ils ont une fonction associate
 Object.keys(db).forEach(modelName => {
-  if (db[modelName].associate) {
-    db[modelName].associate(db);
-  }
+    if (db[modelName].associate) {
+        db[modelName].associate(db);
+    }
+    // Ajouter des hooks pour la dénormalisation des produits
+    if (modelName === 'ProductPg') {
+        db[modelName].afterCreate(async (product, options) => {
+            await denormalizeProduct(product.id, db);
+        });
+        db[modelName].afterUpdate(async (product, options) => {
+            await denormalizeProduct(product.id, db);
+        });
+        db[modelName].afterDestroy(async (product, options) => {
+            await ProductMongo.findByIdAndDelete(product.id);
+        });
+    }
 });
 
-db.sequelize = sequelize; // Add sequelize instance to db object
-db.Sequelize = Sequelize; // Add Sequelize class to db object
+db.sequelize = sequelize;
+db.Sequelize = Sequelize;
 
-module.exports = db; // Export the db object
+module.exports = db;

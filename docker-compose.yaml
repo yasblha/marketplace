@@ -28,7 +28,7 @@ services:
     ports:
       - '5432:5432'
     volumes:
-      - db:/var/lib/postgres
+      - db:/var/lib/postgres_models
 
   pgadmin:
     image: dpage/pgadmin4

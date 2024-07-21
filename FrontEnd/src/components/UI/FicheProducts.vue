@@ -1,179 +1,267 @@
 <template>
-
+  <section class="produits">
     <div class="itemsView">
-
-        <a href="">
-            <div class="OneProduct">
-                <img src="../../assets/outfit1.jpg" alt="">
-                <h2>Graphic Design</h2>
-                <p>English Departement</p>
-                <div class="prices">
-                    <span class="priceNormal">$16,48</span>
-                    <span class="priceBlue">$6,48</span>
+      <div v-for="product in products" :key="product._id" class="productCard">
+        <div class="OneProduct">
+          <a :href="'/product/' + product._id" class="productLink">
+            <div class="imageWrapper">
+              <img :src="getImage(product)" :alt="product.name" />
+              <div class="heartOverlay" @click.stop="toggleFavorite(product)">
+                <div class="heartWrapper">
+                  <svg
+                      @mouseover="hoverHeart = product._id"
+                      @mouseleave="hoverHeart = null"
+                      :class="['heartIcon', { 'hover': hoverHeart === product._id || isFavorite(product) }]"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="currentColor">
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 6.01 4.01 4 6.5 4c1.54 0 3.04.99 3.57 2.36h.07C11.46 4.99 12.96 4 14.5 4 16.99 4 19 6.01 19 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                  </svg>
                 </div>
+              </div>
             </div>
-        </a>
-
-        <a href="">
-            <div class="OneProduct">
-                <img src="../../assets/outfit2.jpg" alt="">
-                <h2>Graphic Design</h2>
-                <p>English Departement</p>
-                <div class="prices">
-                    <span class="priceNormal">$16,48</span>
-                    <span class="priceBlue">$6,48</span>
-                </div>
+          </a>
+          <div class="productDetails">
+            <h2>{{ product.name }}</h2>
+            <p class="category">{{ product.category }}</p>
+            <div class="ratings">
+              <span class="stars">⭐⭐⭐⭐⭐</span>
+              <span class="ratingCount">(0)</span>
             </div>
-        </a>
-
-        <a href="">
-
-            <div class="OneProduct">
-                <img src="../../assets/outfit3.jpg" alt="">
-                <h2>Graphic Design</h2>
-                <p>English Departement</p>
-                <div class="prices">
-                    <span class="priceNormal">$16,48</span>
-                    <span class="priceBlue">$6,48</span>
-                </div>
+            <div class="prices">
+              <span class="priceNormal">${{ product.price.toFixed(2) }}</span>
             </div>
-        </a>
-
-        <a href="">
-            <div class="OneProduct">
-                <img src="../../assets/outfit4.jpg" alt="">
-                <h2>Graphic Design</h2>
-                <p>English Departement</p>
-                <div class="prices">
-                    <span class="priceNormal">$16,48</span>
-                    <span class="priceBlue">$6,48</span>
-                </div>
+            <div class="availability">
+              <span>Livré en un jour</span>
             </div>
-        </a>
-
-        <a href="">
-            <div class="OneProduct">
-                <img src="../../assets/outfit3.jpg" alt="">
-                <h2>Graphic Design</h2>
-                <p>English Departement</p>
-                <div class="prices">
-                    <span class="priceNormal">$16,48</span>
-                    <span class="priceBlue">$6,48</span>
-                </div>
-            </div>
-
-        </a>
-
-        <a href="">
-            <div class="OneProduct">
-                <img src="../../assets/outfit2.jpg" alt="">
-                <h2>Graphic Design</h2>
-                <p>English Departement</p>
-                <div class="prices">
-                    <span class="priceNormal">$16,48</span>
-                    <span class="priceBlue">$6,48</span>
-                </div>
-            </div>
-        </a>
-
-
-        <a href="">
-
-            <div class="OneProduct">
-                <img src="../../assets/outfit1.jpg" alt="">
-                <h2>Graphic Design</h2>
-                <p>English Departement</p>
-                <div class="prices">
-                    <span class="priceNormal">$16,48</span>
-                    <span class="priceBlue">$6,48</span>
-                </div>
-            </div>
-        </a>
-
-        <a href="">
-            <div class="OneProduct">
-                <img src="../../assets/outfit4.jpg" alt="">
-                <h2>Graphic Design</h2>
-                <p>English Departement</p>
-                <div class="prices">
-                    <span class="priceNormal">$16,48</span>
-                    <span class="priceBlue">$6,48</span>
-                </div>
-            </div>
-
-        </a>
-
-        <a href="">
-
-            <div class="OneProduct">
-                <img src="../../assets/outfit2.jpg" alt="">
-                <h2>Graphic Design</h2>
-                <p>English Departement</p>
-                <div class="prices">
-                    <span class="priceNormal">$16,48</span>
-                    <span class="priceBlue">$6,48</span>
-                </div>
-            </div>
-        </a>
-
-
-
+            <button class="addToCartButton" @click.stop="addToCart(product)">Ajouter au panier</button>
+          </div>
+        </div>
+      </div>
     </div>
+  </section>
+  <Footer />
 </template>
 
-<script>
-export default {
-    name: 'FicheProducts',
+<script setup lang="ts">
+import { defineProps, ref } from 'vue';
+import { useCartStore } from '@/stores/panier';
+import defaultImage from '@/assets/ui_assets/image1.png';
+import type { Product } from "@/stores/products";
+
+/*interface Product {
+  _id: string;
+  name: string;
+  description: string;
+  category: string;
+  brand: string;
+  price: number;
+  stock_available: number;
+  status: string;
+  images: string[];
+}*/
+
+const props = defineProps<{
+  products: Product[],
+  isListView: boolean
+}>();
+
+const getImage = (product: Product) => {
+  if (product.images && product.images.length > 0) {
+    const baseUrl = 'http://localhost:3000';
+    return `${baseUrl}/${product.images[0]}`;
+  }
+  return defaultImage;
 };
+
+const favorites = ref(new Set<string>());
+const hoverHeart = ref<string | null>(null);
+const cartStore = useCartStore();
+
+const toggleFavorite = (product: Product) => {
+  if (favorites.value.has(product._id)) {
+    favorites.value.delete(product._id);
+  } else {
+    favorites.value.add(product._id);
+  }
+};
+
+const isFavorite = (product: Product) => {
+  return favorites.value.has(product._id);
+};
+
+interface ProductWithImageUrl extends Product {
+  imageUrl: string;
+}
+const addToCart = (product: Product) => {
+  const imageUrl = getImage(product);
+  const productWithImageUrl: ProductWithImageUrl = { ...product, imageUrl };
+  cartStore.addToCart(productWithImageUrl);};
 </script>
 
 <style scoped>
-div.itemsView {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: repeat(3, 1fr);
-    /* gap: 10px; */
-    margin: 25px auto;
-    width: 78%;
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap');
+
+.itemsView {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  padding: 20px;
+  margin: 0 auto;
 }
 
-div.OneProduct {
-    width: 100%;
-    text-align: center;
-    padding: 17px;
-    margin: auto;
+.productCard {
+  position: relative;
 }
 
-div.OneProduct img {
-
-    object-fit: cover;
-    width: 197px;
-    height: 206px;
+.productLink {
+  text-decoration: none;
+  color: inherit;
+  display: block;
 }
 
-div.OneProduct h2 {
-    font-size: 19px;
-    color: black;
-    margin-top: 6px;
+.OneProduct {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.3s, box-shadow 0.3s;
+  width: 100%;
+  position: relative;
 }
 
-div.OneProduct p {
-    font-size: 14px;
-    color: grey;
+.OneProduct:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 }
 
-div.prices {
-    margin-top: 6px;
+.imageWrapper {
+  width: 100%;
+  height: 200px; /* Fixed height for the image container */
+  position: relative;
+}
+
+.imageWrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.heartOverlay {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+}
+
+.heartWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.heartIcon {
+  width: 24px;
+  height: 24px;
+  color: #ccc;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.heartIcon.hover {
+  color: red;
+}
+
+.productDetails {
+  padding: 20px;
+  text-align: center;
+}
+
+.productDetails h2 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #333;
+  margin: 10px 0;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.productDetails .category {
+  font-size: 16px;
+  color: #777;
+  margin-bottom: 10px;
+}
+
+.ratings {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.stars {
+  color: gold;
+  font-size: 14px;
+}
+
+.ratingCount {
+  font-size: 14px;
+  color: #777;
+  margin-left: 5px;
+}
+
+.prices {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 }
 
 .priceNormal {
-
-    color: grey;
+  font-size: 20px;
+  font-weight: 700;
+  color: #000;
 }
 
-.priceBlue {
+.availability {
+  font-size: 14px;
+  color: #23a6f0;
+  margin-bottom: 10px;
+}
 
-    color: rgba(35, 133, 109, 1);
-    margin-left: 5px;
+.addToCartButton {
+  background-color: #23a6f0;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.addToCartButton:hover {
+  background-color: #1d94d2;
+}
+
+@media (max-width: 768px) {
+  .itemsView {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+
+  .productDetails h2 {
+    font-size: 18px;
+  }
+
+  .priceNormal {
+    font-size: 18px;
+  }
 }
 </style>

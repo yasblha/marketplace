@@ -13,15 +13,16 @@
 </template>
 
 <script setup lang="ts">
-import axiosInstance from "@/services/api.js";
-import { ref } from "vue";
+import { ref } from 'vue';
+import { useAuthStore } from '@/stores/user';
 
 const email = ref('');
+const authStore = useAuthStore();
 
 async function requestReset() {
   try {
     console.log("Sending reset request for:", email.value);
-    await axiosInstance.post('/api/auth/request-password-reset', { email: email.value });
+    await authStore.requestPasswordReset(email.value);
     alert('Password reset email sent');
   } catch (error) {
     console.error("Reset request failed:", error);
@@ -34,52 +35,64 @@ async function requestReset() {
 .forgot-password-container {
   max-width: 400px;
   margin: 50px auto;
-  padding: 30px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  background-color: #f9f9f9;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  padding: 40px;
+  border-radius: 10px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  text-align: center;
 }
 
 .forgot-password-title {
-  text-align: center;
-  margin-bottom: 20px;
+  font-size: 24px;
+  font-weight: 600;
   color: #333;
+  margin-bottom: 20px;
 }
 
 .forgot-password-form {
   display: flex;
   flex-direction: column;
+  align-items: center;
 }
 
 .form-group {
+  width: 100%;
   margin-bottom: 20px;
 }
 
 .form-label {
-  font-weight: bold;
-  margin-bottom: 5px;
+  display: block;
+  font-weight: 500;
+  margin-bottom: 8px;
   color: #555;
 }
 
 .form-control {
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 3px;
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
   font-size: 16px;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.form-control:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.25);
 }
 
 .btn {
-  padding: 10px 20px;
+  padding: 12px 20px;
   font-size: 16px;
-  border-radius: 3px;
+  border-radius: 8px;
   cursor: pointer;
+  transition: background-color 0.3s;
+  border: none;
 }
 
 .btn-primary {
   background-color: #007bff;
   color: #fff;
-  border: none;
 }
 
 .btn-primary:hover {

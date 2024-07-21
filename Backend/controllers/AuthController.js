@@ -1,12 +1,47 @@
-const User = require('../models/UserPg');
+const User = require('../models/postgres_models/UserPg');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-//const nodemailer = require('nodemailer');
 const crypto = require('crypto');
-const mailer = require('../services/mailer');
+const { sendEmail } = require('../services/mailer');
 require('dotenv').config();
-const JWT_SECRET = process.env.JWT_SECRET;
 
+const JWT_SECRET = process.env.JWT_SECRET;
+const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET;
+
+function generateToken(user) {
+    if (!user.role) {
+        throw new Error('User role is not defined');
+    }
+    return jwt.sign({ userId: user.id, role: user.role }, JWT_SECRET, { expiresIn: '60m' });
+}
+
+function generateRefreshToken(user) {
+    return jwt.sign({ userId: user.id }, REFRESH_TOKEN_SECRET, { expiresIn: '7d' });
+}
+
+let loginAttempts = {};
+
+async function handleFailedLoginAttempt(email, res) {
+    if (loginAttempts[email] && loginAttempts[email] >= 3) {
+        await sendAccountBlockedEmail(email);
+        return res.status(429).json({ message: 'Votre compte est temporairement bloqué. Réessayez plus tard.' });
+    }
+
+    loginAttempts[email] = (loginAttempts[email] || 0) + 1;
+
+    if (loginAttempts[email] >= 3) {
+        setTimeout(() => {
+            delete loginAttempts[email];
+        }, 3600000); // 1 heure
+    }
+
+    return res.status(401).json({ message: 'Email ou mot de passe incorrect' });
+}
+
+async function sendAccountBlockedEmail(email) {
+    const emailContent = 'Votre compte est temporairement bloqué. Réessayez plus tard.';
+    await sendEmail(email, 'Compte Temporairement Bloqué', emailContent);
+}
 
 async function register(req, res, next) {
     const { role, email, lastName, firstName, password, password_confirm } = req.body;
@@ -43,7 +78,7 @@ async function confirmEmail(req, res) {
     try {
         const result = await User.updateUserByToken(token, { confirmed: true });
 
-        if (result.rowCount === 0) {
+        if (result.length === 0) {
             return res.status(400).json({ message: 'Token invalide ou expiré' });
         }
 
@@ -63,34 +98,59 @@ async function login(req, res) {
 
     try {
         const user = await User.getUserByEmail(email);
-        console.log(user);
 
         if (!user) {
-            return res.status(404).json({ message: 'Email ou mot de passe incorrect' });
+            return handleFailedLoginAttempt(email, res);
         }
 
         const isPasswordValid = await bcrypt.compare(password, user.password);
 
         if (!isPasswordValid) {
-            console.log(password, user.password);
-            return res.status(404).json({ message: 'Email ou mot de passe incorrect' });
-        } else {
-            console.log(true, 'cest correct')
+            return handleFailedLoginAttempt(email, res);
         }
 
-        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{}|\\;:'",.<>\/?]).{12,}$/;
-        if (!passwordRegex.test(password)) {
-            return res.status(422).json({
-                message: 'Le mot de passe doit contenir au moins 12 caractères avec au moins une lettre majuscule, une lettre minuscule, un chiffre et un symbole'
-            });
-        }
-        console.log(JWT_SECRET);
-        const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '1h' });
+        delete loginAttempts[email];
 
-        res.status(200).json({ message: 'Bonjour ! Votre utilisateur est connecté', token });
+        const accessToken = generateToken(user);
+        const refreshToken = generateRefreshToken(user);
+
+        res.cookie('token', accessToken, { httpOnly: true, secure: true });
+        res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true });
+
+        const responseMessage = user.role === 'admin'
+            ? { message: 'Connecté en tant qu\'administrateur', accessToken, refreshToken, user, redirectTo: '/' }
+            : { message: 'Bonjour ! Votre utilisateur est connecté', accessToken, refreshToken, user };
+
+        return res.status(200).json(responseMessage);
     } catch (error) {
         console.error('Erreur lors de la connexion :', error);
-        res.status(500).json({ message: 'Erreur interne du serveur' });
+        return res.status(500).json({ message: 'Erreur interne du serveur' });
+    }
+}
+
+async function refreshToken(req, res) {
+    const { refreshToken: receivedRefreshToken } = req.body;
+    if (!receivedRefreshToken) {
+        return res.status(401).json({ message: 'Token de rafraîchissement manquant' });
+    }
+
+    try {
+        const decoded = jwt.verify(receivedRefreshToken, REFRESH_TOKEN_SECRET);
+        const user = await User.getUserById(decoded.userId);
+        if (!user) {
+            return res.status(401).json({ message: 'Utilisateur non trouvé' });
+        }
+
+        const newAccessToken = generateToken(user);
+        const newRefreshToken = generateRefreshToken(user);
+
+        res.cookie('token', newAccessToken, { httpOnly: true, secure: true });
+        res.cookie('refreshToken', newRefreshToken, { httpOnly: true, secure: true });
+
+        return res.status(200).json({ accessToken: newAccessToken, refreshToken: newRefreshToken });
+    } catch (error) {
+        console.error('Erreur lors du rafraîchissement du token :', error);
+        return res.status(403).json({ message: 'Token de rafraîchissement invalide ou expiré' });
     }
 }
 
@@ -102,23 +162,35 @@ async function requestPasswordReset(req, res) {
     }
 
     try {
-        const result = await User.getUserByEmail(email);
+        const user = await User.getUserByEmail(email);
 
-        if (result.rowCount === 0) {
+        if (!user) {
             return res.status(404).json({ message: 'Email non trouvé' });
         }
 
-        const resetToken = crypto.randomBytes(32).toString('hex');
-        const resetTokenExpiry = Date.now() + 3600000; // 1 hour
+        const currentDate = new Date();
+        let resetTokenExpiry;
+        if (user.password_last_changed) {
+            const passwordChangedDate = new Date(user.password_last_changed);
+            passwordChangedDate.setDate(passwordChangedDate.getDate() + 60);
+            resetTokenExpiry = passwordChangedDate;
+        } else {
+            const accountCreatedDate = new Date(user.account_created_at);
+            accountCreatedDate.setDate(accountCreatedDate.getDate() + 60);
+            resetTokenExpiry = accountCreatedDate;
+        }
 
+        const resetToken = crypto.randomBytes(32).toString('hex');
         await User.updateUserByEmail(email, { reset_token: resetToken, reset_token_expiry: resetTokenExpiry });
 
-        const resetUrl = `http://localhost:3000/reset-password/${resetToken}`;
-        sendEmail(email, 'Réinitialisation du mot de passe', `Cliquez sur ce lien pour réinitialiser votre mot de passe: ${resetUrl}`);
+        const resetLink = `${process.env.FRONTEND_BASE_URL}/reset-password/${resetToken}`;
+        const emailContent = `Pour réinitialiser votre mot de passe, veuillez cliquer sur ce lien : ${resetLink}`;
 
-        res.status(200).json({ message: 'Email de réinitialisation envoyé' });
+        await sendEmail(email, 'Réinitialisation de mot de passe', emailContent);
+
+        res.status(200).json({ message: 'Email de réinitialisation envoyé avec succès' });
     } catch (error) {
-        console.error('Error requesting password reset:', error);
+        console.error('Erreur lors de la demande de réinitialisation de mot de passe :', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 }
@@ -135,14 +207,15 @@ async function resetPassword(req, res) {
     }
 
     try {
-        const result = await User.updateUserByToken(token, { reset_token_expiry: { $gt: Date.now() } });
+        const result = await User.updateUserByToken(token, {
+            password: await bcrypt.hash(newPassword, 10),
+            reset_token: null,
+            reset_token_expiry: null
+        });
 
-        if (result.rowCount === 0) {
+        if (result[0] === 0) {
             return res.status(400).json({ message: 'Token invalide ou expiré' });
         }
-
-        const hashedPassword = await bcrypt.hash(newPassword, 10);
-        await User.updateUserByToken(token, { password: hashedPassword, reset_token: null, reset_token_expiry: null });
 
         res.status(200).json({ message: 'Mot de passe réinitialisé avec succès' });
     } catch (error) {
@@ -152,29 +225,19 @@ async function resetPassword(req, res) {
 }
 
 function logout(req, res) {
-    res.send({
-        message: 'Bonjour ! Votre utilisateur est déconnecté'
-    });
-}
-
-async function refresh(req, res) {
     res.clearCookie('token');
+    res.clearCookie('refreshToken');
     res.status(200).json({ message: 'Utilisateur déconnecté' });
 }
 
 async function user(req, res) {
     try {
         const result = await User.getUsers();
-        res.status(200).json({ message: `Users trouvés: ${JSON.stringify(result.rows)}`, result: result.rows });
+        res.status(200).json({ users: result.rows });
     } catch (error) {
         console.error('Error fetching users:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 }
 
-async function getUser(req, res) {
-    const { email, password } = req.body;
-    return user = await User.getUser(email);
-}
-
-module.exports = { getUser, register, login, logout, refresh, user, confirmEmail, resetPassword, requestPasswordReset };
+module.exports = { register, login, logout, user, confirmEmail, resetPassword, requestPasswordReset, refreshToken };

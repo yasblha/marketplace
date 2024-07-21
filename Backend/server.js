@@ -6,54 +6,55 @@ const bodyParser = require("body-parser");
 const credentials = require('./middleware/credentials');
 const errorHandler = require('./middleware/error_handler');
 const authRoutes = require('./routes/api/auth');
-const nodemailer = require('nodemailer');
-//const User = require('/Backend/models/UserPg');
+const products = require('./routes/api/products')
+const uploadRoutes = require('./routes/api/uploadRoute')
+const cron = require('node-cron');
+const upload = require('./middleware/upload');
+const cookieParser = require('cookie-parser');
+const { checkPasswordRenewal } = require('./services/reset_mail');
+//import injectProducts from './utils/faker';
+const path = require('path');
+
 
 require('dotenv').config();
 
-const app = express();
-const PORT = process.env.PORT ;
+async function init() {
+    await checkPasswordRenewal();
+}
 
-// Middleware pour parser les JSON et les cookies
+const app = express();
+const PORT = process.env.PORT || 3000;
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cors());
 app.use(credentials);
+app.use(cookieParser());
 
-// Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/products', products);
+app.use('/api/upload', uploadRoutes);
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// 404 Handler
-/*app.all('*', (req, res) => {
-    res.sendStatus(404);
-    if(req.accepts('json')) {
-        res.json({'error': '404 not found}'})
-    } else {
-        res.type('text').send('404 Not found')
-    }
-});*/
 
-/*app.get('/users', User.getUsers);
-app.get('/users/:id', User.getUserById);
-app.post('/users/create', User.createUser);
-app.put('/users/:id', User.updateUser);
-app.delete('/users/:id', User.deleteUser);*/
 
-// Middleware d'erreurs
-app.use(errorHandler);
+cron.schedule('0 0 * * *', checkPasswordRenewal);
 
-// Démarrez l'application
 app.get('/', (req, res) => {
     res.send('Welcome to my server!');
 });
 
+app.use(errorHandler);
+
 const server = app.listen(PORT, () => {
     console.log(`App is listening at http://localhost:${PORT}`);
+    //init();
 });
 
-// Gestionnaire d'erreurs globales
+//injectProducts();
+
 process.on("unhandledRejection", err => {
-    console.log(`Une erreur a eu lieu: ${err.message}`);
+    console.error(`Unhandled Rejection: ${err.message}`);
     server.close(() => process.exit(1));
 });
