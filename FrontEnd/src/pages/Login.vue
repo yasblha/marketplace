@@ -38,7 +38,7 @@ async function handleLogin() {
     console.log("Connexion réussie :", response);
 
     if (authStore.user?.role === 'admin') {
-      router.push('/dashboard'); // Corrected route path
+      router.push('/admin/dashboard'); // Corrected route path
     } else {
       router.push('/home');
     }

@@ -11,9 +11,9 @@ class ProductService {
     }
 
     static async getProductById(productId) {
-        const sqlProduct = await ProductSQL.getProductById(productId);
-        const mongoProduct = await ProductMongo.findById(productId);
-        return { sqlProduct, mongoProduct };
+        //const sqlProduct = await ProductSQL.getProductById(productId);
+        const Product = await ProductMongo.findById(productId);
+        return Product;
     }
 
     static async createProduct(productData) {

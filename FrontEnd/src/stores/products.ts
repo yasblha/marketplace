@@ -3,7 +3,7 @@ import { defineStore } from 'pinia';
 import { useAuthStore } from '@/stores/user';
 import axiosInstance from "@/services/api";
 
-interface Product {
+export interface Product {
     _id: string;
     name: string;
     description: string;
@@ -13,6 +13,17 @@ interface Product {
     stock_available: number;
     status: string;
     images: string[];
+}
+
+export interface SearchCriteria {
+    name?: string;
+    description?: string;
+    category?: string;
+    brand?: string;
+    priceMin?: number;
+    priceMax?: number;
+    onSale?: boolean;
+    inStock?: boolean;
 }
 
 export const useProductStore = defineStore('product', () => {
@@ -152,6 +163,32 @@ export const useProductStore = defineStore('product', () => {
         }
     };
 
+    const searchFacetedProducts = async (criteria: SearchCriteria): Promise<void> => {
+        try {
+            const params: Record<string, any> = {};
+            if (criteria.name) params.name = criteria.name;
+            if (criteria.description) params.description = criteria.description;
+            if (criteria.category) params.category = criteria.category;
+            if (criteria.brand) params.brand = criteria.brand;
+            if (criteria.priceMin !== undefined) params.priceMin = criteria.priceMin;
+            if (criteria.priceMax !== undefined) params.priceMax = criteria.priceMax;
+            if (criteria.onSale !== undefined) params.onSale = criteria.onSale;
+            if (criteria.inStock !== undefined) params.inStock = criteria.inStock;
+
+            const response = await axiosInstance.get<Product[]>('/products/faceted-search', {
+                headers: {
+                    'Authorization': `Bearer ${authStore.token}`
+                },
+                params
+            });
+            products.value = response.data;
+            console.log('Faceted search results:', products.value);
+        } catch (error) {
+            console.error('Error performing faceted search:', error);
+            throw new Error('Failed to perform faceted search');
+        }
+    };
+
     return {
         products,
         fetchProducts,
@@ -162,6 +199,7 @@ export const useProductStore = defineStore('product', () => {
         deleteProduct,
         updateProductStock,
         searchProducts,
-        injectProducts
+        injectProducts,
+        searchFacetedProducts
     };
 });

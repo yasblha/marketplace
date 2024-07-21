@@ -23,7 +23,7 @@ async function getProductById(req, res) {
         return res.status(400).json({ error: 'ID invalide' });
     }
     try {
-        const product = await Product.getProductById(parseInt(id));
+        const product = await Product.getProductById(id);
         if (!product) {
             return res.status(404).json({ message: 'Produit non trouvé' });
         }
@@ -121,7 +121,8 @@ async function updateProduct(req, res) {
         }
 
         try {
-            const productId = req.params.id;
+            const productId = req.params.id.replace(/^(0+)/g, '');
+            console.log(productId);
             const { name, description, category, brand, price, stock_available, status } = req.body;
             const updateData = {
                 name,
@@ -139,6 +140,7 @@ async function updateProduct(req, res) {
             }
 
             const updatedProduct = await Product.updateProduct(productId, updateData);
+            console.log(updateData, 'dataupdated')
             if (!updatedProduct) {
                 return res.status(404).json({ message: 'Produit non trouvé' });
             }

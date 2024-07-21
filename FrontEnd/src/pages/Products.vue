@@ -1,5 +1,4 @@
 <template>
-  <NavigationBar />
   <BreadcrumbWithSearch @search="filterProducts" />
   <section>
     <CategoryCarousel :categories="categories" @select-category="filterByCategory" />

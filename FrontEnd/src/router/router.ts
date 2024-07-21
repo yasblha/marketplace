@@ -12,6 +12,9 @@ import AdminDashboard from "@/pages/admin_dashboard.vue";
 import ProductDetails from "@/pages/ProductDetails.vue";
 import Cart from "@/pages/Cart.vue";
 import NotFound from "@/pages/NotFound.vue";
+import ProfilPage from "@/pages/profil/profilPage.vue";
+import SearchResult from "@/components/common/SearchResult.vue";
+
 
 const routes = [
     {
@@ -84,6 +87,17 @@ const routes = [
         name: 'Cart',
         component: Cart,
         meta: { requiresAuth: false }
+    },
+    {
+        path: '/profile',
+        name: 'ProfilPage',
+        component: ProfilPage,
+        meta: { requiresAuth: true }
+    },
+    {
+        path: '/search',
+        name: 'SearchResults',
+        component: SearchResult,
     }
 
 ];

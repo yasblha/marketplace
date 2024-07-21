@@ -1,6 +1,6 @@
 <template>
   <div class="home-container">
-    <NavigationBar @openAuthModal="openAuthModal" />
+    <!--<NavigationBar @openAuthModal="openAuthModal" />-->
     <AuthModal :isVisible="isAuthModalVisible" @close="closeAuthModal" />
 
     <section class="hero-section">
@@ -52,7 +52,7 @@ import { ref } from 'vue';
 import NavigationBar from "@/components/UI/NavigationBar.vue";
 import Footer from "@/components/UI/Footer.vue";
 import BestSellers_Products from "@/components/UI/BestSellers_Products.vue";
-import AuthModal from '@/pages/AuthModal.vue';
+import AuthModal from '@/components/common/AuthModal.vue';
 
 const isAuthModalVisible = ref(false);
 
@@ -126,9 +126,12 @@ const products = [
 
 .products-section {
   display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
   padding: 61px;
   background: #80808012;
   justify-content: space-between;
+  max-width:105rem ;
 }
 
 .product-card {

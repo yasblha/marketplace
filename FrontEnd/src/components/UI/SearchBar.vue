@@ -1,31 +1,74 @@
 <template>
-  <div class="breadcrumb-search">
+  <div class="barre-de-recherche">
     <div class="breadcrumb">
-      <a href="#">Home</a>
+      <a href="#">Accueil</a>
       <img src="@/assets/ui_assets/Fleche.svg" alt="breadcrumb separator">
-      <a href="#">Shop</a>
+      <a href="#">Boutique</a>
     </div>
     <div class="search-bar">
-      <input
-          type="text"
-          v-model="searchQuery"
-          placeholder="Search products..."
-      />
-      <button @click="$emit('search', searchQuery)">Search</button>
+      <input type="text" v-model="searchQuery.name" placeholder="Nom du produit..." />
+      <input type="text" v-model="searchQuery.description" placeholder="Description du produit..." />
+      <input type="text" v-model="searchQuery.category" placeholder="Catégorie du produit..." />
+      <input type="text" v-model="searchQuery.brand" placeholder="Marque du produit..." />
+      <input type="number" v-model="searchQuery.priceMin" placeholder="Prix min..." />
+      <input type="number" v-model="searchQuery.priceMax" placeholder="Prix max..." />
+      <label>
+        <input type="checkbox" v-model="searchQuery.onSale" />
+        En promotion
+      </label>
+      <label>
+        <input type="checkbox" v-model="searchQuery.inStock" />
+        En stock
+      </label>
+      <button @click="executeSearch">Rechercher</button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import type { SearchCriteria } from '@/stores/products';
 
-const searchQuery = ref<string>('');
+const searchQuery = ref<SearchCriteria>({
+  name: '',
+  description: '',
+  category: '',
+  brand: '',
+  priceMin: undefined,
+  priceMax: undefined,
+  onSale: undefined,
+  inStock: undefined,
+});
+
+const router = useRouter();
+
+const buildSearchURL = () => {
+  const params: Record<string, any> = {};
+
+  if (searchQuery.value.name) params.name = searchQuery.value.name;
+  if (searchQuery.value.description) params.description = searchQuery.value.description;
+  if (searchQuery.value.category) params.category = searchQuery.value.category;
+  if (searchQuery.value.brand) params.brand = searchQuery.value.brand;
+  if (searchQuery.value.priceMin !== undefined) params.priceMin = searchQuery.value.priceMin;
+  if (searchQuery.value.priceMax !== undefined) params.priceMax = searchQuery.value.priceMax;
+  if (searchQuery.value.onSale !== undefined) params.onSale = searchQuery.value.onSale;
+  if (searchQuery.value.inStock !== undefined) params.inStock = searchQuery.value.inStock;
+
+  return { path: '/search', query: params };
+};
+
+const executeSearch = () => {
+  const searchURL = buildSearchURL();
+  router.push(searchURL);
+};
 </script>
+
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap');
 
-.breadcrumb-search {
+.barre-de-recherche {
   padding: 20px 110px;
   display: flex;
   justify-content: space-between;

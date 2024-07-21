@@ -1,12 +1,15 @@
 import { defineStore } from 'pinia';
+import type { Product } from '@/stores/products';
+
+type CartProduct = Pick<Product, '_id' | 'name' | 'price' | 'images'> & { quantity: number };
 
 export const useCartStore = defineStore('cart', {
     state: () => ({
-        items: JSON.parse(localStorage.getItem('cartItems') || '[]') as { name: string; size: string; quantity: number; price: number; vendor: string; imageUrl: string }[],
+        items: JSON.parse(localStorage.getItem('cartItems') || '[]') as CartProduct[],
     }),
     actions: {
-        addToCart(product) {
-            const existingItem = this.items.find(item => item.name === product.name);
+        addToCart(product: Pick<Product, '_id' | 'name' | 'price' | 'images'>) {
+            const existingItem = this.items.find(item => item._id === product._id);
             if (existingItem) {
                 existingItem.quantity += 1;
             } else {
@@ -33,6 +36,7 @@ export const useCartStore = defineStore('cart', {
         },
         loadCart() {
             this.items = JSON.parse(localStorage.getItem('cartItems') || '[]');
+            console.log(this.items);
         },
     },
 });

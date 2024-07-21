@@ -4,18 +4,26 @@
       <router-link class="navbar-brand" to="/home">MAMBAFIT</router-link>
     </div>
 
-    <div class="links">
+    <button class="navbar-toggle" @click="toggleMobileMenu">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+      </svg>
+    </button>
+
+    <div :class="['links', { 'mobile-menu': isMobileMenuOpen }]">
       <li class="nav-item"><router-link class="nav-link" to="/home">Home</router-link></li>
-      <li class="nav-item"><router-link class="nav-link" to="/products">Shop</router-link></li>
-      <li class="nav-item"><router-link class="nav-link" to="/about">About</router-link></li>
-      <li class="nav-item"><router-link class="nav-link" to="/blog">Blog</router-link></li>
-      <li class="nav-item"><router-link class="nav-link" to="/contact">Contact</router-link></li>
-      <li class="nav-item"><router-link class="nav-link" to="/Products">Products</router-link></li>
+      <li class="nav-item"><router-link class="nav-link" to="/products">All Products</router-link></li>
+      <li class="nav-item"><router-link class="nav-link" to="/products">Sports</router-link></li>
+      <li class="nav-item"><router-link class="nav-link" to="/about">Femme</router-link></li>
+      <li class="nav-item"><router-link class="nav-link" to="/blog">Homme</router-link></li>
+      <li class="nav-item"><router-link class="nav-link" to="/contact">Equipement</router-link></li>
+      <li class="nav-item"><router-link class="nav-link" to="/contact">Nutrition et Santé</router-link></li>
+      <li class="nav-item"><router-link class="nav-link" to="/contact">Soldes et santé</router-link></li>
     </div>
 
-    <ul class="linkTwo">
+    <ul :class="['linkTwo', { 'mobile-menu': isMobileMenuOpen }]">
       <li v-if="!isAuthenticated" class="nav-item">
-        <a class="nav-link2" href="#" @click.prevent="$emit('openAuthModal')">Login</a>
+        <a class="nav-link2" href="#" @click.prevent="openAuthModal">Login</a>
       </li>
       <li v-else class="nav-item profile-menu">
         <img src="@/assets/ui_assets/user.svg" alt="profile" @click="toggleMenu" />
@@ -34,8 +42,9 @@
 <script setup lang="ts">
 import { ref, computed, watchEffect } from 'vue';
 import { useAuthStore } from '@/stores/user';
+import { useAuthModalStore } from '@/stores/authModale';
 
-const emit = defineEmits(['openAuthModal']);
+const authModalStore = useAuthModalStore();
 const authStore = useAuthStore();
 const isAuthenticated = computed(() => authStore.isAuthenticated);
 const isAdmin = computed(() => authStore.user && authStore.user.role === 'admin');
@@ -48,8 +57,17 @@ const toggleMenu = () => {
   showMenu.value = !showMenu.value;
 };
 
+const isMobileMenuOpen = ref(false);
+const toggleMobileMenu = () => {
+  isMobileMenuOpen.value = !isMobileMenuOpen.value;
+};
+
 const logout = () => {
   authStore.logout();
+};
+
+const openAuthModal = () => {
+  authModalStore.openModal();
 };
 
 watchEffect(() => {
@@ -61,6 +79,8 @@ watchEffect(() => {
 <style scoped>
 .navbar {
   display: flex;
+  justify-content: space-between;
+  align-items: center;
   width: 100%;
   background-color: white;
   padding: 19px;
@@ -68,16 +88,30 @@ watchEffect(() => {
 }
 
 .title {
-  margin: auto;
   font-size: 20px;
 }
 
-.links {
+.navbar-toggle {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.navbar-toggle svg {
+  width: 24px;
+  height: 24px;
+}
+
+.links, .linkTwo {
   display: flex;
-  text-decoration: none;
   list-style: none;
-  color: black;
-  margin: auto;
+  margin: 0;
+  padding: 0;
+}
+
+.links li, .linkTwo li {
+  margin-left: 18px;
 }
 
 .title a {
@@ -85,27 +119,15 @@ watchEffect(() => {
   font-weight: 700;
 }
 
-.links li {
-  margin-left: 18px;
-}
-
-.linkTwo {
-  display: flex;
-  margin: auto;
-}
-
-.linkTwo li {
-  list-style: none;
-  margin-left: 14px;
-}
-
 .links li a {
   color: rgba(115, 115, 115, 1);
+  text-decoration: none;
 }
 
 .linkTwo li a {
   color: #23a6f0;
   font-weight: 500;
+  text-decoration: none;
 }
 
 .profile-menu {
@@ -140,5 +162,37 @@ watchEffect(() => {
 
 .profile-dropdown li a:hover {
   text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .navbar {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .navbar-toggle {
+    display: block;
+  }
+
+  .links, .linkTwo {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+    text-align: center;
+  }
+
+  .mobile-menu {
+    display: flex;
+  }
+
+  .links li, .linkTwo li {
+    margin: 10px 0;
+    width: 100%;
+  }
+
+  .links li a, .linkTwo li a {
+    width: 100%;
+    padding: 10px 0;
+  }
 }
 </style>

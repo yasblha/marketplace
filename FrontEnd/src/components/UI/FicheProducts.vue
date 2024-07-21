@@ -1,5 +1,4 @@
 <template>
-  <NavigationBar />
   <section class="produits">
     <div class="itemsView">
       <div v-for="product in products" :key="product._id" class="productCard">

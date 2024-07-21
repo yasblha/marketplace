@@ -1,27 +1,38 @@
 <template>
-  <NavigationBar />
-  <section class="produits">
-    <div class="GlobalItem" v-if="product">
+  <section class="product-details">
+    <div class="product-container" v-if="product">
       <div class="image-section">
         <img :src="getImage(product)" :alt="product.name" class="main-image" />
         <div class="thumbnail-images">
           <img v-for="image in product.images" :src="getImage({ images: [image] })" :key="image" :alt="product.name" class="thumbnail-image">
         </div>
       </div>
-      <div class="itemDetails">
+      <div class="details-section">
         <h2>{{ product.name }}</h2>
         <span class="price">{{ product.price.toFixed(2) }}€</span>
-        <div class="description">
-          <p>{{ product.description }}</p>
-          <p class="source">Marque: {{ product.brand }}</p>
-          <p class="availability">Disponibilité: {{ product.status === 'available' ? 'En stock' : 'Rupture de stock' }}</p>
+        <p class="description">{{ product.description }}</p>
+        <p class="brand">by {{ product.brand }}</p>
+        <div class="size-options" v-if="product.category === 'vêtements'">
+          <span>Size</span>
+          <div class="sizes">
+            <button v-for="size in sizes" :key="size" @click="selectSize(size)" :class="{ selected: size === selectedSize }">{{ size }}</button>
+          </div>
         </div>
-        <div class="PaiementOneProduct">
-          <button @click="addToCart(product)" class="addToCartButton">Ajouter au panier</button>
+        <div class="quantity-section">
+          <span>Quantity</span>
+          <div class="quantity-controls">
+            <button @click="decreaseQuantity">-</button>
+            <span>{{ quantity }}</span>
+            <button @click="increaseQuantity">+</button>
+          </div>
         </div>
+        <button @click="addToCart(product)" class="add-to-cart-button">Add to Cart</button>
+        <p class="availability">Availability: {{ product.status === 'available' ? 'In Stock' : 'Out of Stock' }}</p>
+        <p class="shipping">Free standard shipping | Free returns</p>
       </div>
     </div>
   </section>
+  <BarreDeRecherche @search="searchProducts" />
   <Footer />
 </template>
 
@@ -30,21 +41,10 @@ import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useCartStore } from '@/stores/panier';
 import { useProductStore } from '@/stores/products';
-import NavigationBar from "../components/UI/NavigationBar.vue";
-import Footer from "@/components/UI/Footer.vue";
+import type { Product } from '@/stores/products';
 import defaultImage from "@/assets/ui_assets/image1.png";
-
-interface Product {
-  _id: string;
-  name: string;
-  description: string;
-  category: string;
-  brand: string;
-  price: number;
-  stock_available: number;
-  status: string;
-  images: string[];
-}
+import BarreDeRecherche from "@/components/UI/SearchBar.vue";
+import Footer from "@/components/UI/Footer.vue";
 
 const route = useRoute();
 const productId = route.params.id as string;
@@ -52,8 +52,13 @@ const product = ref<Product | null>(null);
 const productStore = useProductStore();
 const cartStore = useCartStore();
 
+const sizes = ref(['S', 'M', 'L']);
+const selectedSize = ref('M');
+const quantity = ref(1);
+
 const fetchProductById = async (id: string) => {
   product.value = await productStore.getProductById(id);
+  console.log(product.value);
 };
 
 onMounted(async () => {
@@ -62,36 +67,51 @@ onMounted(async () => {
 
 const addToCart = (product: Product) => {
   cartStore.addToCart({
+    _id: product._id,
     name: product.name,
-    size: 'L', // Assurez-vous de la taille si elle est dynamique
     price: product.price,
-    vendor: product.brand,
-    imageUrl: getImage(product),
+    images: product.images,
+    quantity: quantity.value,
   });
 };
 
-const getImage = (product: Product) => {
+const getImage = (product: { images: string[] }) => {
   if (product.images && product.images.length > 0) {
     const baseUrl = 'http://localhost:3000';
     return `${baseUrl}/${product.images[0]}`;
   }
   return defaultImage;
 };
+
+const selectSize = (size: string) => {
+  selectedSize.value = size;
+};
+
+const increaseQuantity = () => {
+  quantity.value++;
+};
+
+const decreaseQuantity = () => {
+  if (quantity.value > 1) quantity.value--;
+};
+
+const searchProducts = (query: string) => {
+  productStore.searchProducts(query);
+};
 </script>
 
-
-
 <style scoped>
-.produits {
+.product-details {
   padding: 20px;
   background-color: #f9f9f9;
 }
 
-.GlobalItem {
+.product-container {
   display: flex;
-  margin: auto;
+  justify-content: space-between;
   max-width: 1200px;
-  gap: 40px;
+  margin: auto;
+  gap: 20px;
   padding: 20px;
   background-color: #fff;
   border-radius: 10px;
@@ -134,12 +154,14 @@ const getImage = (product: Product) => {
   transform: scale(1.1);
 }
 
-.itemDetails {
+.details-section {
   flex: 2;
-  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
-.itemDetails h2 {
+.details-section h2 {
   font-size: 28px;
   font-weight: 700;
   margin-bottom: 10px;
@@ -153,18 +175,85 @@ const getImage = (product: Product) => {
 }
 
 .description {
+  font-size: 16px;
   margin-bottom: 20px;
 }
 
-.description p {
-  margin: 10px 0;
-}
-
-.source, .availability {
+.brand {
+  font-size: 14px;
   color: #777;
+  margin-bottom: 20px;
 }
 
-.addToCartButton {
+.size-options {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+}
+
+.size-options span {
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.sizes {
+  display: flex;
+  gap: 10px;
+}
+
+.sizes button {
+  border: 1px solid #ddd;
+  padding: 10px;
+  background: none;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+.sizes button.selected {
+  background-color: #23a6f0;
+  color: white;
+}
+
+.sizes button:hover {
+  background-color: #f0f0f0;
+}
+
+.quantity-section {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+}
+
+.quantity-section span {
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.quantity-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.quantity-controls button {
+  border: 1px solid #ddd;
+  padding: 10px;
+  background: none;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+.quantity-controls button:hover {
+  background-color: #f0f0f0;
+}
+
+.quantity-controls span {
+  font-size: 16px;
+}
+
+.add-to-cart-button {
   background-color: #23a6f0;
   color: white;
   border: none;
@@ -173,71 +262,26 @@ const getImage = (product: Product) => {
   cursor: pointer;
   font-size: 16px;
   transition: background-color 0.3s;
-  width: 100%;
   text-align: center;
 }
 
-.addToCartButton:hover {
+.add-to-cart-button:hover {
   background-color: #1d94d2;
 }
 
-@media (max-width: 1200px) {
-  .GlobalItem {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .images {
-    justify-content: center;
-  }
-
-  .itemDetails {
-    padding: 20px;
-    text-align: center;
-  }
-
-  .description {
-    font-size: 14px;
-  }
-}
-
 @media (max-width: 768px) {
-  .GlobalItem {
+  .product-container {
     flex-direction: column;
     align-items: center;
   }
 
-  .images {
-    padding: 20px;
-  }
-
-  .main-image {
-    width: 100%;
-    max-width: 100%;
-  }
-
-  .itemDetails {
-    padding: 20px;
+  .details-section {
+    align-items: center;
     text-align: center;
   }
 
-  .description {
-    width: 90%;
-    font-size: 12px;
-  }
-}
-
-@media (max-width: 480px) {
-  .images {
-    padding: 10px;
-  }
-
-  .main-image {
-    padding: 5px;
-  }
-
-  .itemDetails {
-    padding: 10px;
+  .size-options, .quantity-section {
+    align-items: center;
   }
 }
 </style>

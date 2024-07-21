@@ -1,5 +1,4 @@
 <template>
-  <NavigationBar />
   <section class="cart">
     <div class="cart-content">
       <div class="cart-items">
