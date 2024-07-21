@@ -11,7 +11,6 @@ interface CartItem {
     product: Product;
     quantity: number;
 }
-
 export const useCart = () => {
     const cartItems = ref<CartItem[]>(JSON.parse(localStorage.getItem('cart') || '[]'));
 

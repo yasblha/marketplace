@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../../config/postgres');
-const User = require('../mongo_models/User');
-const Product = require('../mongo_models/Product');
+const Client = require('./UserPg');
+const Product = require('./ProductPg');
 
 const Cart = sequelize.define('Cart', {
     id: {
@@ -9,14 +9,34 @@ const Cart = sequelize.define('Cart', {
         autoIncrement: true,
         primaryKey: true,
     },
+    userid: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+            model: 'Clients',
+            key: 'id'
+        }
+    },
+    productid: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+            model: 'Product',
+            key: 'id'
+        }
+    },
     quantity: {
         type: DataTypes.INTEGER,
         allowNull: false,
         defaultValue: 1,
     },
+}, {
+    tableName: 'Cart',
+    timestamps: false,
 });
 
-Cart.belongsTo(User, { foreignKey: 'user_id' });
-Cart.belongsTo(Product, { foreignKey: 'product_id' });
+// Définition des associations
+Cart.belongsTo(Client, { foreignKey: 'userid' });
+Cart.belongsTo(Product, { foreignKey: 'productid' });
 
 module.exports = Cart;

@@ -178,6 +178,10 @@ const exportCSV = () => {
   margin: 0 auto;
   padding: 20px;
   box-sizing: border-box;
+  background-color: #f9fafb;
+  border: 1px solid #dfe1e5;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .table-controls {
@@ -200,11 +204,18 @@ const exportCSV = () => {
   font-size: 16px;
   margin: 5px;
   cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s;
 }
 
 .btn-delete:disabled {
   background-color: #cccccc;
   cursor: not-allowed;
+}
+
+.btn-export:hover,
+.btn-delete:hover:not(:disabled) {
+  background-color: #45a049;
 }
 
 .table-responsive {
@@ -218,7 +229,7 @@ table {
   background-color: #fff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
-  color: black;
+  color: #333;
 }
 
 thead {
@@ -268,6 +279,47 @@ th {
   border-color: #007bff;
 }
 
+.actions-column .table-actions {
+  display: flex;
+  gap: 5px;
+}
+
+.btn-view,
+.btn-edit,
+.btn-delete {
+  padding: 5px 10px;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin: 2px;
+}
+
+.btn-view {
+  background-color: #4CAF50;
+}
+
+.btn-edit {
+  background-color: #FFC107;
+}
+
+.btn-delete {
+  background-color: #F44336;
+}
+
+.btn-view:hover {
+  background-color: #45a049;
+}
+
+.btn-edit:hover {
+  background-color: #e0a800;
+}
+
+.btn-delete:hover {
+  background-color: #e53935;
+}
+
 .pagination {
   margin-top: 20px;
   text-align: center;
@@ -284,6 +336,7 @@ th {
   font-size: 16px;
   margin: 5px;
   cursor: pointer;
+  border-radius: 5px;
 }
 
 .pagination-text {

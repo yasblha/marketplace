@@ -1,30 +1,50 @@
 <template>
-  <div>
+  <div class="user-management">
     <h2>User Management</h2>
-    <ul>
-      <li v-for="user in users" :key="user.id">{{ user.name }} - {{ user.email }}</li>
+    <div v-if="isLoading" class="loading">Loading users...</div>
+    <div v-else-if="error" class="error">{{ error }}</div>
+    <ul v-else>
+      <li v-for="user in users" :key="user.id" class="user-item">
+        <div class="user-details">
+          <span class="user-name">{{ user.firstName }} {{ user.lastName }}</span>
+          <span class="user-email">{{ user.email }}</span>
+          <span class="user-role">{{ user.role }}</span>
+        </div>
+      </li>
     </ul>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
+import { useAuthStore } from '@/stores/user';
 
 interface User {
   id: number;
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
+  role: string;
 }
 
+const authStore = useAuthStore();
 const users = ref<User[]>([]);
+const isLoading = ref(true);
+const error = ref<string | null>(null);
 
-const fetchUsers = () => {
-  setTimeout(() => {
-    users.value = [
-      { id: 1, name: 'John Doe', email: 'john@example.com' },
-      { id: 2, name: 'Jane Doe', email: 'jane@example.com' },
-    ];
-  }, 1000);
+const fetchUsers = async () => {
+  try {
+    await authStore.fetchUser();
+    if (authStore.user) {
+      users.value = [authStore.user];
+    } else {
+      users.value = [];
+    }
+  } catch (err) {
+    error.value = 'Failed to load users';
+  } finally {
+    isLoading.value = false;
+  }
 };
 
 onMounted(() => {
@@ -33,5 +53,56 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* Styles spécifiques pour UserManagement.vue */
+.user-management {
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+  color: #001529;
+  margin-bottom: 20px;
+}
+
+.loading {
+  color: #1890ff;
+  font-size: 16px;
+}
+
+.error {
+  color: red;
+  font-size: 16px;
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.user-item {
+  padding: 10px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.user-item:last-child {
+  border-bottom: none;
+}
+
+.user-details {
+  display: flex;
+  justify-content: space-between;
+}
+
+.user-name {
+  font-weight: bold;
+}
+
+.user-email {
+  color: #555;
+}
+
+.user-role {
+  color: #888;
+}
 </style>

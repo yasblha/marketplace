@@ -1,7 +1,7 @@
 <template>
   <div>
-    <button @click="showProductModal = true">Add Product</button>
-    <button @click="handleInjectProducts">Inject Products</button> <!-- Bouton d'injection -->
+    <button class="add-product-button" @click="showProductModal = true">Add Product</button>
+    <button class="inject-products-button" @click="handleInjectProducts">Inject Products</button> <!-- Bouton d'injection -->
 
     <Table
         :items="combinedProducts"
@@ -21,13 +21,19 @@
     </Modal>
 
     <Modal v-if="showProductDetailsModal" v-model="showProductDetailsModal" :title="selectedProduct?.name">
-      <div>
-        <p><strong>Category:</strong> {{ selectedProduct?.category }}</p>
-        <p><strong>Brand:</strong> {{ selectedProduct?.brand }}</p>
-        <p><strong>Price:</strong> {{ selectedProduct?.price }}</p>
-        <p><strong>Stock:</strong> {{ selectedProduct?.stock_available }}</p>
-        <p><strong>Status:</strong> {{ selectedProduct?.status }}</p>
-        <p><strong>Description:</strong> {{ selectedProduct?.description }}</p>
+      <div class="product-details-modal">
+        <div class="image-section">
+          <img :src="getImage(selectedProduct)" alt="Product Image" class="product-details-image" v-if="selectedProduct?.images?.length">
+        </div>
+        <div class="info-section">
+          <h3 class="product-details-title">{{ selectedProduct?.name }}</h3>
+          <p><strong>Category:</strong> {{ selectedProduct?.category }}</p>
+          <p><strong>Brand:</strong> {{ selectedProduct?.brand }}</p>
+          <p><strong>Price:</strong> {{ selectedProduct?.price }}</p>
+          <p><strong>Stock:</strong> {{ selectedProduct?.stock_available }}</p>
+          <p><strong>Status:</strong> {{ selectedProduct?.status }}</p>
+          <p><strong>Description:</strong> {{ selectedProduct?.description }}</p>
+        </div>
       </div>
     </Modal>
   </div>
@@ -49,7 +55,7 @@ interface Product {
   price: number;
   stock_available: number;
   status: string;
-  image: string | null;
+  images: string[]; // Add images array
 }
 
 interface Column<T> {
@@ -88,6 +94,14 @@ onMounted(async () => {
 watch(() => productStore.products, (newProducts) => {
   console.log('Products in store changed:', newProducts);
 }, { deep: true });
+
+const getImage = (product: Partial<Product> | undefined) => {
+  if (product?.images && product.images.length > 0) {
+    const baseUrl = 'http://localhost:3000'; // Update with your actual base URL
+    return `${baseUrl}/${product.images[0]}`;
+  }
+  return 'path/to/default/image.jpg'; // Update with your default image path
+};
 
 const viewProduct = (product: Product) => {
   console.log('Viewing product:', product);
@@ -136,3 +150,77 @@ const onProductUpdated = async () => {
   await productStore.fetchProducts();
 };
 </script>
+
+<style scoped>
+/* Styles for ProductManagement.vue */
+.add-product-button,
+.inject-products-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 5px;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+.add-product-button:hover,
+.inject-products-button:hover {
+  background-color: #0056b3;
+}
+
+/* Styles for Product Details Modale */
+.product-details-modal {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.image-section {
+  flex: 1;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.product-details-image {
+  width: 100%;
+  max-width: 300px;
+  height: auto;
+  margin: 0 auto;
+  border-radius: 8px;
+}
+
+.info-section {
+  flex: 2;
+  padding: 20px;
+  background-color: #f9fafb;
+  border-radius: 8px;
+}
+
+.product-details-title {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.product-details-modal p {
+  margin: 10px 0;
+  color: #333;
+}
+
+.product-details-modal strong {
+  color: #555;
+}
+</style>

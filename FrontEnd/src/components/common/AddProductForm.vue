@@ -1,22 +1,25 @@
 <template>
   <form @submit.prevent="handleSubmit">
-    <div v-for="field in formFields" :key="field.name">
+    <div v-for="field in formFields" :key="field.name" class="form-group">
       <label :for="field.name">{{ field.label }}</label>
       <input
           v-if="field.type === 'text'"
           :id="field.name"
           v-model="productData[field.name]"
           :type="field.type"
+          class="form-control"
       />
       <textarea
           v-else-if="field.type === 'textarea'"
           :id="field.name"
           v-model="productData[field.name]"
+          class="form-control"
       ></textarea>
       <select
           v-else-if="field.type === 'select'"
           :id="field.name"
           v-model="productData[field.name]"
+          class="form-control"
       >
         <option v-for="option in field.options" :key="option" :value="option">{{ option }}</option>
       </select>
@@ -27,21 +30,22 @@
           :type="field.type"
           @input="validateNumberInput(field.name)"
           step="0.01"
+          class="form-control"
       />
-      <span v-if="errors[field.name]">{{ errors[field.name] }}</span>
+      <span v-if="errors[field.name]" class="error">{{ errors[field.name] }}</span>
     </div>
-    <div>
+    <div class="form-group">
       <label for="images">Images</label>
-      <input type="file" id="images" multiple @change="handleFileChange" />
+      <input type="file" id="images" multiple @change="handleFileChange" class="form-control-file" />
       <div class="image-previews">
         <div v-for="(image, index) in images" :key="index" class="image-preview">
           <img :src="image.url" :alt="`Image ${index + 1}`" />
-          <button @click.prevent="removeImage(index)">X</button>
+          <button @click.prevent="removeImage(index)" class="remove-button">X</button>
         </div>
       </div>
     </div>
-    <button type="submit" :disabled="isSubmitting">Submit</button>
-    <div v-if="serverError">{{ serverError }}</div>
+    <button type="submit" :disabled="isSubmitting" class="submit-button">Submit</button>
+    <div v-if="serverError" class="error">{{ serverError }}</div>
   </form>
 </template>
 
@@ -162,14 +166,12 @@ const removeImage = (index: number) => {
 
 const handleSubmit = async () => {
   if (isSubmitting.value) {
-    console.log('Submission is already in progress');
     return; // Prevent multiple submissions
   }
 
   if (validate()) {
     isSubmitting.value = true;
     serverError.value = null;
-    console.log('Submitting the form', productData.value);
 
     try {
       const formData = new FormData();
@@ -179,8 +181,6 @@ const handleSubmit = async () => {
       images.value.forEach((image) => {
         formData.append('images', image.file); // Ajout des fichiers sous le champ 'images'
       });
-
-      console.log('FormData:', Array.from(formData.entries()));
 
       if (isEditing.value && productData.value._id) {
         await productStore.updateProduct(productData.value._id, formData);
@@ -203,11 +203,9 @@ const handleSubmit = async () => {
         images.value = [];
       }
     } catch (err) {
-      console.error('Error submitting form:', err);
       serverError.value = 'An error occurred while submitting the form.';
     } finally {
       isSubmitting.value = false;
-      console.log('Submission finished');
     }
   }
 };
@@ -217,66 +215,112 @@ const handleSubmit = async () => {
 form {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  color: black;
+  gap: 1.5rem;
+  background-color: #f7f7f7;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-label {
+.form-title {
+  font-size: 24px;
   font-weight: bold;
-  color: black;
+  color: #444;
+  text-align: center;
+  margin-bottom: 1.5rem;
 }
 
-input, select, textarea {
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-label {
+  font-weight: bold;
+  color: #666;
+  margin-bottom: 0.5rem;
+}
+
+.form-control, .form-control-file {
   width: 100%;
-  padding: 0.5rem;
-  color: black;
+  padding: 0.75rem;
   border: 1px solid #ccc;
   border-radius: 4px;
   box-sizing: border-box;
+  transition: border-color 0.3s, box-shadow 0.3s;
 }
 
-textarea {
+.form-control:focus, .form-control-file:focus {
+  border-color: #999;
+  box-shadow: 0 0 8px rgba(153, 153, 153, 0.1);
+}
+
+textarea.form-control {
   resize: vertical;
-  min-height: 100px;
+  min-height: 120px;
 }
 
-button {
-  padding: 0.5rem 1rem;
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  cursor: pointer;
-  border-radius: 4px;
-}
-
-button:hover {
-  background-color: #45a049;
+.error {
+  color: #e74c3c;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
 }
 
 .image-previews {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 0.75rem;
 }
 
 .image-preview {
   position: relative;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  overflow: hidden;
+  width: 100px;
+  height: 100px;
 }
 
 .image-preview img {
-  max-width: 100px;
-  max-height: 100px;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
 }
 
-.image-preview button {
+.remove-button {
   position: absolute;
-  top: 0;
-  right: 0;
-  background: red;
+  top: 4px;
+  right: 4px;
+  background: #e74c3c;
   color: white;
   border: none;
   border-radius: 50%;
   cursor: pointer;
+  font-size: 0.75rem;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.submit-button {
+  padding: 0.75rem 1.5rem;
+  background-color: #333;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s;
+}
+
+.submit-button:hover {
+  background-color: #555;
+}
+
+.submit-button:disabled {
+  background-color: #aaa;
+  cursor: not-allowed;
 }
 </style>

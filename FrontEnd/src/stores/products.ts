@@ -3,7 +3,7 @@ import { defineStore } from 'pinia';
 import { useAuthStore } from '@/stores/user';
 import axiosInstance from "@/services/api";
 
-interface Product {
+export interface Product {
     _id: string;
     name: string;
     description: string;
@@ -15,9 +15,20 @@ interface Product {
     images: string[];
 }
 
+export interface SearchCriteria {
+    name?: string;
+    description?: string;
+    category?: string;
+    brand?: string;
+    priceMin?: number;
+    priceMax?: number;
+    onSale?: boolean;
+    inStock?: boolean;
+}
+
 export const useProductStore = defineStore('product', () => {
     const products = ref<Product[]>([]);
-    const authStore = useAuthStore();  // Initialize authStore correctly
+    const authStore = useAuthStore();
 
     const fetchProducts = async (): Promise<void> => {
         try {
@@ -152,6 +163,53 @@ export const useProductStore = defineStore('product', () => {
         }
     };
 
+    const searchFacetedProducts = (criteria: SearchCriteria): void => {
+        let filtered = products.value;
+
+        if (criteria.name) {
+            filtered = filtered.filter(product =>
+                product.name.toLowerCase().includes(criteria.name!.toLowerCase())
+            );
+        }
+
+        if (criteria.description) {
+            filtered = filtered.filter(product =>
+                product.description.toLowerCase().includes(criteria.description!.toLowerCase())
+            );
+        }
+
+        if (criteria.category) {
+            filtered = filtered.filter(product =>
+                product.category.toLowerCase().includes(criteria.category!.toLowerCase())
+            );
+        }
+
+        if (criteria.brand) {
+            filtered = filtered.filter(product =>
+                product.brand.toLowerCase().includes(criteria.brand!.toLowerCase())
+            );
+        }
+
+        if (criteria.priceMin !== undefined) {
+            filtered = filtered.filter(product => product.price >= criteria.priceMin!);
+        }
+
+        if (criteria.priceMax !== undefined) {
+            filtered = filtered.filter(product => product.price <= criteria.priceMax!);
+        }
+
+        if (criteria.onSale !== undefined) {
+            filtered = filtered.filter(product => product.status === 'sale');
+        }
+
+        if (criteria.inStock !== undefined) {
+            filtered = filtered.filter(product => product.stock_available > 0);
+        }
+
+        products.value = filtered;
+        console.log('Faceted search results:', products.value);
+    };
+
     return {
         products,
         fetchProducts,
@@ -162,6 +220,7 @@ export const useProductStore = defineStore('product', () => {
         deleteProduct,
         updateProductStock,
         searchProducts,
-        injectProducts
+        injectProducts,
+        searchFacetedProducts
     };
 });
