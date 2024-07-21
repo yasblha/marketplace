@@ -19,15 +19,27 @@
 import { ref, onMounted } from 'vue';
 import { useAuthStore } from '@/stores/user';
 
+interface User {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: string;
+}
+
 const authStore = useAuthStore();
-const users = ref([]);
+const users = ref<User[]>([]);
 const isLoading = ref(true);
 const error = ref<string | null>(null);
 
 const fetchUsers = async () => {
   try {
     await authStore.fetchUser();
-    users.value = [authStore.user];
+    if (authStore.user) {
+      users.value = [authStore.user];
+    } else {
+      users.value = [];
+    }
   } catch (err) {
     error.value = 'Failed to load users';
   } finally {

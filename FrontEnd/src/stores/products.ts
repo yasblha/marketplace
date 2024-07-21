@@ -28,7 +28,7 @@ export interface SearchCriteria {
 
 export const useProductStore = defineStore('product', () => {
     const products = ref<Product[]>([]);
-    const authStore = useAuthStore();  // Initialize authStore correctly
+    const authStore = useAuthStore();
 
     const fetchProducts = async (): Promise<void> => {
         try {
@@ -163,30 +163,51 @@ export const useProductStore = defineStore('product', () => {
         }
     };
 
-    const searchFacetedProducts = async (criteria: SearchCriteria): Promise<void> => {
-        try {
-            const params: Record<string, any> = {};
-            if (criteria.name) params.name = criteria.name;
-            if (criteria.description) params.description = criteria.description;
-            if (criteria.category) params.category = criteria.category;
-            if (criteria.brand) params.brand = criteria.brand;
-            if (criteria.priceMin !== undefined) params.priceMin = criteria.priceMin;
-            if (criteria.priceMax !== undefined) params.priceMax = criteria.priceMax;
-            if (criteria.onSale !== undefined) params.onSale = criteria.onSale;
-            if (criteria.inStock !== undefined) params.inStock = criteria.inStock;
+    const searchFacetedProducts = (criteria: SearchCriteria): void => {
+        let filtered = products.value;
 
-            const response = await axiosInstance.get<Product[]>('/products/faceted-search', {
-                headers: {
-                    'Authorization': `Bearer ${authStore.token}`
-                },
-                params
-            });
-            products.value = response.data;
-            console.log('Faceted search results:', products.value);
-        } catch (error) {
-            console.error('Error performing faceted search:', error);
-            throw new Error('Failed to perform faceted search');
+        if (criteria.name) {
+            filtered = filtered.filter(product =>
+                product.name.toLowerCase().includes(criteria.name!.toLowerCase())
+            );
         }
+
+        if (criteria.description) {
+            filtered = filtered.filter(product =>
+                product.description.toLowerCase().includes(criteria.description!.toLowerCase())
+            );
+        }
+
+        if (criteria.category) {
+            filtered = filtered.filter(product =>
+                product.category.toLowerCase().includes(criteria.category!.toLowerCase())
+            );
+        }
+
+        if (criteria.brand) {
+            filtered = filtered.filter(product =>
+                product.brand.toLowerCase().includes(criteria.brand!.toLowerCase())
+            );
+        }
+
+        if (criteria.priceMin !== undefined) {
+            filtered = filtered.filter(product => product.price >= criteria.priceMin!);
+        }
+
+        if (criteria.priceMax !== undefined) {
+            filtered = filtered.filter(product => product.price <= criteria.priceMax!);
+        }
+
+        if (criteria.onSale !== undefined) {
+            filtered = filtered.filter(product => product.status === 'sale');
+        }
+
+        if (criteria.inStock !== undefined) {
+            filtered = filtered.filter(product => product.stock_available > 0);
+        }
+
+        products.value = filtered;
+        console.log('Faceted search results:', products.value);
     };
 
     return {

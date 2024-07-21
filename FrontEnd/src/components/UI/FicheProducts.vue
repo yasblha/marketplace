@@ -47,8 +47,9 @@
 import { defineProps, ref } from 'vue';
 import { useCartStore } from '@/stores/panier';
 import defaultImage from '@/assets/ui_assets/image1.png';
+import type { Product } from "@/stores/products";
 
-interface Product {
+/*interface Product {
   _id: string;
   name: string;
   description: string;
@@ -58,7 +59,7 @@ interface Product {
   stock_available: number;
   status: string;
   images: string[];
-}
+}*/
 
 const props = defineProps<{
   products: Product[],
@@ -89,10 +90,13 @@ const isFavorite = (product: Product) => {
   return favorites.value.has(product._id);
 };
 
+interface ProductWithImageUrl extends Product {
+  imageUrl: string;
+}
 const addToCart = (product: Product) => {
   const imageUrl = getImage(product);
-  cartStore.addToCart({ ...product, imageUrl });
-};
+  const productWithImageUrl: ProductWithImageUrl = { ...product, imageUrl };
+  cartStore.addToCart(productWithImageUrl);};
 </script>
 
 <style scoped>

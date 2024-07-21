@@ -6,7 +6,13 @@
       <a href="#">Boutique</a>
     </div>
     <div class="search-bar">
-      <input type="text" v-model="searchQuery.name" placeholder="Nom du produit..." />
+      <input type="text" v-model="searchQuery.name" placeholder="Rechercher des produits..." />
+      <button @click="executeSearch">Rechercher</button>
+      <button @click="toggleAdvancedSearch" class="advanced-search-button">
+        {{ showAdvancedSearch ? 'Cacher' : 'Plus de critères' }}
+      </button>
+    </div>
+    <div v-if="showAdvancedSearch" class="advanced-search">
       <input type="text" v-model="searchQuery.description" placeholder="Description du produit..." />
       <input type="text" v-model="searchQuery.category" placeholder="Catégorie du produit..." />
       <input type="text" v-model="searchQuery.brand" placeholder="Marque du produit..." />
@@ -20,7 +26,6 @@
         <input type="checkbox" v-model="searchQuery.inStock" />
         En stock
       </label>
-      <button @click="executeSearch">Rechercher</button>
     </div>
   </div>
 </template>
@@ -40,6 +45,8 @@ const searchQuery = ref<SearchCriteria>({
   onSale: undefined,
   inStock: undefined,
 });
+
+const showAdvancedSearch = ref(false);
 
 const router = useRouter();
 
@@ -62,8 +69,11 @@ const executeSearch = () => {
   const searchURL = buildSearchURL();
   router.push(searchURL);
 };
-</script>
 
+const toggleAdvancedSearch = () => {
+  showAdvancedSearch.value = !showAdvancedSearch.value;
+};
+</script>
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap');
@@ -71,6 +81,7 @@ const executeSearch = () => {
 .barre-de-recherche {
   padding: 20px 110px;
   display: flex;
+  flex-direction: column;
   justify-content: space-between;
   align-items: center;
   width: 100%;
@@ -105,12 +116,13 @@ const executeSearch = () => {
 .search-bar {
   display: flex;
   align-items: center;
+  gap: 10px;
 }
 
 .search-bar input {
   padding: 10px 14px;
   border: 1px solid #ccc;
-  border-radius: 4px 0 0 4px;
+  border-radius: 4px;
   outline: none;
   font-size: 14px;
   transition: border-color 0.3s;
@@ -125,7 +137,7 @@ const executeSearch = () => {
   background-color: #23a6f0;
   color: white;
   border: none;
-  border-radius: 0 4px 4px 0;
+  border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.3s;
 }
@@ -134,36 +146,35 @@ const executeSearch = () => {
   background-color: #1d94d2;
 }
 
-@media (max-width: 768px) {
-  .breadcrumb-search {
-    flex-direction: column;
-    align-items: flex-start;
-  }
+.advanced-search-button {
+  background-color: transparent;
+  color: #23a6f0;
+  border: 1px solid #23a6f0;
+  border-radius: 4px;
+}
 
-  .breadcrumb,
-  .search-bar {
-    width: 100%;
-    margin-top: 10px;
-  }
+.advanced-search-button:hover {
+  background-color: #23a6f0;
+  color: white;
+}
 
-  .breadcrumb {
-    justify-content: flex-start;
-  }
+.advanced-search {
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
 
-  .search-bar {
-    justify-content: flex-end;
-  }
+.advanced-search input, .advanced-search label {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  outline: none;
+  font-size: 14px;
+  transition: border-color 0.3s;
+}
 
-  .search-bar input {
-    width: 100%;
-    margin-right: 0;
-    border-radius: 4px;
-    margin-bottom: 10px;
-  }
-
-  .search-bar button {
-    width: 100%;
-    border-radius: 4px;
-  }
+.advanced-search input:focus {
+  border-color: #23a6f0;
 }
 </style>

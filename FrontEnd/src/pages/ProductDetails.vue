@@ -1,4 +1,6 @@
 <template>
+  <BarreDeRecherche @search="searchProducts" />
+
   <section class="product-details">
     <div class="product-container" v-if="product">
       <div class="image-section">
@@ -32,7 +34,7 @@
       </div>
     </div>
   </section>
-  <BarreDeRecherche @search="searchProducts" />
+
   <Footer />
 </template>
 
@@ -45,6 +47,10 @@ import type { Product } from '@/stores/products';
 import defaultImage from "@/assets/ui_assets/image1.png";
 import BarreDeRecherche from "@/components/UI/SearchBar.vue";
 import Footer from "@/components/UI/Footer.vue";
+
+interface ProductWithQuantity extends Product {
+  quantity: number;
+}
 
 const route = useRoute();
 const productId = route.params.id as string;
@@ -66,13 +72,11 @@ onMounted(async () => {
 });
 
 const addToCart = (product: Product) => {
-  cartStore.addToCart({
-    _id: product._id,
-    name: product.name,
-    price: product.price,
-    images: product.images,
+  const productWithQuantity: ProductWithQuantity = {
+    ...product,
     quantity: quantity.value,
-  });
+  };
+  cartStore.addToCart(productWithQuantity);
 };
 
 const getImage = (product: { images: string[] }) => {
