@@ -1,74 +1,123 @@
-// src/router/router.ts
 import { createRouter, createWebHistory } from 'vue-router';
+import { useAuthStore } from '@/stores/user';
 
 import Register from '../pages/Register.vue';
 import Login from '../pages/Login.vue';
-import Home from '../pages/Home.vue';
-import Products from '../pages/Products.vue';
-import OneProduct from '../pages/OneProduct.vue';
-import Panier from '../pages/Panier.vue';
-import Favorites from '../pages/Favorites.vue';
-import Success from '../pages/PaymentSucces.vue';
-import Cancel from '../pages/PaymentCancel.vue';
-
+import Home from "@/pages/Home.vue";
+import Products from "@/pages/Products.vue";
+import ForgotPassword from "@/pages/ForgotPassword.vue";
+import ConfirmEmail from "@/pages/ConfirmEmail.vue";
+import ResetPassword from '@/pages/resetPassword.vue';
+import AdminDashboard from "@/pages/admin_dashboard.vue";
+import ProductDetails from "@/pages/ProductDetails.vue";
+import Cart from "@/pages/Cart.vue";
+import NotFound from "@/pages/NotFound.vue";
+import ProfilPage from "@/pages/profil/profilPage.vue";
+import SearchResult from "@/components/common/SearchResult.vue";
 
 
 const routes = [
-
     {
         path: '/register',
         name: 'Register',
-        component: Register
+        component: Register,
+        meta: { requiresAuth: false }
     },
     {
         path: '/login',
         name: 'Login',
-        component: Login
+        component: Login,
+        meta: { requiresAuth: false }
     },
     {
         path: '/home',
         name: 'Home',
-        component: Home
+        component: Home,
+        meta: { requiresAuth: false }
     },
     {
         path: '/products',
         name: 'Products',
-        component: Products
+        component: Products,
+        meta: { requiresAuth: false }
+    },
+    {
+        path: '/forgot-password',
+        name: 'ForgotPassword',
+        component: ForgotPassword,
+        meta: { requiresAuth: false }
+    },
+    {
+        path: '/confirm-email/:token',
+        name: 'ConfirmEmail',
+        component: ConfirmEmail,
+        meta: { requiresAuth: false }
+    },
+    {
+        path: '/',
+        redirect: '/home',
+        meta: { requiresAuth: false }
+    },
+    {
+        path: '/reset-password/:resetToken',
+        name: 'ResetPassword',
+        component: ResetPassword,
+        meta: { requiresAuth: false }
+    },
+    {
+        path: '/:catchAll(.*)',
+        name: 'NotFound',
+        component: NotFound,
+        meta: { requiresAuth: false }
+    },
+    {
+        path: '/admin/dashboard',
+        name: 'AdminDashboard',
+        component: AdminDashboard,
+        meta: { requiresAuth: true, requiresAdmin: true },
     },
     {
         path: '/product/:id',
-        name: 'OneProduct',
-        component: OneProduct,
-        props: true
-
+        name: 'ProductDetails',
+        component: ProductDetails,
+        meta: { requiresAuth: false }
     },
     {
-        path: '/panier',
-        name: 'Panier',
-        component: Panier
+        path: '/cart',
+        name: 'Cart',
+        component: Cart,
+        meta: { requiresAuth: false }
     },
     {
-        path: '/favorites',
-        name: 'Favorites',
-        component: Favorites
+        path: '/profile',
+        name: 'ProfilPage',
+        component: ProfilPage,
+        meta: { requiresAuth: true }
     },
     {
-        path: '/success',
-        name: 'Success',
-        component: Success
-    },
-    {
-        path: '/cancel',
-        name: 'Cancel',
-        component: Cancel
+        path: '/search',
+        name: 'SearchResults',
+        component: SearchResult,
     }
 
 ];
 
-
 const router = createRouter({
     history: createWebHistory(),
     routes
-  });
+});
+
+// Garde de navigation pour vérifier l'authentification et les rôles
+router.beforeEach((to, from, next) => {
+    const authStore = useAuthStore();
+
+    if (to.meta.requiresAuth && !authStore.isAuthenticated) {
+        next({ name: 'Login' });
+    } else if (to.meta.requiresAdmin && authStore.user?.role !== 'admin') {
+        next({ name: 'Home' });
+    } else {
+        next();
+    }
+});
 
 export default router;

@@ -1,40 +1,36 @@
-const { Pool } = require('pg');
+const { Sequelize } = require("sequelize");
+require('dotenv').config();
 
-const pool = new Pool({
-    user: 'user',
-    password: 'admin',
-    host: 'postgres',
-    port: 5432,
-    database: 'marketplace',
-})
+const sequelize = new Sequelize({
+    dialect: 'postgres',
+    host: process.env.POSTGRES_HOST,
+    port: process.env.POSTGRES_PORT,
+    username: process.env.POSTGRES_USER,
+    password: process.env.POSTGRES_PASSWORD,
+    database: process.env.POSTGRES_DB,
+    logging: console.log,
+    pool: {
+        max: 5,
+        min: 0,
+        acquire: 30000,
+        idle: 10000
+    }
+});
 
+async function testPostgresConnection() {
+    try {
+        await sequelize.authenticate();
+        console.log('Connection to PostgreSQL has been established successfully.');
+    } catch (error) {
+        console.error('Unable to connect to the PostgreSQL database:', error);
+        if (error.parent) {
+            console.error('Detailed error:', error.parent.message);
+            console.error('Error code:', error.parent.code);
+            console.error('Error errno:', error.parent.errno);
+        }
+    }
+}
 
-pool.connect()
-    .then(() => {
-        console.log('Connected to PostgreSQL database');
-        pool.query('SELECT * FROM "Order"', (err, result) => {
-            if (err) {
-                console.error('Error executing query', err);
-            } else {
-                console.log('Query result:', result.rows);
-            }
+testPostgresConnection();
 
-            // Close the connection when done
-            pool
-                .end()
-                .then(() => {
-                    console.log('Connection to PostgreSQL closed');
-                })
-                .catch((err) => {
-                    console.error('Error closing connection', err);
-                });
-        });
-
-})
-    .catch((err) => {
-        console.error('Error connecting to PostgreSQL database', err);
-    });
-
-module.exports = {
-    query: (text, params) => pool.query(text, params)
-};
+module.exports = sequelize;

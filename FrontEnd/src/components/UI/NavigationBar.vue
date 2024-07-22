@@ -1,138 +1,198 @@
 <template>
-    <nav class="navbar">
-        <div class="title">
-            <a class="navbar-brand" href="/home">Bandage</a>
-        </div>
+  <nav class="navbar">
+    <div class="title">
+      <router-link class="navbar-brand" to="/home">MAMBAFIT</router-link>
+    </div>
 
-        <button class="menu-button" @click="toggleMenu">
-            <i class="fas fa-bars"></i>
-        </button>
+    <button class="navbar-toggle" @click="toggleMobileMenu">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+      </svg>
+    </button>
 
-        <div class="links" :class="{ 'show': isMenuOpen }">
-            <li class="nav-item"><a class="nav-link" href="/home">Home</a></li>
-            <li class="nav-item"><a class="nav-link" href="/products">Shop</a></li>
-            <li class="nav-item"><a class="nav-link" href="/about">About</a></li>
-            <li class="nav-item"><a class="nav-link" href="/blog">Blog</a></li>
-            <li class="nav-item"><a class="nav-link" href="/contact">Contact</a></li>
-            <li class="nav-item"><a class="nav-link" href="/contact">Pages</a></li>
-        </div>
+    <div :class="['links', { 'mobile-menu': isMobileMenuOpen }]">
+      <li class="nav-item"><router-link class="nav-link" to="/home">Home</router-link></li>
+      <li class="nav-item"><router-link class="nav-link" to="/products">All Products</router-link></li>
+      <li class="nav-item"><router-link class="nav-link" to="/products">Sports</router-link></li>
+      <li class="nav-item"><router-link class="nav-link" to="/about">Femme</router-link></li>
+      <li class="nav-item"><router-link class="nav-link" to="/blog">Homme</router-link></li>
+      <li class="nav-item"><router-link class="nav-link" to="/contact">Equipement</router-link></li>
+      <li class="nav-item"><router-link class="nav-link" to="/contact">Nutrition et Santé</router-link></li>
+      <li class="nav-item"><router-link class="nav-link" to="/contact">Soldes et santé</router-link></li>
+    </div>
 
-        <ul class="linkTwo" :class="{ 'show': isMenuOpen }">
-            <li class="nav-item"><a class="nav-link2" href="/login">Login/Register</a></li>
-            <li class="nav-item"><a class="nav-link2" href="/login"><img src="/src/assets/Vector.svg"></img></a></li>
-            <li class="nav-item"><a class="nav-link2" href="/panier"><img src="/src/assets/Panier.svg"></img></a></li>
-            <li class="nav-item"><a class="nav-link2" href="/favorites"><img src="/src/assets/hart.svg"></img></a></li>
+    <ul :class="['linkTwo', { 'mobile-menu': isMobileMenuOpen }]">
+      <li v-if="!isAuthenticated" class="nav-item">
+        <a class="nav-link2" href="#" @click.prevent="openAuthModal">Login</a>
+      </li>
+      <li v-else class="nav-item profile-menu">
+        <img src="@/assets/ui_assets/user.svg" alt="profile" @click="toggleMenu" />
+        <ul v-if="showMenu" class="profile-dropdown">
+          <li><router-link to="/profile">Profile</router-link></li>
+          <li v-if="isAdmin"><router-link to="/admin/dashboard">Dashboard</router-link></li>
+          <li><a href="#" @click.prevent="logout">Logout</a></li>
         </ul>
-    </nav>
+      </li>
+      <li class="nav-item"><router-link class="nav-link2" to="/cart"><img src="../../assets/ui_assets/Panier.svg" alt="cart"></router-link></li>
+      <li class="nav-item"><router-link class="nav-link2" to="/wishlist"><img src="../../assets/ui_assets/hart.svg" alt="wishlist"></router-link></li>
+    </ul>
+  </nav>
 </template>
 
-<script>
-import { ref } from 'vue';
+<script setup lang="ts">
+import { ref, computed, watchEffect } from 'vue';
+import { useAuthStore } from '@/stores/user';
+import { useAuthModalStore } from '@/stores/authModale';
 
-export default {
-    name: 'NavigationBar',
-    setup() {
-        const isMenuOpen = ref(false);
-        const toggleMenu = () => {
-            isMenuOpen.value = !isMenuOpen.value;
-        };
-        return { isMenuOpen, toggleMenu };
-    }
+const authModalStore = useAuthModalStore();
+const authStore = useAuthStore();
+const isAuthenticated = computed(() => authStore.isAuthenticated);
+const isAdmin = computed(() => authStore.user && authStore.user.role === 'admin');
+
+console.log('isAuthenticated:', isAuthenticated.value);
+console.log('isAdmin:', isAdmin.value);
+
+const showMenu = ref(false);
+const toggleMenu = () => {
+  showMenu.value = !showMenu.value;
 };
-</script>
 
+const isMobileMenuOpen = ref(false);
+const toggleMobileMenu = () => {
+  isMobileMenuOpen.value = !isMobileMenuOpen.value;
+};
+
+const logout = () => {
+  authStore.logout();
+};
+
+const openAuthModal = () => {
+  authModalStore.openModal();
+};
+
+watchEffect(() => {
+  console.log('Auth state changed, isAuthenticated:', isAuthenticated.value);
+  console.log('User role:', authStore.user ? authStore.user.role : 'No user');
+});
+</script>
 
 <style scoped>
 .navbar {
-    display: flex;
-    /* justify-content: space-between; */
-    width: 100%;
-    background-color: white;
-    /* padding: 10px 20px; */
-    color: black;
-    PADDING: 19px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  background-color: white;
+  padding: 19px;
+  color: black;
 }
 
 .title {
-
-    margin: auto;
-    font-size: 20px;
+  font-size: 20px;
 }
 
+.navbar-toggle {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
 
-.links {
-    display: flex;
-    text-decoration: none;
-    list-style: none;
-    color: black;
-    margin: auto;
+.navbar-toggle svg {
+  width: 24px;
+  height: 24px;
+}
+
+.links, .linkTwo {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.links li, .linkTwo li {
+  margin-left: 18px;
 }
 
 .title a {
-    color: rgba(37, 43, 66, 1);
-    font-weight: 700;
-}
-
-.links li {
-    margin-left: 18px;
-}
-
-.linkTwo {
-    display: flex;
-    margin: auto;
-}
-
-
-.linkTwo li {
-    list-style: none;
-    margin-left: 14px;
+  color: rgba(37, 43, 66, 1);
+  font-weight: 700;
 }
 
 .links li a {
-    color: rgba(115, 115, 115, 1);
+  color: rgba(115, 115, 115, 1);
+  text-decoration: none;
 }
 
 .linkTwo li a {
-    color: #23a6f0;
-    font-weight: 500;
-
-}
-.menu-button {
-    display: none;
-    background: none;
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
+  color: #23a6f0;
+  font-weight: 500;
+  text-decoration: none;
 }
 
+.profile-menu {
+  position: relative;
+}
 
+.profile-menu img {
+  width: 20px;
+  height: 20px;
+}
+
+.profile-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  list-style: none;
+  padding: 10px;
+  border-radius: 4px;
+  width: 150px;
+}
+
+.profile-dropdown li {
+  padding: 10px;
+}
+
+.profile-dropdown li a {
+  color: black;
+  text-decoration: none;
+}
+
+.profile-dropdown li a:hover {
+  text-decoration: underline;
+}
 
 @media (max-width: 768px) {
-    .links, .linkTwo {
-        display: none;
-        flex-direction: column;
-        width: 100%;
-        position: absolute;
-        top: 60px;
-        left: 0;
-        background-color: white;
-        border-top: 1px solid #ccc;
-    }
+  .navbar {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
 
-    .links.show, .linkTwo.show {
-        display: flex;
-    }
+  .navbar-toggle {
+    display: block;
+  }
 
-    .links li, .linkTwo li {
-        margin: 10px 0;
-        text-align: center;
-    }
+  .links, .linkTwo {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+    text-align: center;
+  }
 
-    .menu-button {
-        display: block;
-    }
+  .mobile-menu {
+    display: flex;
+  }
+
+  .links li, .linkTwo li {
+    margin: 10px 0;
+    width: 100%;
+  }
+
+  .links li a, .linkTwo li a {
+    width: 100%;
+    padding: 10px 0;
+  }
 }
-
-/* @import '@fortawesome/fontawesome-free/css/all.css'; */
-/* Import Font Awesome CSS */
 </style>

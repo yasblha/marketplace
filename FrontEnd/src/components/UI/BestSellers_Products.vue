@@ -1,228 +1,177 @@
 <template>
-
-
+  <div>
     <div class="Categorie">
-        <ul>
-            <li>BESTSELLER PRODUCTS</li>
-            <li><a href="">Men</a></li>
-            <li><a href="">Women</a></li>
-            <li><a href="">Accessories</a></li>
-
+      <button @click="slide('left')" class="carousel-button left">‹</button>
+      <div class="carousel">
+        <ul ref="categoryList" :style="{ transform: `translateX(${-currentIndex * (100 / visibleCategories)}%)` }">
+          <li v-for="(category, index) in categories" :key="index">
+            <a href="#" @click.prevent="filterByCategory(category)">{{ category }}</a>
+          </li>
         </ul>
-        <div class="fleches">
-            <a href=""><img src="/src/assets/fg.svg" alt=""></a>
-            <a href=""><img src="/src/assets/fd.svg" alt=""></a>
-        </div>
-
+      </div>
+      <button @click="slide('right')" class="carousel-button right">›</button>
     </div>
     <div class="bestProducts">
-
-        <div class="product">
-            <img src="/src/assets/image3.png" alt="">
-            <h2>Graphic Design</h2>
-            <p>English Departement</p>
-            <div class="prices">
-                <span class="priceNormal">$16,48</span>
-                <span class="priceBlue">$6,48</span>
-            </div>
-
-
+      <div class="OneProduct" v-for="(product, index) in limitedFilteredProducts" :key="index">
+        <img :src="getImage(product)" :alt="product.name" />
+        <h2>{{ product.name }}</h2>
+        <p>{{ product.category }}</p>
+        <div class="prices">
+          <span class="priceNormal">${{ product.price.toFixed(2) }}</span>
         </div>
-
-        <div class="product">
-            <img src="/src/assets/image2.png" alt="">
-            <h2>Graphic Design</h2>
-            <p>English Departement</p>
-            <div class="prices">
-                <span class="priceNormal">$16,48</span>
-                <span class="priceBlue">$6,48</span>
-            </div>
-
-        </div>
-
-        <div class="product">
-            <img src="/src/assets/image1.png" alt="">
-            <h2>Graphic Design</h2>
-            <p>English Departement</p>
-            <div class="prices">
-                <span class="priceNormal">$16,48</span>
-                <span class="priceBlue">$6,48</span>
-            </div>
-
-        </div>
-        <div class="product">
-            <img src="/src/assets/image3.png" alt="">
-            <h2>Graphic Design</h2>
-            <p>English Departement</p>
-            <div class="prices">
-                <span class="priceNormal">$16,48</span>
-                <span class="priceBlue">$6,48</span>
-            </div>
-
-
-        </div>
-
-        <div class="product">
-            <img src="/src/assets/image2.png" alt="">
-            <h2>Graphic Design</h2>
-            <p>English Departement</p>
-            <div class="prices">
-                <span class="priceNormal">$16,48</span>
-                <span class="priceBlue">$6,48</span>
-            </div>
-
-
-        </div>
-        <div class="product">
-            <img src="/src/assets/image1.png" alt="">
-            <h2>Graphic Design</h2>
-            <p>English Departement</p>
-            <div class="prices">
-                <span class="priceNormal">$16,48</span>
-                <span class="priceBlue">$6,48</span>
-            </div>
-
-        </div>
-
+      </div>
     </div>
-
-
-
+    <div v-if="isLoading">Loading...</div>
+    <div v-if="error">{{ error }}</div>
+  </div>
 </template>
-<script>
-export default {
-    name: 'BestSellers_Products',
+
+<script setup lang="ts">
+import { ref, onMounted, computed } from 'vue';
+import { useProductStore } from '@/stores/products';
+import defaultImage from '@/assets/ui_assets/image1.png';
+
+interface Product {
+  _id: string;
+  name: string;
+  description: string;
+  category: string;
+  brand: string;
+  price: number;
+  stock_available: number;
+  status: string;
+  images: string[];
+}
+
+const productStore = useProductStore();
+const products = ref<Product[]>([]);
+const filteredProducts = ref<Product[]>([]);
+const categories = ref<string[]>([]);
+const isLoading = ref(false);
+const error = ref<string | null>(null);
+const currentIndex = ref(0);
+const visibleCategories = ref(3);
+
+const limitedFilteredProducts = computed(() => filteredProducts.value.slice(0, 6));
+
+onMounted(async () => {
+  isLoading.value = true;
+  try {
+    await productStore.fetchProducts();
+    products.value = productStore.products;
+    filteredProducts.value = products.value;
+    categories.value = [...new Set(products.value.map(product => product.category))];
+  } catch (err) {
+    error.value = 'Error fetching products';
+    console.error(err);
+  } finally {
+    isLoading.value = false;
+  }
+});
+
+const slide = (direction: 'left' | 'right') => {
+  const maxIndex = categories.value.length - visibleCategories.value;
+  if (direction === 'left' && currentIndex.value > 0) {
+    currentIndex.value--;
+  } else if (direction === 'right' && currentIndex.value < maxIndex) {
+    currentIndex.value++;
+  }
 };
+
+const filterByCategory = (category: string) => {
+  filteredProducts.value = products.value.filter(product => product.category === category);
+};
+
+const getImage = (product: Product) => {
+  if (product.images && product.images.length > 0) {
+    const baseUrl = 'http://localhost:3000';
+    const imageUrl = `${baseUrl}/${product.images[0]}`;
+    console.log('Image URL:', imageUrl);
+    return imageUrl;
+  }
+  return defaultImage;
+};
+
+//console.log(props.products);
 </script>
 
 <style scoped>
-div.Categorie {
-    display: flex;
-    justify-content: space-evenly;
-    flex-wrap: wrap;
-    text-align: center;
-    margin-bottom: 20px;
+.Categorie {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  overflow: hidden;
 }
 
-div.Categorie ul {
-    display: flex;
-    justify-content: center;
-    list-style: none;
-    padding: 0;
-    margin: 0;
+.carousel {
+  flex: 1;
+  overflow: hidden;
 }
 
-div.fleches {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 10px;
+.Categorie ul {
+  display: flex;
+  transition: transform 0.3s ease;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 20px;
 }
 
-div.fleches img {
-    margin: 0 10px;
+.Categorie ul li {
+  flex: 0 0 100px;
+  text-align: center;
 }
 
-div.Categorie ul li {
-    margin: 0 20px;
-    font-size: 16px;
+.carousel-button {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  cursor: pointer;
 }
 
-div.bestProducts {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    grid-gap: 20px;
-    padding: 25px;
-    width: 100%;
+.bestProducts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
+  padding: 25px;
+  width: 100%;
 }
 
-div.product {
-    text-align: center;
+.OneProduct {
+  text-align: center;
+  padding: 17px;
 }
 
-div.product img {
-    width: 100%;
-    max-width: 200px;
+.OneProduct img {
+  width: 100%;
+  max-width: 200px;
+  height: 200px;
+  object-fit: cover;
 }
 
-div.product h2 {
-    font-size: 19px;
+.OneProduct h2 {
+  font-size: 18px;
+  margin: 10px 0;
 }
 
-div.product p {
-    color: grey;
-    font-size: 13px;
+.OneProduct p {
+  color: grey;
+  font-size: 14px;
+  margin: 5px 0;
+}
+
+.prices {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
 }
 
 .priceNormal {
-    color: grey;
-    text-decoration: line-through;
+  color: grey;
 }
 
 .priceBlue {
-    color: rgba(35, 133, 109, 1);
-    margin-left: 5px;
-}
-
-/* Media Queries */
-@media (max-width: 1200px) {
-    div.Categorie {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    div.Categorie ul {
-        flex-direction: column;
-    }
-
-    div.Categorie ul li {
-        margin: 10px 0;
-    }
-
-    div.bestProducts {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-@media (max-width: 768px) {
-    div.bestProducts {
-        grid-template-columns: 1fr;
-    }
-
-    div.Categorie ul {
-        flex-direction: row;
-        flex-wrap: wrap;
-    }
-
-    div.Categorie ul li {
-        margin: 10px;
-    }
-
-    div.fleches img {
-        width: 30px;
-        height: 30px;
-    }
-}
-
-@media (max-width: 480px) {
-    div.Categorie ul li {
-        font-size: 14px;
-    }
-
-    div.product h2 {
-        font-size: 16px;
-    }
-
-    div.product p {
-        font-size: 12px;
-    }
-
-    .priceNormal {
-        font-size: 14px;
-    }
-
-    .priceBlue {
-        font-size: 14px;
-    }
+  color: rgba(35, 133, 109, 1);
 }
 </style>

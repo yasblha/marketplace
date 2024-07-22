@@ -1,11 +1,11 @@
 <template>
-  <div class="register-card">
-    <h2 class="card-title">Register</h2>
+  <div class="register-container">
+    <h2 class="register-title">Register</h2>
     <form @submit.prevent="handleSubmit" class="register-form">
       <div class="form-group">
         <label for="role" class="form-label">Role:</label>
         <select v-model="form.role" id="role" class="form-control" required>
-          <option value="">Select a role</option>
+          <option value="" disabled>Select a role</option>
           <option value="admin">Admin</option>
           <option value="manager">Manager</option>
           <option value="user">User</option>
@@ -26,62 +26,75 @@
       <div class="form-group">
         <label for="password" class="form-label">Password:</label>
         <input v-model="form.password" id="password" type="password" class="form-control" required />
+        <span v-if="!isPasswordValid" class="text-danger">Le mot de passe doit contenir au moins 12 caractères avec au moins une lettre minuscule, une lettre majuscule, un chiffre et un symbole.</span>
       </div>
       <div class="form-group">
         <label for="password_confirm" class="form-label">Confirm Password:</label>
         <input v-model="form.password_confirm" id="password_confirm" type="password" class="form-control" required />
+        <span v-if="form.password !== form.password_confirm" class="text-danger">Les mots de passe ne correspondent pas.</span>
       </div>
-      <button type="submit" class="btn btn-primary">Register</button>
+      <button type="submit" class="btn btn-primary" :disabled="!isFormValid">Register</button>
     </form>
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue';
-import axiosInstance from "@/services/api";
+<script setup lang="ts">
+import { ref, computed } from 'vue';
+import axiosInstance from '@/services/api';
+import router from "@/router/router";
+import { useAuthStore } from '@/stores/user';
+const userStore = useAuthStore();
 
-export default defineComponent({
-  data() {
-    return {
-      form: {
-        role: '',
-        email: '',
-        firstName: '',
-        lastName: '',
-        password: '',
-        password_confirm: ''
-      }
-    };
-  },
-  methods: {
-    async handleSubmit() {
-      try {
-        const response = await axiosInstance.post('/api/auth/register', this.form);
-        alert('User registered successfully!');
-        console.log(response);
-      } catch (error : any) {
-        alert(error.response.data.message || 'An error occurred');
-      }
-    }
-  }
+
+const form = ref({
+  role: '',
+  email: '',
+  firstName: '',
+  lastName: '',
+  password: '',
+  password_confirm: ''
 });
+
+const isPasswordValid = computed(() => {
+  const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{12,}$/;
+  return regex.test(form.value.password);
+});
+
+const isFormValid = computed(() => {
+  return form.value.role && form.value.email && form.value.firstName && form.value.lastName && form.value.password && form.value.password_confirm && isPasswordValid.value && form.value.password === form.value.password_confirm;
+});
+
+async function handleSubmit() {
+  try {
+    console.log("Form data:", form.value);
+    const response = await userStore.register(form.value);
+    alert(`User registered successfully! Response:\n${JSON.stringify(response)}`);
+    console.log(response);
+    router.push(`/${response.user.role}/login`);
+  } catch (error: any) {
+    console.log("Form data on error:", form.value);
+    console.error("Error during registration:", error);
+    alert(error.response?.data?.message || 'An error occurred');
+  }
+}
 </script>
 
 <style scoped>
-.register-card {
+.register-container {
   max-width: 400px;
   margin: 50px auto;
-  padding: 30px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  background-color: #f9f9f9;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  padding: 40px;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.card-title {
+.register-title {
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
+  font-size: 24px;
   color: #333;
+  font-weight: bold;
 }
 
 .register-form {
@@ -95,31 +108,44 @@ export default defineComponent({
 
 .form-label {
   font-weight: bold;
-  margin-bottom: 5px;
+  margin-bottom: 8px;
   color: #555;
 }
 
 .form-control {
   padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 3px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
   font-size: 16px;
+  width: 100%;
+  color: black;
+}
+
+.form-control:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.25);
 }
 
 .btn {
-  padding: 10px 20px;
+  padding: 12px 20px;
   font-size: 16px;
-  border-radius: 3px;
+  border-radius: 5px;
   cursor: pointer;
+  border: none;
 }
 
 .btn-primary {
   background-color: #007bff;
   color: #fff;
-  border: none;
+  transition: background-color 0.3s;
 }
 
 .btn-primary:hover {
   background-color: #0056b3;
+}
+
+.text-danger {
+  color: red;
+  font-size: 14px;
 }
 </style>

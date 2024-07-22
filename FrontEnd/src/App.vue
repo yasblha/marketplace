@@ -1,49 +1,40 @@
 <script setup lang="ts">
 
-import HelloWorld from './components/HelloWorld.vue';
-// import TheWelcome from './components/TheWelcome.vue';
-import NavigationBar from './components/UI/NavigationBar.vue';
-import '@fortawesome/fontawesome-free/css/all.css';
+
+import { onMounted } from 'vue';
+import { useCartStore } from '@/stores/panier';
+import NavigationBar from "@/components/UI/NavigationBar.vue";
+import AuthModal from "@/components/common/AuthModal.vue";
+import { useAuthModalStore } from '@/stores/authModale';
 
 import { useCartStore } from '@/stores/cart';
 
 const cartStore = useCartStore();
 cartStore.loadState();
 
+import {useRoute} from "vue-router";
+
+const cartStore = useCartStore();
+const route = useRoute();
+const authModalStore = useAuthModalStore();
+
+
+onMounted(() => {
+  cartStore.loadCart();
+});
 
 </script>
 
 <template>
-  <div>
+  <div id="app">
+    <NavigationBar v-if="!route.path.startsWith('/admin')" />
+
     <router-view></router-view>
+    <AuthModal :isVisible="authModalStore.isVisible" @close="authModalStore.closeModal" />
+
   </div>
 </template>
 
-<style scoped>
-header {
-  line-height: 1.5;
-}
+<style >
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-}
 </style>

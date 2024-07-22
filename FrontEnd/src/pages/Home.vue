@@ -1,283 +1,259 @@
 <template>
+  <div class="home-container">
+    <!--<NavigationBar @openAuthModal="openAuthModal" />-->
+    <AuthModal :isVisible="isAuthModalVisible" @close="closeAuthModal" />
 
-    <div id="">
-        <NavigationBar />
-    </div>
-    <section class="images" style="">
-
-        <div>
-            <span>We know how large objects will act, but things on a
-                small scale just do not act that way.</span>
-            <br>
-            <button>Start now</button>
-        </div>
-
+    <section class="hero-section">
+      <div class="hero-content">
+        <span class="hero-text">We know how large objects will act, but things on a small scale just do not act that way.</span>
+        <button class="start-button">Start now</button>
+      </div>
     </section>
 
-    <section class="produits">
-        <div class="Oneproducts">
-            <div class="texts">
-                <span>Your Space</span>
-                <h1>Unique <br> Life</h1>
-                <span>Explore Items</span>
-            </div>
-            
-
-            <img src="/src/assets/image2.png" alt="">
-
+    <section class="products-section">
+      <div class="product-card" v-for="(product, index) in products" :key="index">
+        <div class="product-text">
+          <span class="product-tag">{{ product.tag }}</span>
+          <h1 class="product-title">{{ product.title }}</h1>
+          <span class="product-cta">{{ product.cta }}</span>
         </div>
-        <div class="Oneproducts">
-            <div class="texts">
-                <span>Ends Today</span>
-                <h1>Elements <br> Style </h1>
-                <span>Explore Items</span>
-            </div>
-
-            <img src="/src/assets/image1.png" alt="">
-
-        </div>
-        <div class="Oneproducts">
-
-            <div class="texts">
-                <span>Your Space</span>
-                <h1>Unique <br> Life</h1>
-                <span>Explore Items</span>
-            </div>
-
-            <img src="/src/assets/image3.png" alt="">
-
-        </div>
-
+        <img :src="product.image" :alt="product.title" />
+      </div>
     </section>
-    <section class="BestSellers">
-        <div class="allitems">
 
-            <div class="itemOne">
-
-                <img src="" alt="">
-
-            </div>
-
-            <div class="itemTwo">
-              <BestSellers_Products />
-            </div>
+    <section class="best-sellers-section">
+      <div class="best-sellers-container">
+        <div class="featured-item">
+          <img src="../assets/ui_assets/card_items.jpg" alt="Featured item" />
         </div>
+        <div class="best-sellers-list">
+          <BestSellers_Products />
+        </div>
+      </div>
     </section>
-    
-    <br><br><br>
+
+    <section class="newsletter-section">
+      <div class="newsletter-content">
+        <h2 class="newsletter-title">Subscribe to Our Newsletter</h2>
+        <p class="newsletter-description">Stay updated with our latest products and offers</p>
+        <form class="newsletter-form">
+          <input type="email" placeholder="Enter your email" required>
+          <button type="submit">Subscribe</button>
+        </form>
+      </div>
+    </section>
 
     <Footer />
-
-
-
-
+  </div>
 </template>
 
-<script>
-import axiosInstance from "@/services/api";
-import router from "../router/router";
-import NavigationBar from "../components/UI/NavigationBar.vue";
-import Footer from "../components/UI/Footer.vue";
-import BestSellers_Products from "../components/UI/BestSellers_Products.vue";
+<script setup lang="ts">
+import { ref } from 'vue';
+import NavigationBar from "@/components/UI/NavigationBar.vue";
+import Footer from "@/components/UI/Footer.vue";
+import BestSellers_Products from "@/components/UI/BestSellers_Products.vue";
+import AuthModal from '@/components/common/AuthModal.vue';
 
+const isAuthModalVisible = ref(false);
 
+function openAuthModal() {
+  isAuthModalVisible.value = true;
+}
 
-export default {
-    name: "Home",
-    components: {
-        NavigationBar,
-        Footer,
-        BestSellers_Products
-    },
+function closeAuthModal() {
+  isAuthModalVisible.value = false;
+}
 
-};
+const products = [
+  {
+    tag: "Your Space",
+    title: "Unique Life",
+    cta: "Explore Items",
+    image: new URL('../assets/ui_assets/image2.png', import.meta.url).href
+  },
+  {
+    tag: "Ends Today",
+    title: "Elements Style",
+    cta: "Explore Items",
+    image: new URL('../assets/ui_assets/image1.png', import.meta.url).href
+  },
+  {
+    tag: "Your Space",
+    title: "Unique Life",
+    cta: "Explore Items",
+    image: new URL('../assets/ui_assets/image3.png', import.meta.url).href
+  }
+];
 </script>
 
 <style scoped>
-/* Styles pour écrans larges */
-.images {
-    background-image: url('/src/assets/dumbels.jpg');
-    background-size: cover;
-    background-position: center;
-    min-height: 40vw; /* Hauteur minimale en fonction de la largeur de l'écran */
-    display: flex;
-    flex-direction: column;
-    text-align: center;
-    padding: 80px 20px; /* Espacement ajusté */
+.home-container {
+  width: 100%;
 }
 
-.images button {
-    background-color: rgba(35, 166, 240, 1);
-    padding: 12px;
-    outline: none;
-    border: none;
-    color: white;
-    border-radius: 3px;
-    width: 200px; /* Largeur fixe pour le bouton */
-    font-size: 16px;
-    margin-top: 20px;
+.hero-section {
+  background-image: url('../assets/ui_assets/dumbels.jpg');
+  background-size: cover;
+  background-position: center;
+  min-height: 40vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
 
-.images div {
-    margin: auto;
-    width: 50%;
+.hero-content {
+  width: 32%;
 }
 
-.images div span {
-    margin: auto;
-    color: #23a6f0;
-    font-size: 20px; /* Taille de police ajustée */
+.hero-text {
+  color: #23a6f0;
+  font-size: 18px;
+  display: block;
+  margin-bottom: 20px;
 }
 
-section.produits {
-    display: flex;
-    flex-wrap: wrap; /* Permet aux éléments de passer à la ligne sur les petits écrans */
-    padding: 40px;
-    background: #80808012;
-    text-align: center;
-    justify-content: space-around; /* Espacement uniforme entre les éléments */
+.start-button {
+  background-color: rgba(35, 166, 240, 1);
+  padding: 12px;
+  border: none;
+  color: white;
+  border-radius: 3px;
+  width: 36%;
+  font-size: 16px;
+  cursor: pointer;
 }
 
-div.Oneproducts {
-    background-color: white;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px;
-    margin: 20px;
-    width: calc(33.33% - 40px); /* Calcul de la largeur avec marges pour s'adapter à la grille */
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+.products-section {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  padding: 61px;
+  background: #80808012;
+  justify-content: space-between;
+  max-width:105rem ;
 }
 
-.Oneproducts img {
-    width: 100%; /* Image occupant toute la largeur du conteneur */
-    height: auto;
+.product-card {
+  background-color: white;
+  display: flex;
+  padding: 14px;
+  justify-content: center;
+  box-shadow: inset 0 0 1em rgb(255 255 255), 0 0 1em rgb(160 148 148 / 33%);
 }
 
-div.texts {
-    margin-bottom: 10px; /* Espacement en bas du texte */
-    text-align: center;
+.product-card img {
+  width: 244px;
+  height: 181px;
+  object-fit: cover;
 }
 
-div.texts h1 {
-    color: black;
-    font-size: 24px; /* Taille de police ajustée */
+.product-text {
+  display: flex;
+  flex-direction: column;
+  margin: auto;
+  text-align: center;
 }
 
-div.texts span {
-    color: #808080ad;
-    font-size: 16px; /* Taille de police ajustée */
+.product-title {
+  color: black;
+  margin: 10px 0;
 }
 
-section.BestSellers {
-    padding: 40px;
+.product-tag, .product-cta {
+  color: #808080ad;
 }
 
-div.allitems {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-around;
+.best-sellers-section {
+  padding: 40px 20px;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-div.itemOne {
-    background-image: url('/src/assets/card_items.jpg');
-    background-size: cover;
-    background-position: center;
-    width: 300px;
-    height: 200px;
+.best-sellers-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
 }
 
-div.itemTwo {
-    width: 70%; /* Largeur ajustée */
-    max-width: 600px; /* Largeur maximale pour éviter l'étirement */
-    margin-top: 20px; /* Espacement en haut */
-    margin-bottom: 20px; /* Espacement en bas */
-    text-align: center;
+.featured-item {
+  flex: 1;
+  min-width: 300px;
+  max-width: 100%;
+  height: auto;
+  overflow: hidden;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-/* Media Queries pour écrans de taille moyenne */
-@media (max-width: 1024px) {
-    .images {
-        padding: 60px 10px;
-    }
-
-    .images button {
-        width: 180px;
-        font-size: 14px;
-    }
-
-    .images div span {
-        font-size: 18px;
-    }
-
-    section.produits {
-        padding: 30px;
-    }
-
-    div.Oneproducts {
-        width: calc(50% - 40px);
-    }
+.featured-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
 }
 
-/* Media Queries pour écrans petits */
+.featured-item:hover img {
+  transform: scale(1.05);
+}
+
+.best-sellers-list {
+  flex: 2;
+  min-width: 300px;
+}
+
 @media (max-width: 768px) {
-    .images {
-        min-height: auto;
-    }
+  .best-sellers-container {
+    flex-direction: column;
+  }
 
-    .images button {
-        width: 160px;
-        font-size: 14px;
-    }
-
-    .images div span {
-        font-size: 16px;
-    }
-
-    section.produits {
-        padding: 20px;
-    }
-
-    div.Oneproducts {
-        width: calc(100% - 40px);
-    }
-
-    div.allitems {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    div.itemOne {
-        width: 100%;
-        height: 300px;
-    }
-
-    div.itemTwo {
-        width: 90%;
-    }
+  .featured-item,
+  .best-sellers-list {
+    width: 100%;
+  }
 }
 
-/* Media Queries pour écrans très petits */
-@media (max-width: 480px) {
-    .images button {
-        width: 140px;
-        font-size: 12px;
-    }
+.newsletter-section {
+  background-color: #f8f8f8;
+  padding: 40px 0;
+  text-align: center;
+}
 
-    .images div span {
-        font-size: 14px;
-    }
+.newsletter-content {
+  max-width: 600px;
+  margin: 0 auto;
+}
 
-    div.Oneproducts {
-        padding: 15px;
-    }
+.newsletter-title {
+  font-size: 24px;
+  color: #333;
+  margin-bottom: 10px;
+}
 
-    div.texts h1 {
-        font-size: 20px;
-    }
+.newsletter-description {
+  color: #666;
+  margin-bottom: 20px;
+}
 
-    div.texts span {
-        font-size: 14px;
-    }
+.newsletter-form {
+  display: flex;
+  justify-content: center;
+}
+
+.newsletter-form input {
+  padding: 10px;
+  width: 60%;
+  border: 1px solid #ddd;
+  border-radius: 3px 0 0 3px;
+}
+
+.newsletter-form button {
+  padding: 10px 20px;
+  background-color: #23a6f0;
+  color: white;
+  border: none;
+  border-radius: 0 3px 3px 0;
+  cursor: pointer;
 }
 </style>

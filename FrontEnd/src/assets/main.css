@@ -17,9 +17,9 @@ a,
 }
 
 @media (hover: hover) {
-  a:hover {
+ /* a:hover {
     background-color: hsla(160, 100%, 37%, 0.2);
-  }
+  }*/
 }
 
 @media (min-width: 1024px) {
@@ -34,5 +34,6 @@ a,
     padding: 0 2rem; */
     width: 100%;
     margin-bottom:auto;
+
   }
 }

@@ -6,6 +6,7 @@
     "./.dot/**/*.vue",
     "./dot/**/*.vue",
     "src/**/*.vue",
+    "src/types/**/*.d.ts",
     "src/router/router.ts"
   ],
   "exclude": ["src/**/__tests__/*"],

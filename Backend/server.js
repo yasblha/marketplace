@@ -1,46 +1,60 @@
 const express = require('express');
+const db = require('./config/postgres');
+const mongodb = require('./config/mongodb');
 const cors = require('cors');
+const bodyParser = require("body-parser");
+const credentials = require('./middleware/credentials');
+const errorHandler = require('./middleware/error_handler');
+const authRoutes = require('./routes/api/auth');
+const products = require('./routes/api/products')
+const uploadRoutes = require('./routes/api/uploadRoute')
+const cron = require('node-cron');
+const upload = require('./middleware/upload');
 const cookieParser = require('cookie-parser');
-const bodyParser = require('body-parser');
-const app = express();
-const PORT = process.env.PORT || 3000;
-const { faker } = require('@faker-js/faker');
-const db = require ('./conf/postgres');
+const { checkPasswordRenewal } = require('./services/reset_mail');
+//import injectProducts from './utils/faker';
+const path = require('path');
+
 
 require('dotenv').config();
-// Importer la configuration de la base de données
-require('./conf/mongodb');
-require('./conf/postgres');
 
-// app/json response
-app.use(express.json());
-//le middleware pour les cookies
-app.use(cookieParser())
-app.use(cors());
-app.use(bodyParser.json());
-
-async function getUserData() {
-    try {
-        const result = await db.query('SELECT * FROM "User"');
-        console.log(result.rows);
-    } catch (err) {
-        console.error(err);
-    }
+async function init() {
+    await checkPasswordRenewal();
 }
 
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-// Définir les routes principales
-app.get('/', async(req, res) => {
-    res.send(getUserData());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use(cors());
+app.use(credentials);
+app.use(cookieParser());
+
+app.use('/api/auth', authRoutes);
+app.use('/api/products', products);
+app.use('/api/upload', uploadRoutes);
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+
+
+cron.schedule('0 0 * * *', checkPasswordRenewal);
+
+app.get('/', (req, res) => {
+    res.send('Welcome to my server!');
 });
 
-// Démarrer le serveur
+app.use(errorHandler);
+
 const server = app.listen(PORT, () => {
     console.log(`App is listening at http://localhost:${PORT}`);
+    //init();
 });
 
-//error Handler
-process.on("UnhendledRejection", err => {
-    console.log(`une erreur a eu lieu: ${err.message}`)
-    server.close(() => process.exit(1))
-})
+//injectProducts();
+
+process.on("unhandledRejection", err => {
+    console.error(`Unhandled Rejection: ${err.message}`);
+    server.close(() => process.exit(1));
+});
