@@ -7,16 +7,21 @@
         <div class="separator"></div>
 
         <div v-for="(product, index) in cartStore.items" :key="index" class="horizontal-product-card">
-          <img :src="product.imageUrl" :alt="product.name" class="product-image"/>
+          <img :src="getImage(product)" :alt="product.name" class="product-image"/>
           <div class="title-parent">
             <div class="title2">{{ product.name }}</div>
-            <div class="size-l">Size: {{ product.size }}</div>
-            <div class="size-l">Quantity: {{ product.quantity }}</div>
+            <div v-if="product.size" class="size-l">Size: {{ product.size }}</div>
+            <div class="brand" v-if="product.brand">Brand: {{ product.brand }}</div>
+            <div class="size-l">
+              Quantity:
+              <button @click="updateQuantity(index, product.quantity - 1)">-</button>
+              {{ product.quantity }}
+              <button @click="updateQuantity(index, product.quantity + 1)">+</button>
+            </div>
             <div class="price">${{ product.price }}</div>
           </div>
           <div class="remove-button" @click="removeItem(index)">Remove</div>
         </div>
-        <div v-for="product in cartStore.items" :key="product.name" class="description">by {{ product.vendor }}</div>
       </div>
 
       <div class="order-summary">
@@ -84,25 +89,44 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { useCartStore } from '@/stores/panier';
+import {ref, onMounted} from 'vue';
+import {useCartStore} from '@/stores/panier';
 import NavigationBar from "../components/UI/NavigationBar.vue";
 import Footer from "@/components/UI/Footer.vue";
+import defaultImage from "@/assets/ui_assets/image1.png";
 
 const cartStore = useCartStore();
 
 const orderInformation = ref([
-  { title: 'Return Policy', description: 'This is our example return policy which is everything you need to know about our returns.' },
-  { title: 'Shipping Options', description: 'Various shipping options are available for your convenience.' }
+  {
+    title: 'Return Policy',
+    description: 'This is our example return policy which is everything you need to know about our returns.'
+  },
+  {title: 'Shipping Options', description: 'Various shipping options are available for your convenience.'}
 ]);
 
-const checkout = () => {
-  // Redirect to checkout page
+const getImage = (product) => {
+  if (product.images && product.images.length > 0) {
+    const baseUrl = 'http://localhost:3000';
+    return `${baseUrl}/${product.images[0]}`;
+  }
+  return defaultImage;
 };
 
+const checkout = () => {
+  router.push('/checkout');
+};
 const removeItem = (index) => {
   cartStore.removeFromCart(index);
 };
+
+const updateQuantity = (index, quantity) => {
+  cartStore.updateCartItemQuantity(index, quantity);
+};
+
+onMounted(() => {
+  cartStore.loadCart();
+});
 </script>
 
 <style scoped>
@@ -193,6 +217,11 @@ body {
 }
 
 .size-l, .price {
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.brand {
   font-size: 14px;
   font-weight: 400;
 }

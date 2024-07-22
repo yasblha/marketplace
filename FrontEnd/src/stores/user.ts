@@ -3,7 +3,7 @@ import { defineStore } from 'pinia';
 import axiosInstance from "@/services/api";
 import router from "@/router/router";
 
-interface User {
+export interface User {
     id: number;
     email: string;
     firstName: string;
