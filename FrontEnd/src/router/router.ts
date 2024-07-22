@@ -98,7 +98,8 @@ const routes = [
         path: '/search',
         name: 'SearchResults',
         component: SearchResult,
-    }
+    },
+    
 
 ];
 
