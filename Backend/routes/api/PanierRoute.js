@@ -4,9 +4,9 @@ const cartController = require('../../controllers/PanierController');
 const {authenticateToken} = require("../../middleware/authAdmin");
 
 
-router.post('/cart',authenticateToken, cartController.createCartItem);
-router.get('/cart/:userid',authenticateToken, cartController.getCartItems);
-router.put('/cart/:id', authenticateToken,cartController.updateCartItem);
-router.delete('/cart/:id',authenticateToken, cartController.deleteCartItem);
+router.post('/', cartController.createCartItem);
+router.get('/:useridOrSessionId', cartController.getCartItems);
+router.put('/:id', authenticateToken,cartController.updateCartItem);
+router.delete('/:id',authenticateToken, cartController.deleteCartItem);
 
 module.exports = router;

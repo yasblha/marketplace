@@ -19,7 +19,7 @@ const Cart = sequelize.define('Cart', {
     },
     productid: {
         type: DataTypes.INTEGER,
-        allowNull: false,
+        allowNull: true,
         references: {
             model: 'Product',
             key: 'id'
@@ -30,6 +30,14 @@ const Cart = sequelize.define('Cart', {
         allowNull: false,
         defaultValue: 1,
     },
+    sessionId: {
+    type: DataTypes.STRING,
+        allowNull: true,
+},
+    reservedUntil: {
+    type: DataTypes.DATE,
+        allowNull: false,
+},
 }, {
     tableName: 'Cart',
     timestamps: false,
@@ -38,5 +46,8 @@ const Cart = sequelize.define('Cart', {
 // Définition des associations
 Cart.belongsTo(Client, { foreignKey: 'userid' });
 Cart.belongsTo(Product, { foreignKey: 'productid' });
+
+Client.hasMany(Cart, { foreignKey: 'userid' });
+Cart.belongsTo(Client, { foreignKey: 'userid' });
 
 module.exports = Cart;
