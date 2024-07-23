@@ -15,6 +15,7 @@ import NotFound from "@/pages/NotFound.vue";
 import ProfilPage from "@/pages/profil/profilPage.vue";
 import SearchResult from "@/components/common/SearchResult.vue";
 import Checkout from "@/pages/Checkout.vue";
+import Favorites from "@/pages/Favorites.vue" ;
 
 
 const routes = [
@@ -88,6 +89,11 @@ const routes = [
         name: 'Cart',
         component: Cart,
         meta: { requiresAuth: false }
+    },
+    {
+        path: '/favorites/:userId', 
+        component: Favorites,
+        props: true 
     },
     {
         path: '/profile',

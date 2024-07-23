@@ -36,7 +36,7 @@
       <li class="nav-item cart-icon">
         <router-link class="nav-link2" to="/cart">
           <img src="../../assets/ui_assets/Panier.svg" alt="cart">
-          <span class="cart-count" v-if="cartCount > 0">{{ cartCount }}</span>
+          <!-- <span class="cart-count" v-if="cartCount > 0">{{ cartCount }}</span> -->
         </router-link>
       </li>
       <li class="nav-item"><router-link class="nav-link2" to="/wishlist"><img src="../../assets/ui_assets/hart.svg" alt="wishlist"></router-link></li>
@@ -52,11 +52,11 @@ import {useCartStore} from '@/stores/panier';
 
 const authModalStore = useAuthModalStore();
 const authStore = useAuthStore();
-const cartStore = useCartStore();
+// const cartStore = useCartStore();
 
 const isAuthenticated = computed(() => authStore.isAuthenticated);
 const isAdmin = computed(() => authStore.user && authStore.user.role === 'admin');
-const cartCount = computed(() => cartStore.items.reduce((total, item) => total + item.quantity, 0));
+// const cartCount = computed(() => cartStore.items.reduce((total, item) => total + item.quantity, 0));
 
 const showMenu = ref(false);
 const toggleMenu = () => {

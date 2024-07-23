@@ -2,7 +2,7 @@
 
 
 import { onMounted } from 'vue';
-import { useCartStore } from '@/stores/panier';
+// import { useCartStore } from '@/stores/panier';
 import NavigationBar from "@/components/UI/NavigationBar.vue";
 import AuthModal from "@/components/common/AuthModal.vue";
 import { useAuthModalStore } from '@/stores/authModale';
@@ -14,14 +14,14 @@ cartStore.loadState();
 
 import {useRoute} from "vue-router";
 
-const cartStore = useCartStore();
+// const cartStore = useCartStore();
 const route = useRoute();
 const authModalStore = useAuthModalStore();
 
 
-onMounted(() => {
-  cartStore.loadCart();
-});
+// onMounted(() => {
+//   cartStore.loadCart();
+// });
 
 </script>
 

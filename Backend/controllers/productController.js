@@ -16,7 +16,7 @@ async function getAllProducts(req, res) {
         res.status(500).json({ error: 'Erreur interne du serveur' });
     }
 }
-
+ 
 async function getProductById(req, res) {
     const id = req.params.id;
     if (isNaN(id)) {
@@ -35,15 +35,16 @@ async function getProductById(req, res) {
 }
 
 async function createProduct(req, res) {
+
     upload(req, res, async function (err) {
+    
         if (err instanceof multer.MulterError) {
             console.error('Multer error:', err);
             return res.status(400).json({ error: 'Erreur lors du téléchargement du fichier' });
-        } else if (err) {
+        }else if (err) {
             console.error('Unknown error:', err);
             return res.status(500).json({ error: 'Erreur interne du serveur' });
         }
-
         try {
             const { name, description, category, brand, price, stock_available, status } = req.body;
             const productData = {
@@ -84,7 +85,6 @@ async function createProduct(req, res) {
     });
 }
 
-
 async function uploadProductImages(req, res) {
     upload(req, res, async function (err) {
         if (err instanceof multer.MulterError) {
@@ -110,7 +110,6 @@ async function uploadProductImages(req, res) {
         }
     });
 }
-
 
 async function updateProduct(req, res) {
     upload(req, res, async function (err) {

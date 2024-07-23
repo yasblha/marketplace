@@ -8,161 +8,105 @@
             <button>Shop All</button>
         </div>
         <div class="lesproduits">
-
-            <div class="produit">
-                <img class="productImage" src="/src/assets/outfit2.jpg" alt="">
+            <div v-for="product in favoriteProducts" :key="product.id" class="produit">
+                <img class="productImage" :src="product.imageUrl" alt="">
                 <div class="productinfos">
-                    <span>Nom produit</span>
+                    <span>{{ product.name }}</span>
                     <img src="/src/assets/Heart.png" alt="">
                 </div>
                 <div class="price">
-                    <span>$99</span>
+                    <span>{{ product.price }}</span>
                 </div>
             </div>
-            <div class="produit">
-                <img  class="productImage"  src="/src/assets/outfit1.jpg" alt="">
-                <div class="productinfos">
-                    <span>Nom produit</span>
-                    <img src="/src/assets/Heart.png" alt="">
-                </div>
-                <div class="price">
-                    <span>$99</span>
-                </div>
-            </div>
-
-            <div class="produit">
-                <img class="productImage"  src="/src/assets/outfit3.jpg" alt="">
-                <div class="productinfos">
-                    <span>Nom produit</span>
-                    <img src="/src/assets/Heart.png" alt="">
-                </div>
-                <div class="price">
-                    <span>$99</span>
-                </div>
-            </div>
-            <div class="produit">
-                <img class="productImage"  src="/src/assets/outfit3.jpg" alt="">
-                <div class="productinfos">
-                    <span>Nom produit</span>
-                    <img src="/src/assets/Heart.png" alt="">
-                </div>
-                <div class="price">
-                    <span>$99</span>
-                </div>
-            </div>
-            <div class="produit">
-                <img class="productImage"  src="/src/assets/outfit3.jpg" alt="">
-                <div class="productinfos">
-                    <span>Nom produit</span>
-                    <img src="/src/assets/Heart.png" alt="">
-                </div>
-                <div class="price">
-                    <span>$99</span>
-                </div>
-            </div>
-
-
-
         </div>
-
-
     </section>
-
     <Footer />
-
-
-
 </template>
 
-<script>
+<script setup>
+import { ref, onMounted } from 'vue';
+import { useAuthStore } from '@/stores/user';
 import axiosInstance from "@/services/api";
-import router from "../router/router";
 import NavigationBar from "../components/UI/NavigationBar.vue";
 import Footer from "../components/UI/Footer.vue";
-import BestSellers_Products from "../components/UI/BestSellers_Products.vue";
-import FicheProducts from "../components/UI/FicheProducts.vue";
-import Paiement_product from "../components/UI/Buttons/Paiement_product.vue";
-import Sizes from "../components/UI/Buttons/Sizes.vue";
 
-export default {
+const favoriteProducts = ref([]);
+const authStore = useAuthStore();
 
-    name: 'Favorites',
-
-    components: {
-
-        NavigationBar,
-        Footer,
-        FicheProducts,
-        Paiement_product,
-        Sizes,
-    },
-
-
+const fetchFavorites = async () => {
+    try {
+        if (!authStore.isAuthenticated) {
+            throw new Error("User is not authenticated");
+        }
+        const response = await axiosInstance.get(`/favorites/${authStore.user.id}`, {
+            headers: {
+                'Authorization': `Bearer ${authStore.token}`
+            }
+        });
+        favoriteProducts.value = response.data;
+    } catch (error) {
+        console.error("Error fetching favorites:", error);
+    }
 };
+
+onMounted(() => {
+    fetchFavorites();
+});
+
 </script>
 
 <style scoped>
-section{
+section {
     padding: 18px;
 }
 
-div.titles{
-text-align: center;
+div.titles {
+    text-align: center;
 }
 
-div.titles h1{
-
-    
-}
-div.buttonShopAll{
+div.buttonShopAll {
     text-align: center;
     margin: 23px;
-
 }
-div.buttonShopAll button{
+
+div.buttonShopAll button {
     border: 1px solid black;
     padding: 9px;
     width: 10%;
     background: whitesmoke;
-    
 }
-div.lesproduits{
+
+div.lesproduits {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-
 }
-div.produit{
 
+div.produit {
     width: 20%;
     margin-left: 4px;
     padding: 17px;
 }
-.productImage{
+
+.productImage {
     width: -webkit-fill-available;
-    /* text-align: center; */
     margin: auto;
     height: auto;
-
-    
 }
-div.productinfos{
+
+div.productinfos {
     display: flex;
 }
-div.productinfos span{
-    
-}
-div.productinfos img{
+
+div.productinfos span {}
+
+div.productinfos img {
     width: 16px;
     height: 16px;
-    margin-left: auto;}
-
-div.price{
-
-}
-div.price span{
-
-
+    margin-left: auto;
 }
 
+div.price {}
+
+div.price span {}
 </style>
