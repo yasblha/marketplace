@@ -23,3 +23,5 @@ async function sendEmail(to, subject, htmlContent) {
         console.error('Error sending e-mail:', error);
     }
 }
+
+module.exports = { sendEmail };
