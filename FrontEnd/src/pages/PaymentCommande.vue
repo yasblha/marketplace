@@ -97,7 +97,7 @@ const handleSubmit = async () => {
     });
 
     const { sessionId } = response.data;
-    const stripe = await loadStripe('your-publishable-key');
+    const stripe = await loadStripe('pk_test_51MzKwrI4CWQS7W9jUqGbkjMfywCGLlu3ssgCbslIKp31FYWHiOrDnZmuUK1QNOMZ35v1QgR3dB1FkoRhWjwbprii00vdSRgTX6');
     const { error } = await stripe.redirectToCheckout({ sessionId });
 
     if (error) {
@@ -114,11 +114,6 @@ const removeItem = (itemId: string) => {
   cartStore.removeFromCart(itemId);
 };
 </script>
-
-
-  
-  
-
 
   <style scoped>
   .checkout-page {
