@@ -20,16 +20,30 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
+import { useAuthStore } from '@/stores/user';
+
+const authStore = useAuthStore();
 
 const profile = ref({
-  name: '',
-  email: '',
+  name: authStore.user?.firstName + ' ' + authStore.user?.lastName || '',
+  email: authStore.user?.email || '',
   profilePicture: ''
 });
 
+watch(() => authStore.user, (newUser) => {
+  profile.value.name = newUser?.firstName + ' ' + newUser?.lastName || '';
+  profile.value.email = newUser?.email || '';
+});
+
 const updateProfile = () => {
-  // Logique de mise à jour du profil
+  const [firstName, lastName] = profile.value.name.split(' ');
+  authStore.updateProfile({
+    firstName,
+    lastName,
+    email: profile.value.email,
+    profilePicture: profile.value.profilePicture
+  });
 };
 
 const handleProfilePictureChange = (event: Event) => {

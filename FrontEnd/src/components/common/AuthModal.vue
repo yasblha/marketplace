@@ -35,7 +35,7 @@
           <div v-else class="auth-container">
             <h2 class="auth-title">Inscription</h2>
             <form @submit.prevent="handleRegister" class="auth-form">
-              <div class="form-group">
+              <!--<div class="form-group">
                 <label for="role" class="form-label">Rôle :</label>
                 <select v-model="role" id="role" class="form-control" required>
                   <option value="" disabled>Sélectionnez un rôle</option>
@@ -43,7 +43,7 @@
                   <option value="manager">Gestionnaire</option>
                   <option value="user">Utilisateur</option>
                 </select>
-              </div>
+              </div>-->
               <div class="form-group">
                 <label for="email" class="form-label">Email :</label>
                 <input v-model="email" id="email" type="email" class="form-control" required />
@@ -72,7 +72,6 @@
 
           <div class="toggle-auth">
             <span @click="toggleAuth">{{ isLogin ? 'Pas de compte ? Inscrivez-vous' : 'Déjà un compte ? Connectez-vous' }}</span>
-            <span @click="toggleAuth">{{ isLogin ? 'Pas de compte ? Inscrivez-vous' : 'Déjà un compte ? Connectez-vous' }}</span>
           </div>
         </div>
       </div>
@@ -99,7 +98,7 @@ const router = useRouter();
 
 const email = ref('');
 const password = ref('');
-const role = ref('');
+const role = ref('user');
 const firstName = ref('');
 const lastName = ref('');
 const passwordConfirm = ref('');

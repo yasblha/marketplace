@@ -27,20 +27,27 @@ exports.createCartItem = async (req, res) => {
             return res.status(404).json({ message: 'Product not found' });
         }
 
-        if (product.stock_available < quantity) {
+        const quantityNumber = parseInt(quantity, 10);
+        if(quantityNumber) {
+
+        }
+        if (isNaN(quantityNumber)) {
+            return res.status(400).json({ message: 'Invalid quantity' });
+        }
+
+        if (product.stock_available < quantityNumber) {
             return res.status(400).json({ message: 'Not enough stock available' });
         }
 
-        product.stock_available -= quantity;
+        product.stock_available -= quantityNumber;
         await product.save();
-
 
         const reservedUntil = new Date();
         reservedUntil.setMinutes(reservedUntil.getMinutes() + 15);
 
         const cartItemData = {
             productid: paddedProductId,
-            quantity,
+            quantity: quantityNumber,
             reservedUntil,
             userid: client ? client.id : userid
         };
@@ -66,8 +73,8 @@ exports.createCartItem = async (req, res) => {
 
 exports.getCartItems = async (req, res) => {
     try {
-        const { useridOrSessionId } = req.params;
-        const whereClause = { userid: useridOrSessionId };
+        const { userid } = req.params;
+        const whereClause = { userid };
         const cartItems = await Cart.findAll({ where: whereClause, include: [{ model: Client }] });
 
         const productIds = cartItems.map(item => padProductId(item.productid));
@@ -89,17 +96,20 @@ exports.getCartItems = async (req, res) => {
 
 exports.updateCartItem = async (req, res) => {
     try {
-        const { id } = req.params;
-        const { quantity } = req.body;
+        const { userid, productid, quantity } = req.body;
 
-        const cartItem = await Cart.findByPk(id);
-
+        const cartItem = await Cart.findOne({ where: { userid, productid: padProductId(productid) } });
         if (!cartItem) {
             return res.status(404).json({ message: 'Cart item not found' });
         }
 
         const product = await ProductService.getProductById(padProductId(cartItem.productid));
-        const stockDifference = quantity - cartItem.quantity;
+        const quantityNumber = parseInt(quantity, 10);
+        if (isNaN(quantityNumber)) {
+            return res.status(400).json({ message: 'Invalid quantity' });
+        }
+
+        const stockDifference = quantityNumber - cartItem.quantity;
 
         if (product.stock_available < stockDifference) {
             return res.status(400).json({ message: 'Not enough stock available' });
@@ -108,7 +118,7 @@ exports.updateCartItem = async (req, res) => {
         product.stock_available -= stockDifference;
         await product.save();
 
-        cartItem.quantity = quantity;
+        cartItem.quantity = quantityNumber;
         cartItem.reservedUntil = new Date();
         cartItem.reservedUntil.setMinutes(cartItem.reservedUntil.getMinutes() + 15);
         await cartItem.save();
@@ -117,6 +127,10 @@ exports.updateCartItem = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+
+
+
 
 exports.deleteCartItem = async (req, res) => {
     try {

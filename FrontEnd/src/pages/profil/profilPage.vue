@@ -49,7 +49,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
+import { useAuthStore } from '@/stores/user';
 import Profile from '@/components/profil/Profile.vue';
 import Orders from '@/components/profil/Commandes.vue';
 import PaymentMethods from '@/components/profil/MéthodesPayment.vue';
@@ -73,6 +74,13 @@ const currentComponent = computed(() => componentsMap[currentTab.value]);
 const setActiveMenu = (menu: string) => {
   currentTab.value = menu;
 };
+
+const authStore = useAuthStore();
+onMounted(() => {
+  if (authStore.isAuthenticated) {
+    authStore.fetchUser();
+  }
+});
 </script>
 
 <style scoped>

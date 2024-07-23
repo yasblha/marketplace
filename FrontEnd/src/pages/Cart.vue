@@ -91,11 +91,13 @@
 <script setup>
 import {ref, onMounted} from 'vue';
 import {useCartStore} from '@/stores/panier';
+import { useRouter } from 'vue-router';
 import NavigationBar from "../components/UI/NavigationBar.vue";
 import Footer from "@/components/UI/Footer.vue";
 import defaultImage from "@/assets/ui_assets/image1.png";
 
 const cartStore = useCartStore();
+const router = useRouter();
 
 const orderInformation = ref([
   {

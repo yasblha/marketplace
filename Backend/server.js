@@ -11,6 +11,7 @@ const uploadRoutes = require('./routes/api/uploadRoute')
 const sectionRoutes = require('./routes/api/MenuRoute');
 const cartRoutes = require('./routes/api/PanierRoute');
 const orderRoutes = require('./routes/api/CommandeRoutes');
+const FavoriteRoutes = require('./routes/api/FavoriteRoutes');
 const cron = require('node-cron');
 const upload = require('./middleware/upload');
 const cookieParser = require('cookie-parser');
@@ -41,6 +42,7 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/sections', sectionRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/order', orderRoutes);
+app.use('/api/favorites', FavoriteRoutes);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 

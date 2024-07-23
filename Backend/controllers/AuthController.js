@@ -257,7 +257,7 @@ function logout(req, res) {
     res.status(200).json({ message: 'Utilisateur déconnecté' });
 }
 
-async function user(req, res) {
+async function users(req, res) {
     try {
         const result = await User.getUsers();
         res.status(200).json({ users: result });
@@ -267,4 +267,47 @@ async function user(req, res) {
     }
 }
 
-module.exports = { register, login, logout, user, confirmEmail, resetPassword, requestPasswordReset, refreshToken };
+async function user(req, res) {
+    const { userId } = req.user;
+
+    try {
+        const user = await User.getUserById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'Utilisateur non trouvé' });
+        }
+
+        res.status(200).json({ user });
+    } catch (error) {
+        console.error('Error fetching user:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+}
+
+async function updateUser(req, res) {
+    const { id } = req.params;
+    const { firstName, lastName, email, role, password } = req.body;
+
+    try {
+        const user = await User.findByPk(id);
+        if (!user) {
+            return res.status(404).json({ message: 'Utilisateur non trouvé' });
+        }
+
+        user.firstname = firstName || user.firstname;
+        user.lastname = lastName || user.lastname;
+        user.email = email || user.email;
+        user.role = role || user.role;
+
+        if (password) {
+            user.password = await bcrypt.hash(password, 10);
+        }
+
+        await user.save();
+        res.status(200).json({ message: 'Utilisateur mis à jour avec succès', user });
+    } catch (error) {
+        console.error('Erreur lors de la mise à jour de l\'utilisateur :', error);
+        res.status(500).json({ message: 'Erreur interne du serveur' });
+    }
+}
+
+module.exports = { user, register, login, logout, users, confirmEmail, resetPassword, requestPasswordReset, refreshToken, updateUser };

@@ -189,6 +189,25 @@ export const useAuthStore = defineStore('auth', () => {
         }
     }
 
+    async function updateProfile(profileData) {
+        try {
+            const response = await axiosInstance.patch(`/auth/user/${user.value?.id}`, profileData);
+            user.value = response.data.user;
+        } catch (error) {
+            console.error('Error updating profile:', error);
+        }
+    }
+
+    async function updatePassword(currentPassword, newPassword) {
+        try {
+            const response = await axiosInstance.patch(`/auth/user/${user.value?.id}`, { password: newPassword });
+            return response.data;
+        } catch (error) {
+            console.error('Error updating password:', error);
+            throw error;
+        }
+    }
+
     loadState();
 
     watchEffect(() => {
@@ -198,6 +217,8 @@ export const useAuthStore = defineStore('auth', () => {
     });
 
     return {
+        updateProfile,
+        updatePassword,
         deleteUser,
         fetchUsers,
         user,

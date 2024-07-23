@@ -1,10 +1,26 @@
 const OrderService = require('../services/CommandeServices');
+const Cart = require('../models/postgres_models/Panier');
+const ProductServices = require('../services/productService' );
 
 exports.createOrder = async (req, res) => {
     try {
         const { userId, status_order, total_amount, product_ids } = req.body;
         const order = await OrderService.createOrder(userId, status_order, total_amount, product_ids);
-        res.status(201).json(order);
+        for (const productId of product_ids) {
+            const product = await ProductServices.getProductById(productId);
+            if (!product) {
+                await Cart.destroy({ where: { userId } });
+                return res.status(404).json({ message: 'Product not found' });
+            }
+
+            const newStock = product.stock_available - 1;
+            if (newStock < 0) {
+                return res.status(400).json({ message: `Not enough stock for product with ID ${productId}` });
+            }
+
+            await ProductService.updateProductStock(productId, newStock);
+        }
+            res.status(201).json(order);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

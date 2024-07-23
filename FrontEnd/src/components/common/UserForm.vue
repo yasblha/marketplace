@@ -1,97 +1,92 @@
 <template>
-  <form @submit.prevent="submitForm">
-    <div>
-      <label for="firstName">First Name:</label>
-      <input type="text" id="firstName" v-model="formData.firstName" required>
+  <form @submit.prevent="handleSubmit">
+    <div class="form-group">
+      <label for="firstName">First Name</label>
+      <input v-model="formData.firstName" type="text" id="firstName" class="form-control"/>
     </div>
-    <div>
-      <label for="lastName">Last Name:</label>
-      <input type="text" id="lastName" v-model="formData.lastName" required>
+    <div class="form-group">
+      <label for="lastName">Last Name</label>
+      <input v-model="formData.lastName" type="text" id="lastName" class="form-control"/>
     </div>
-    <div>
-      <label for="email">Email:</label>
-      <input type="email" id="email" v-model="formData.email" required>
+    <div class="form-group">
+      <label for="email">Email</label>
+      <input v-model="formData.email" type="email" id="email" class="form-control"/>
     </div>
-    <div>
-      <label for="role">Role:</label>
-      <input type="text" id="role" v-model="formData.role" required>
+    <div class="form-group">
+      <label for="role">Role</label>
+      <input v-model="formData.role" type="text" id="role" class="form-control"/>
     </div>
-    <button type="submit">Save</button>
+    <div class="form-group">
+      <label for="password">Password</label>
+      <input v-model="formData.password" type="password" id="password" class="form-control"/>
+    </div>
+    <button type="submit" class="btn btn-primary">{{ isEdit ? 'Update' : 'Add' }} User</button>
   </form>
 </template>
 
 <script setup lang="ts">
-import { ref, watchEffect } from 'vue';
+import { defineProps, defineEmits, reactive, watch, computed } from 'vue';
+import axiosInstance from '@/services/api';
 
-interface User {
-  id: number;
-  firstName: string;
-  lastName: string;
-  email: string;
-  role: string;
-}
+const props = defineProps({
+  initialData: {
+    type: Object,
+    default: () => ({}),
+  },
+});
 
-interface UserFormProps {
-  initialData?: Partial<User>;
-}
-
-const props = defineProps<UserFormProps>();
 const emit = defineEmits(['user-added', 'user-updated']);
-const formData = ref<Partial<User>>({
+
+const formData = reactive({
   firstName: '',
   lastName: '',
   email: '',
-  role: ''
+  role: '',
+  password: '',
 });
 
-watchEffect(() => {
-  if (props.initialData) {
-    formData.value = { ...props.initialData };
-  }
-});
+watch(
+    () => props.initialData,
+    (newValue) => {
+      Object.assign(formData, newValue);
+    },
+    { immediate: true }
+);
 
-const submitForm = () => {
-  if (props.initialData?.id) {
-    emit('user-updated', formData.value);
-  } else {
-    emit('user-added', formData.value);
+const isEdit = computed(() => !!props.initialData.id);
+
+const handleSubmit = async () => {
+  try {
+    if (isEdit.value) {
+      await axiosInstance.patch(`/auth/user/${props.initialData.id}`, formData);
+      emit('user-updated');
+    } else {
+      await axiosInstance.post('/auth/register', formData);
+      emit('user-added');
+    }
+  } catch (error) {
+    console.error('Error submitting form:', error);
   }
 };
 </script>
 
 <style scoped>
-form {
-  display: flex;
-  flex-direction: column;
+.form-group {
+  margin-bottom: 1rem;
 }
-
-div {
-  margin-bottom: 10px;
-}
-
-label {
-  font-weight: bold;
-}
-
-input {
-  padding: 5px;
-  font-size: 16px;
+.form-control {
+  width: 100%;
+  padding: 0.5rem;
+  margin-top: 0.25rem;
   border: 1px solid #ccc;
   border-radius: 4px;
 }
-
-button {
-  padding: 10px 20px;
-  border: none;
+.btn {
   background-color: #007bff;
   color: white;
-  border-radius: 5px;
+  border: none;
+  padding: 10px 20px;
   cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-button:hover {
-  background-color: #0056b3;
+  border-radius: 5px;
 }
 </style>
-
