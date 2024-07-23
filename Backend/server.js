@@ -13,6 +13,7 @@ const upload = require('./middleware/upload');
 const cookieParser = require('cookie-parser');
 const { checkPasswordRenewal } = require('./services/reset_mail');
 const path = require('path');
+const newsletterRoutes = require('./routes/api/newsletter');
 
 require('dotenv').config();
 
@@ -35,6 +36,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/products', products);
 app.use('/api/upload', uploadRoutes);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/api/newsletter', newsletterRoutes);
 
 cron.schedule('0 0 * * *', checkPasswordRenewal);
 
