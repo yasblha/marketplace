@@ -62,6 +62,10 @@ const server = app.listen(PORT, () => {
     //init();
 });
 
+app.use(cors({
+    origin: 'http://localhost:5173' 
+  }));
+  
 //injectProducts();
 
 process.on("unhandledRejection", err => {
