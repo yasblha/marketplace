@@ -1,4 +1,5 @@
 const { DataTypes } = require('sequelize');
+//const Section = require('./Menu');
 const sequelize = require('../../config/postgres');
 
 const Product = sequelize.define('Product', {
@@ -39,11 +40,22 @@ const Product = sequelize.define('Product', {
         type: DataTypes.ARRAY(DataTypes.STRING),
         defaultValue: [],
         allowNull: true,
-    }
+    }/*,
+    sectionId: {
+        type: DataTypes.INTEGER,
+        references: {
+            model: Section,
+            key: 'id'
+        },
+        allowNull: false,
+    }*/
 }, {
     tableName: 'Product',
     timestamps: false,
 });
+
+//Section.hasMany(Product, { foreignKey: 'sectionId' });
+//Product.belongsTo(Section, { foreignKey: 'sectionId' });
 
 // Méthodes statiques
 Product.getProducts = async () => {

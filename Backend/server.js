@@ -6,8 +6,10 @@ const bodyParser = require("body-parser");
 const credentials = require('./middleware/credentials');
 const errorHandler = require('./middleware/error_handler');
 const authRoutes = require('./routes/api/auth');
-const products = require('./routes/api/products');
-const uploadRoutes = require('./routes/api/uploadRoute');
+const products = require('./routes/api/products')
+const uploadRoutes = require('./routes/api/uploadRoute')
+const sectionRoutes = require('./routes/api/MenuRoute');
+const cartRoutes = require('./routes/api/PanierRoute');
 const cron = require('node-cron');
 const upload = require('./middleware/upload');
 const cookieParser = require('cookie-parser');
@@ -35,6 +37,8 @@ app.use(cookieParser());
 app.use('/api/auth', authRoutes);
 app.use('/api/products', products);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/sections', sectionRoutes);
+app.use('/api/cart', cartRoutes);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/newsletter', newsletterRoutes);
 
