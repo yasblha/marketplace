@@ -40,7 +40,7 @@
         <div class="cart-summary">
           <h3>Your cart</h3>
           <div v-for="item in cartItems" :key="item._id" class="cart-item">
-            <img :src="item.images" alt="Product image" />
+            <!-- <img :src="item.images" alt="Product image" /> -->
             <div class="item-details">
               <h4>{{ item.name }}</h4>
               <p>Quantity: {{ item.quantity }}</p>
@@ -61,6 +61,7 @@
   import NavigationBar from "../components/UI/NavigationBar.vue";
   import Footer from "../components/UI/Footer.vue";
   import axios from 'axios';
+  import { loadStripe, Stripe, StripeElements, CardNumberElement, CardExpiryElement, CardCvcElement } from '@stripe/stripe-js';
   
   const cartStore = useCartStore();
   const cartItems = computed(() => cartStore.cartItems);
@@ -69,9 +70,11 @@
   const email = ref('');
   const loading = ref(false);
   
-  let cardNumber, cardExpiry, cardCvc;
-  
-  const stripeElements = this.$stripe.elements();
+  let stripe: Stripe | null = null;
+  let elements: StripeElements | null = null;
+  let cardNumber: CardNumberElement | null = null;
+  let cardExpiry: CardExpiryElement | null = null;
+  let cardCvc: CardCvcElement | null = null;
   
   const style = {
     base: {
@@ -89,21 +92,25 @@
     },
   };
   
-  onMounted(() => {
-    cardNumber = stripeElements.create('cardNumber', { style });
-    cardNumber.mount('#card-number');
+  onMounted(async () => {
+    stripe = await loadStripe('your-publishable-key');
+    if (stripe) {
+      elements = stripe.elements();
+      cardNumber = elements.create('cardNumber', { style });
+      cardNumber.mount('#card-number');
   
-    cardExpiry = stripeElements.create('cardExpiry', { style });
-    cardExpiry.mount('#card-expiry');
+      cardExpiry = elements.create('cardExpiry', { style });
+      cardExpiry.mount('#card-expiry');
   
-    cardCvc = stripeElements.create('cardCvc', { style });
-    cardCvc.mount('#card-cvc');
+      cardCvc = elements.create('cardCvc', { style });
+      cardCvc.mount('#card-cvc');
+    }
   });
   
   onBeforeUnmount(() => {
-    cardNumber.destroy();
-    cardExpiry.destroy();
-    cardCvc.destroy();
+    if (cardNumber) cardNumber.destroy();
+    if (cardExpiry) cardExpiry.destroy();
+    if (cardCvc) cardCvc.destroy();
   });
   
   const selectPaymentMethod = (method: string) => {
@@ -126,15 +133,12 @@
   
       const { clientSecret } = response.data;
   
-      const { token, error } = await this.$stripe.createToken(cardNumber);
-  
-      if (error) {
-        document.getElementById('card-error').innerHTML = error.message;
-        loading.value = false;
+      if (!stripe || !elements || !cardNumber) {
+        console.error('Stripe has not been initialized.');
         return;
       }
   
-      const result = await this.$stripe.confirmCardPayment(clientSecret, {
+      const result = await stripe.confirmCardPayment(clientSecret, {
         payment_method: {
           card: cardNumber,
           billing_details: {
@@ -144,6 +148,7 @@
       });
   
       if (result.error) {
+        document.getElementById('card-error')!.innerText = result.error.message!;
         console.error("Payment failed:", result.error.message);
       } else {
         if (result.paymentIntent.status === 'succeeded') {

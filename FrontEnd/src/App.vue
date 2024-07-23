@@ -1,12 +1,13 @@
 <script setup lang="ts">
 
-
+import { createApp } from 'vue';
+import App from './App.vue';
 import { onMounted } from 'vue';
 import { useCartStore } from '@/stores/panier';
 import NavigationBar from "@/components/UI/NavigationBar.vue";
 import AuthModal from "@/components/common/AuthModal.vue";
 import { useAuthModalStore } from '@/stores/authModale';
-import { StripePlugin } from '@vue-stripe/vue-stripe';
+import VueStripe from 'vue-stripe-js';
 
 import {useRoute} from "vue-router";
 
@@ -16,12 +17,14 @@ const authModalStore = useAuthModalStore();
 
 const options = {
   pk: process.env.STRIPE_PUBLIC_KEY,
-  stripeAccount: process.env.VUE_APP_STRIPE_ACCOUNT,
-  apiVersion: process.env.VUE_APP_API_VERSION,
-  locale: process.env.VUE_APP_LOCALE,
+  // stripeAccount: process.env.VUE_APP_STRIPE_ACCOUNT,
+  // apiVersion: process.env.VUE_APP_API_VERSION,
+  // locale: process.env.VUE_APP_LOCALE,
 };
 
-
+const app = createApp(App);
+app.use(VueStripe, options);
+app.mount('#app');
 onMounted(() => {
   cartStore.loadCart();
 });
