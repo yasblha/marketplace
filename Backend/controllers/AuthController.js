@@ -233,7 +233,7 @@ function logout(req, res) {
 async function user(req, res) {
     try {
         const result = await User.getUsers();
-        res.status(200).json({ users: result.rows });
+        res.status(200).json({ users: result });
     } catch (error) {
         console.error('Error fetching users:', error);
         res.status(500).json({ error: 'Internal Server Error' });

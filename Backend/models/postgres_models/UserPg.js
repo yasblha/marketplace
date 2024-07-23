@@ -58,7 +58,9 @@ const User = sequelize.define('User', {
 User.belongsToMany(Product, { through: 'Client_Product', foreignKey: 'userId' });
 
 User.getUsers = async () => {
-    return User.findAll();
+    const users = await User.findAll();
+    console.log('retour find', users);
+    return users;
 };
 
 User.getUser = async (email, password) => {

@@ -1,6 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../../config/postgres');
-const User = require('../mongo_models/User');
+//const User = require('../mongo_models/User');
+const User = require('../postgres_models/UserPg');
 
 const Order = sequelize.define('Order', {
     id: {
@@ -21,8 +22,12 @@ const Order = sequelize.define('Order', {
         type: DataTypes.FLOAT,
         allowNull: false,
     },
+    product_ids: {
+        type: DataTypes.ARRAY(DataTypes.INTEGER),
+        allowNull: false,
+    },
 });
 
-Order.belongsTo(User, { foreignKey: 'user_id' });
+Order.belongsTo(User, { foreignKey: 'userId' });
 
 module.exports = Order;

@@ -33,24 +33,30 @@
           <li><a href="#" @click.prevent="logout">Logout</a></li>
         </ul>
       </li>
-      <li class="nav-item"><router-link class="nav-link2" to="/cart"><img src="../../assets/ui_assets/Panier.svg" alt="cart"></router-link></li>
+      <li class="nav-item cart-icon">
+        <router-link class="nav-link2" to="/cart">
+          <img src="../../assets/ui_assets/Panier.svg" alt="cart">
+          <span class="cart-count" v-if="cartCount > 0">{{ cartCount }}</span>
+        </router-link>
+      </li>
       <li class="nav-item"><router-link class="nav-link2" to="/wishlist"><img src="../../assets/ui_assets/hart.svg" alt="wishlist"></router-link></li>
     </ul>
   </nav>
 </template>
 
-<script setup lang="ts">
-import { ref, computed, watchEffect } from 'vue';
-import { useAuthStore } from '@/stores/user';
-import { useAuthModalStore } from '@/stores/authModale';
+<script setup>
+import {ref, computed, watchEffect} from 'vue';
+import {useAuthStore} from '@/stores/user';
+import {useAuthModalStore} from '@/stores/authModale';
+import {useCartStore} from '@/stores/panier';
 
 const authModalStore = useAuthModalStore();
 const authStore = useAuthStore();
+const cartStore = useCartStore();
+
 const isAuthenticated = computed(() => authStore.isAuthenticated);
 const isAdmin = computed(() => authStore.user && authStore.user.role === 'admin');
-
-console.log('isAuthenticated:', isAuthenticated.value);
-console.log('isAdmin:', isAdmin.value);
+const cartCount = computed(() => cartStore.items.reduce((total, item) => total + item.quantity, 0));
 
 const showMenu = ref(false);
 const toggleMenu = () => {
@@ -162,6 +168,18 @@ watchEffect(() => {
 
 .profile-dropdown li a:hover {
   text-decoration: underline;
+}
+
+.cart-icon {
+  position: relative;
+}
+
+.cart-icon .cart-count {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  color: black; /* Changed from white to black */
+  font-size: 12px;
 }
 
 @media (max-width: 768px) {

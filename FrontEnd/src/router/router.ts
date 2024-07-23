@@ -14,6 +14,7 @@ import Cart from "@/pages/Cart.vue";
 import NotFound from "@/pages/NotFound.vue";
 import ProfilPage from "@/pages/profil/profilPage.vue";
 import SearchResult from "@/components/common/SearchResult.vue";
+import Checkout from "@/pages/Checkout.vue";
 
 
 const routes = [
@@ -99,7 +100,22 @@ const routes = [
         name: 'SearchResults',
         component: SearchResult,
     },
-    
+
+    {
+        path: '/checkout',
+        name: 'Checkout',
+        component: Checkout,
+    }/*{
+    path: '/admin',
+    name: 'AdminLayout',
+    component: AdminLayout,
+    children: [
+      { path: 'products', name: 'ProductManagement', component: ProductManagement },
+      { path: 'users', name: 'UserManagement', component: UserManagement },
+      { path: 'orders', name: 'OrderManagement', component: OrderManagement },
+      { path: 'list', name: 'ListItems', component: ListItems },
+    ],
+  },*/
 
 ];
 
