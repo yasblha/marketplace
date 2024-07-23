@@ -52,63 +52,71 @@
   
   
   <script setup lang="ts">
-  import { ref, computed } from 'vue';
-  import { useCartStore } from '@/stores/cart';
-  import { loadStripe } from '@stripe/stripe-js';
-  import Footer from "../components/UI/Footer.vue";
-  import axios from 'axios';
-  
-  const cartStore = useCartStore();
-  const cartItems = computed(() => cartStore.cartItems);
-  
-  const selectedPaymentMethod = ref('card');
-  const cardName = ref('');
-  const cardNumber = ref('');
-  const cardExpiryMonth = ref('');
-  const cardExpiryYear = ref('');
-  const cardCvc = ref('');
-  const saveCard = ref(false);
-  const loading = ref(false);
-  
-  const selectPaymentMethod = (method: string) => {
-    selectedPaymentMethod.value = method;
-  };
-  
-  const handleSubmit = async () => {
-    loading.value = true;
-  
-    try {
-      const response = await axios.post('http://localhost:4242/create-checkout-session', {
-        items: cartItems.value.map(item => ({
-          id: item._id,
-          quantity: item.quantity,
-          name: item.name,
-          price: item.price
-        })),
-        customer: {
-          name: cardName.value,
-          email: cardName.value // Assuming cardName is the email for now
-        }
-      });
-  
-      const { sessionId } = response.data;
-      const stripe = await loadStripe('your-publishable-key');
-      const { error } = await stripe.redirectToCheckout({ sessionId });
-  
-      if (error) {
-        console.error('Error redirecting to Stripe Checkout:', error);
-      }
-    } catch (error) {
-      console.error('Error creating checkout session:', error);
-    } finally {
-      loading.value = false;
+import { ref, computed } from 'vue';
+import { useCartStore } from '@/stores/cart';
+import { loadStripe } from '@stripe/stripe-js';
+import Footer from "../components/UI/Footer.vue";
+import axios from 'axios';
+
+const cartStore = useCartStore();
+const cartItems = computed(() => cartStore.cartItems);
+
+const selectedPaymentMethod = ref('card');
+const cardName = ref('');
+const saveCard = ref(false);
+const loading = ref(false);
+
+const selectPaymentMethod = (method: string) => {
+  selectedPaymentMethod.value = method;
+};
+
+const handleSubmit = async () => {
+  loading.value = true;
+
+  // Vérifier si cartItems.value est défini et n'est pas vide, sinon utiliser des données mockées
+  const items = (cartItems.value && cartItems.value.length > 0) ? cartItems.value : [
+    {
+      _id: 'mock1',
+      name: 'Test Product',
+      quantity: 1,
+      price: 10,
     }
-  };
+  ];
+
+  try {
+    const response = await axios.post('http://localhost:3000/api/stripe/create-checkout-session', {
+      items: items.map(item => ({
+        id: item._id,
+        quantity: item.quantity,
+        name: item.name,
+        price: item.price
+      })),
+      customer: {
+        email: cardName.value || 'test@example.com' // Utiliser un email de test si aucun email n'est fourni
+      }
+    });
+
+    const { sessionId } = response.data;
+    const stripe = await loadStripe('your-publishable-key');
+    const { error } = await stripe.redirectToCheckout({ sessionId });
+
+    if (error) {
+      console.error('Error redirecting to Stripe Checkout:', error);
+    }
+  } catch (error) {
+    console.error('Error creating checkout session:', error);
+  } finally {
+    loading.value = false;
+  }
+};
+
+const removeItem = (itemId: string) => {
+  cartStore.removeFromCart(itemId);
+};
+</script>
+
+
   
-  const removeItem = (itemId: string) => {
-    cartStore.removeFromCart(itemId);
-  };
-  </script>
   
 
 

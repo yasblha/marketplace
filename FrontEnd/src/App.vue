@@ -7,8 +7,6 @@ import { useCartStore } from '@/stores/panier';
 import NavigationBar from "@/components/UI/NavigationBar.vue";
 import AuthModal from "@/components/common/AuthModal.vue";
 import { useAuthModalStore } from '@/stores/authModale';
-import VueStripe from 'vue-stripe-js';
-
 import {useRoute} from "vue-router";
 
 
