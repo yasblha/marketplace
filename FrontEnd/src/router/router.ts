@@ -17,7 +17,7 @@ import SearchResult from '@/components/common/SearchResult.vue'
 import Checkout from '@/pages/Checkout.vue'
 import Payment from '@/pages/Payment.vue'
 import PaymentCommande from '@/pages/PaymentCommande.vue'
-import PaymentSuccess from '@/pages/PaymentSuccess.vue'
+import PaymentSuccess from '@/pages/PaymentSucces.vue'
 import PaymentCancel from '@/pages/PaymentCancel.vue'
 
 const routes = [
@@ -131,7 +131,7 @@ const routes = [
     component: PaymentCommande
   },
   { path: '/paymentSuccess',
-    name: 'PaymentSuccess',
+    name: 'paymentSuccess',
     component: PaymentSuccess 
 },
 { path: '/paymentCancel',
