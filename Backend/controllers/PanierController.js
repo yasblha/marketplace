@@ -34,6 +34,7 @@ exports.createCartItem = async (req, res) => {
         product.stock_available -= quantity;
         await product.save();
 
+
         const reservedUntil = new Date();
         reservedUntil.setMinutes(reservedUntil.getMinutes() + 15);
 

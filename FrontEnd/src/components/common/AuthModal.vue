@@ -72,6 +72,7 @@
 
           <div class="toggle-auth">
             <span @click="toggleAuth">{{ isLogin ? 'Pas de compte ? Inscrivez-vous' : 'Déjà un compte ? Connectez-vous' }}</span>
+            <span @click="toggleAuth">{{ isLogin ? 'Pas de compte ? Inscrivez-vous' : 'Déjà un compte ? Connectez-vous' }}</span>
           </div>
         </div>
       </div>

@@ -3,7 +3,7 @@
   <database-model serializer="dbm" dbms="POSTGRES" family-id="POSTGRES" format-version="4.51">
     <root id="1">
       <DateStyle>mdy</DateStyle>
-      <IntrospectionStateNumber>1170</IntrospectionStateNumber>
+      <IntrospectionStateNumber>1192</IntrospectionStateNumber>
       <ServerVersion>14.1</ServerVersion>
       <StartupTime>1720743076</StartupTime>
       <TimeZones>true ACDT
@@ -801,7 +801,7 @@ true posixrules
 13388||10|C|G
 13388||-9223372036854775808|U|G
 13388||10|U|G</Grants>
-      <IntrospectionStateNumber>1170</IntrospectionStateNumber>
+      <IntrospectionStateNumber>1192</IntrospectionStateNumber>
       <ObjectId>16384</ObjectId>
       <OwnerName>user</OwnerName>
     </database>
@@ -4231,8 +4231,8 @@ true posixrules
     <schema id="262" parent="2" name="public">
       <Comment>standard public schema</Comment>
       <Current>1</Current>
-      <IntrospectionStateNumber>1170</IntrospectionStateNumber>
-      <LastIntrospectionLocalTimestamp>2024-07-23.01:40:47</LastIntrospectionLocalTimestamp>
+      <IntrospectionStateNumber>1192</IntrospectionStateNumber>
+      <LastIntrospectionLocalTimestamp>2024-07-23.11:56:33</LastIntrospectionLocalTimestamp>
       <ObjectId>2200</ObjectId>
       <StateNumber>527</StateNumber>
       <OwnerName>user</OwnerName>
@@ -4573,9 +4573,8 @@ true posixrules
     <column id="311" parent="274" name="confirmation_token_expiry">
       <DasType>timestamp|0s</DasType>
       <DefaultExpression>CURRENT_DATE</DefaultExpression>
-      <NotNull>1</NotNull>
       <Position>11</Position>
-      <StateNumber>809</StateNumber>
+      <StateNumber>1191</StateNumber>
       <TypeId>1114</TypeId>
     </column>
     <column id="312" parent="274" name="password_last_changed">

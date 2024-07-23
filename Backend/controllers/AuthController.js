@@ -56,16 +56,26 @@ async function register(req, res, next) {
 
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
+        const confirmationToken = crypto.randomBytes(32).toString('hex');
+        const confirmationTokenExpiry = new Date();
+        confirmationTokenExpiry.setHours(confirmationTokenExpiry.getHours() + 24);
 
-        const newUser = await User.createUser({
+        const newUser = await User.create({
             firstname: firstName,
             lastname: lastName,
             email,
             password: hashedPassword,
             role,
+            confirmation_token: confirmationToken,
+            confirmation_token_expiry: confirmationTokenExpiry,
+            confirmed: false,
         });
 
-        return res.status(201).json({ message: 'Utilisateur créé avec succès', user: newUser });
+        const confirmLink = `${process.env.FRONTEND_BASE_URL}/confirm-email/${confirmationToken}`;
+        const emailContent = `Pour confirmer votre inscription, veuillez cliquer sur ce lien : ${confirmLink}`;
+        await sendEmail(email, 'Confirmation de votre inscription', emailContent);
+
+        return res.status(201).json({ message: 'Utilisateur créé avec succès. Veuillez vérifier votre email pour confirmer votre inscription.' });
     } catch (error) {
         console.error('Error creating user:', error);
         next(error);
@@ -76,16 +86,21 @@ async function confirmEmail(req, res) {
     const { token } = req.params;
 
     try {
-        const result = await User.updateUserByToken(token, { confirmed: true });
+        const user = await User.findOne({ where: { confirmation_token: token } });
 
-        if (result.length === 0) {
+        if (!user || new Date() > new Date(user.confirmation_token_expiry)) {
             return res.status(400).json({ message: 'Token invalide ou expiré' });
         }
+
+        user.confirmed = true;
+        user.confirmation_token = null;
+        user.confirmation_token_expiry = null;
+        await user.save();
 
         res.status(200).json({ message: 'Email confirmé avec succès' });
     } catch (error) {
         console.error('Error confirming email:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
+        res.status(500).json({ error: 'Erreur interne du serveur' });
     }
 }
 
@@ -97,7 +112,7 @@ async function login(req, res) {
     }
 
     try {
-        const user = await User.getUserByEmail(email);
+        const user = await User.findOne({ where: { email } });
 
         if (!user) {
             return handleFailedLoginAttempt(email, res);
@@ -107,6 +122,18 @@ async function login(req, res) {
 
         if (!isPasswordValid) {
             return handleFailedLoginAttempt(email, res);
+        }
+
+        if (!user.confirmed) {
+            const confirmationToken = user.confirmation_token || crypto.randomBytes(32).toString('hex');
+            user.confirmation_token = confirmationToken;
+            await user.save();
+
+            const confirmLink = `${process.env.FRONTEND_BASE_URL}/confirm-email/${confirmationToken}`;
+            const emailContent = `Pour confirmer votre inscription, veuillez cliquer sur ce lien : ${confirmLink}`;
+            await sendEmail(email, 'Confirmation de votre inscription', emailContent);
+
+            return res.status(403).json({ message: 'Veuillez confirmer votre email avant de vous connecter. Un nouveau lien de confirmation a été envoyé à votre adresse email.' });
         }
 
         delete loginAttempts[email];
@@ -119,7 +146,7 @@ async function login(req, res) {
 
         const responseMessage = user.role === 'admin'
             ? { message: 'Connecté en tant qu\'administrateur', accessToken, refreshToken, user, redirectTo: '/' }
-            : { message: 'Bonjour ! Votre utilisateur est connecté', accessToken, refreshToken, user };
+            : { message: 'Bonjour ! Votre utilisateur est connecté', accessToken, refreshToken, user, redirectTo: '/' };
 
         return res.status(200).json(responseMessage);
     } catch (error) {

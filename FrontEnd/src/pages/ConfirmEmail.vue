@@ -1,12 +1,38 @@
 <template>
   <div class="confirmation-container">
-    <h2 class="confirmation-title">Inscription Confirmée</h2>
-    <p class="confirmation-message">Votre inscription a été confirmée avec succès. Vous pouvez maintenant vous connecter.</p>
-    <router-link to="/login" class="btn btn-primary">Se connecter</router-link>
+    <h2 class="confirmation-title">{{ messageTitle }}</h2>
+    <p class="confirmation-message">{{ messageContent }}</p>
+    <router-link v-if="confirmationSuccess" to="/login" class="btn btn-primary">Se connecter</router-link>
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
+import axiosInstance from '@/services/api';
+
+const route = useRoute();
+const confirmationSuccess = ref(false);
+const messageTitle = ref('Confirmation en cours...');
+const messageContent = ref('Veuillez patienter pendant que nous confirmons votre email.');
+
+onMounted(async () => {
+  const token = route.params.token;
+  try {
+    const response = await axiosInstance.get(`/auth/confirm-email/${token}`);
+    if (response.status === 200) {
+      confirmationSuccess.value = true;
+      messageTitle.value = 'Inscription Confirmée';
+      messageContent.value = 'Votre inscription a été confirmée avec succès. Vous pouvez maintenant vous connecter.';
+    } else {
+      messageTitle.value = 'Erreur de Confirmation';
+      messageContent.value = 'Le lien de confirmation est invalide ou a expiré.';
+    }
+  } catch (error) {
+    messageTitle.value = 'Erreur de Confirmation';
+    messageContent.value = 'Le lien de confirmation est invalide ou a expiré.';
+  }
+});
 </script>
 
 <style scoped>
