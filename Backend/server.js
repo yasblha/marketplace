@@ -6,15 +6,13 @@ const bodyParser = require("body-parser");
 const credentials = require('./middleware/credentials');
 const errorHandler = require('./middleware/error_handler');
 const authRoutes = require('./routes/api/auth');
-const products = require('./routes/api/products')
-const uploadRoutes = require('./routes/api/uploadRoute')
+const products = require('./routes/api/products');
+const uploadRoutes = require('./routes/api/uploadRoute');
 const cron = require('node-cron');
 const upload = require('./middleware/upload');
 const cookieParser = require('cookie-parser');
 const { checkPasswordRenewal } = require('./services/reset_mail');
-//import injectProducts from './utils/faker';
 const path = require('path');
-
 
 require('dotenv').config();
 
@@ -24,6 +22,7 @@ async function init() {
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const TEST_PORT = 3001;  // Port différent pour les tests
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -37,8 +36,6 @@ app.use('/api/products', products);
 app.use('/api/upload', uploadRoutes);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-
-
 cron.schedule('0 0 * * *', checkPasswordRenewal);
 
 app.get('/', (req, res) => {
@@ -47,14 +44,23 @@ app.get('/', (req, res) => {
 
 app.use(errorHandler);
 
-const server = app.listen(PORT, () => {
-    console.log(`App is listening at http://localhost:${PORT}`);
-    //init();
-});
+let server;
 
-//injectProducts();
+if (require.main === module) {
+    server = app.listen(PORT, () => {
+        console.log(`App is listening at http://localhost:${PORT}`);
+        //init();
+    });
 
-process.on("unhandledRejection", err => {
-    console.error(`Unhandled Rejection: ${err.message}`);
-    server.close(() => process.exit(1));
-});
+    process.on("unhandledRejection", err => {
+        console.error(`Unhandled Rejection: ${err.message}`);
+        server.close(() => process.exit(1));
+    });
+} else {
+    // Utiliser un port différent pour les tests
+    server = app.listen(TEST_PORT, () => {
+        console.log(`Test server is listening at http://localhost:${TEST_PORT}`);
+    });
+}
+
+module.exports = { app, server };

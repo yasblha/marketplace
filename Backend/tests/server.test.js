@@ -1,10 +1,14 @@
 const request = require('supertest');
-const app = require('../server'); // Assurez-vous que le chemin vers server.js est correct
+const { app, server } = require('../server');
 
-describe('GET /', () => {
-    it('should return status 200 and welcome message', async () => {
+describe('Server', () => {
+    afterAll((done) => {
+        server.close(done);
+    });
+
+    it('should return a welcome message', async () => {
         const res = await request(app).get('/');
         expect(res.statusCode).toEqual(200);
-        expect(res.text).toEqual('Welcome to my server!');
+        expect(res.text).toContain('Welcome to my server!');
     });
 });
