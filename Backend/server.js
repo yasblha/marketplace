@@ -10,6 +10,7 @@ const products = require('./routes/api/products')
 const uploadRoutes = require('./routes/api/uploadRoute')
 const sectionRoutes = require('./routes/api/MenuRoute');
 const cartRoutes = require('./routes/api/PanierRoute');
+const orderRoutes = require('./routes/api/CommandeRoutes');
 const cron = require('node-cron');
 const upload = require('./middleware/upload');
 const cookieParser = require('cookie-parser');
@@ -39,6 +40,7 @@ app.use('/api/products', products);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/sections', sectionRoutes);
 app.use('/api/cart', cartRoutes);
+app.use('/api/order', orderRoutes);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 

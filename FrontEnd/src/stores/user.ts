@@ -202,6 +202,28 @@ export const useAuthStore = defineStore('auth', () => {
         }
     }
 
+    async function fetchUsers() {
+        try {
+            console.log('Fetching users');
+            const response = await axiosInstance.get('auth/users');
+            console.log('Fetched users:', response.data.users);
+            return response.data.users;
+        } catch (error) {
+            console.error('Erreur de récupération des utilisateurs:', error);
+            throw error;
+        }
+    }
+
+    async function deleteUser(id: number) {
+        try {
+            await axiosInstance.delete(`/users/${id}`);
+            await fetchUsers();
+        } catch (error) {
+            console.error('Failed to delete user:', error);
+            throw error;
+        }
+    }
+
     loadState();
 
     watchEffect(() => {
@@ -212,6 +234,8 @@ export const useAuthStore = defineStore('auth', () => {
     });
 
     return {
+        deleteUser,
+        fetchUsers,
         user,
         token,
         refreshToken,

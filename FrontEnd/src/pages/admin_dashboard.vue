@@ -12,6 +12,11 @@
           <h2>User Management</h2>
           <UserManagement />
         </div>
+        <div v-else-if="activeMenu === 'orders'" class="dashboard-section">
+          <h2>Order Management</h2>
+          <OrderManagement />
+        </div>
+
         <div v-else-if="activeMenu === 'list'" class="dashboard-section">
           <h2>List Items</h2>
           <ListItems />
@@ -27,6 +32,7 @@ import Sidebar from '@/components/common/SideBar.vue';
 import AdminHeader from '@/components/admin/AdminHeader.vue';
 import ProductManagement from '@/components/admin/ProductManagement.vue';
 import UserManagement from '@/components/admin/UserManagement.vue';
+import OrderManagement from '@/components/admin/OrderManagement.vue';
 import ListItems from '@/components/admin/ListItems.vue';
 
 const activeMenu = ref('products');

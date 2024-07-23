@@ -104,7 +104,17 @@ const routes = [
         path: '/checkout',
         name: 'Checkout',
         component: Checkout,
-    }
+    }/*{
+    path: '/admin',
+    name: 'AdminLayout',
+    component: AdminLayout,
+    children: [
+      { path: 'products', name: 'ProductManagement', component: ProductManagement },
+      { path: 'users', name: 'UserManagement', component: UserManagement },
+      { path: 'orders', name: 'OrderManagement', component: OrderManagement },
+      { path: 'list', name: 'ListItems', component: ListItems },
+    ],
+  },*/
 
 ];
 
