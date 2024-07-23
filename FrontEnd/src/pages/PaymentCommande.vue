@@ -147,8 +147,7 @@ const removeItem = (itemId: string) => {
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   margin-right: 20px;
-  font-size: 14px
-  ;
+  font-size: 14px;
 
 }
 
@@ -160,9 +159,11 @@ const removeItem = (itemId: string) => {
   margin: 20px 0; */
 }
 
-.checkout{
+.checkout {
+  margin-left: 9pc;
+
   position: relative;
-  top: 5px;
+  top: 26px;
 }
 
 .steps {
