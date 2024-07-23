@@ -1,11 +1,11 @@
 <template>
     <div class="checkout-page">
-        <div class="titles">
-        <h2>Your chekout</h2>
+      <div class="titles">
+        <h2>Your checkout</h2>
         <span>Not ready to checkout? Continue Shopping</span>
-      </div>      <section class="checkout-container">
+      </div>
+      <section class="checkout-container">
         <div class="checkout-form">
- 
           <div class="steps">
             <span>Address</span>
             <span>Shipping</span>
@@ -19,64 +19,19 @@
             </div>
   
             <div v-if="selectedPaymentMethod === 'card'" class="payment-details">
-              <label for="card-name">Cardholder Name</label>
+              <label for="card-name">Email</label>
               <input type="text" id="card-name" v-model="cardName" required />
-  
-              <label for="card-number">Card Number</label>
-              <input type="text" id="card-number" v-model="cardNumber" required />
-  
-              <div class="card-details">
-                <div>
-                  <label for="card-expiry-month">Month</label>
-                  <select id="card-expiry-month" v-model="cardExpiryMonth" required>
-                    <option value="">Month</option>
-                    <option value="01">01</option>
-                    <option value="02">02</option>
-                    <option value="03">03</option>
-                    <option value="04">04</option>
-                    <option value="05">05</option>
-                    <option value="06">06</option>
-                    <option value="07">07</option>
-                    <option value="08">08</option>
-                    <option value="09">09</option>
-                    <option value="10">10</option>
-                    <option value="11">11</option>
-                    <option value="12">12</option>
-                  </select>
-                </div>
-                <div>
-                  <label for="card-expiry-year">Year</label>
-                  <select id="card-expiry-year" v-model="cardExpiryYear" required>
-                    <option value="">Year</option>
-                    <option value="2023">2023</option>
-                    <option value="2024">2024</option>
-                    <option value="2025">2025</option>
-                    <option value="2026">2026</option>
-                    <option value="2027">2027</option>
-                    <option value="2028">2028</option>
-                    <option value="2029">2029</option>
-                    <option value="2030">2030</option>
-                  </select>
-                </div>
-                <div>
-                  <label for="card-cvc">CVC</label>
-                  <input type="text" id="card-cvc" v-model="cardCvc" required />
-                </div>
-              </div>
-  
+              
               <label class="save-card">
                 <input type="checkbox" v-model="saveCard" /> Save card data for future payments
               </label>
   
               <div id="card-error" class="error-message"></div>
-  
             </div>
-
+            <button type="submit" :disabled="loading">{{ loading ? 'Processing...' : 'Pay with card' }}</button>
           </form>
-          <button type="submit" :disabled="loading">{{ loading ? 'Processing...' : 'Pay with card' }}</button>
-
         </div>
-
+  
         <div class="cart-summary">
           <h3>Your cart</h3>
           <div v-for="item in cartItems" :key="item._id" class="cart-item">
@@ -93,6 +48,7 @@
     </div>
     <Footer />
   </template>
+  
   
   
   <script setup lang="ts">

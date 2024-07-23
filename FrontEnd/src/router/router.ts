@@ -16,6 +16,7 @@ import ProfilPage from "@/pages/profil/profilPage.vue";
 import SearchResult from "@/components/common/SearchResult.vue";
 import Checkout from "@/pages/Checkout.vue";
 import Payment from "@/pages/Payment.vue";
+import PaymentCommande from "@/pages/PaymentCommande.vue";
 
 
 const routes = [
@@ -122,6 +123,11 @@ const routes = [
     path: '/payment',
     name: 'payment',
     component: Payment,
+  },
+  {
+    path: '/paymentCheckout',
+    name: 'paymentCheckout',
+    component: PaymentCommande,
   }
 ];
 
