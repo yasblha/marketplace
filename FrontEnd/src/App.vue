@@ -6,17 +6,20 @@ import { useCartStore } from '@/stores/panier';
 import NavigationBar from "@/components/UI/NavigationBar.vue";
 import AuthModal from "@/components/common/AuthModal.vue";
 import { useAuthModalStore } from '@/stores/authModale';
-
-import { useCartStore } from '@/stores/cart';
-
-const cartStore = useCartStore();
-cartStore.loadState();
+import { StripePlugin } from '@vue-stripe/vue-stripe';
 
 import {useRoute} from "vue-router";
 
-const cartStore = useCartStore();
+
 const route = useRoute();
 const authModalStore = useAuthModalStore();
+
+const options = {
+  pk: process.env.STRIPE_PUBLIC_KEY,
+  stripeAccount: process.env.VUE_APP_STRIPE_ACCOUNT,
+  apiVersion: process.env.VUE_APP_API_VERSION,
+  locale: process.env.VUE_APP_LOCALE,
+};
 
 
 onMounted(() => {
@@ -36,6 +39,5 @@ onMounted(() => {
 </template>
 
 <style >
-
 
 </style>
