@@ -1,5 +1,5 @@
 const Cart = require('../models/postgres_models/Panier');
-const Client = require('../models/postgres_models/Userpg');
+const Client = require('../models/postgres_models/UserPg');
 //const Product = require('../models/postgres_models/ProductPg');
 const Product = require('../models/mongo_models/Product');
 //const {authenticateAdmin, authenticateToken} = require('')

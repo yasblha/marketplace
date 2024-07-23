@@ -1,4 +1,4 @@
-const User = require('../models/mongo_model/User'); 
+const User = require('../models/mongo_models/User');
 const { sendNewProductEmail } = require('../services/mailer');
 
 const subscribeToNewsletter = async (req, res) => {

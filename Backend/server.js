@@ -51,7 +51,6 @@ let server;
 if (require.main === module) {
     server = app.listen(PORT, () => {
         console.log(`App is listening at http://localhost:${PORT}`);
-        //init();
     });
 
     process.on("unhandledRejection", err => {
@@ -59,10 +58,17 @@ if (require.main === module) {
         server.close(() => process.exit(1));
     });
 } else {
-    // Utiliser un port différent pour les tests
     server = app.listen(TEST_PORT, () => {
         console.log(`Test server is listening at http://localhost:${TEST_PORT}`);
     });
 }
 
-module.exports = { app, server };
+const closeServer = () => {
+    if (server) {
+        server.close(() => {
+            console.log('Server closed');
+        });
+    }
+};
+
+module.exports = { app, closeServer };

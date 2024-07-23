@@ -1,4 +1,4 @@
-const User = require('../models/mongo_model/User');
+const User = require('../models/mongo_models/User');
 const { sendPromotionEmail } = require('../services/mailer');
 
 async function addPromotion(promotionDetails) {
