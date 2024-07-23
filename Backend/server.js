@@ -11,10 +11,12 @@ const uploadRoutes = require('./routes/api/uploadRoute')
 const sectionRoutes = require('./routes/api/MenuRoute');
 const cartRoutes = require('./routes/api/PanierRoute');
 const orderRoutes = require('./routes/api/CommandeRoutes');
+const stripeRoutes = require('./routes/api/stripe');
 const cron = require('node-cron');
 const upload = require('./middleware/upload');
 const cookieParser = require('cookie-parser');
 const { checkPasswordRenewal } = require('./services/reset_mail');
+
 //import injectProducts from './utils/faker';
 const path = require('path');
 
@@ -42,6 +44,8 @@ app.use('/api/sections', sectionRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/order', orderRoutes);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/api/stripe', stripeRoutes);
+
 
 
 
