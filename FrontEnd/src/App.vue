@@ -22,11 +22,11 @@ const options = {
   // locale: process.env.VUE_APP_LOCALE,
 };
 
-const app = createApp(App);
-app.use(VueStripe, options);
-app.mount('#app');
+// const app = createApp(App);
+// app.use(VueStripe, options);
+// app.mount('#app');
 onMounted(() => {
-  cartStore.loadCart();
+  useCartStore().loadCart();
 });
 
 </script>
