@@ -100,6 +100,7 @@ const routes = [
         name: 'SearchResults',
         component: SearchResult,
     },
+
     {
         path: '/checkout',
         name: 'Checkout',

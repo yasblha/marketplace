@@ -22,6 +22,3 @@ app.use(pinia);
 app.use(router);
 app.use(VueCookieNext);
 app.mount('#app');
-
-
-
