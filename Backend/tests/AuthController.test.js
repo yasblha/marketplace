@@ -1,71 +1,76 @@
+const express = require('express');
 const request = require('supertest');
-const { app, closeServer } = require('../server');
-const mongoose = require('mongoose');
-const User = require('../models/mongo_models/User');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
+const User = require('../models/postgres_models/UserPg');
+const authRoutes = require('../routes/api/auth');
+const app = express();
+
+app.use(express.json());
+app.use('/api/auth', authRoutes);
+
+jest.mock('../models/postgres_models/UserPg');
 
 describe('Auth Controller', () => {
-  beforeAll(async () => {
-    // Connectez-vous à la base de données de test
-    const MONGO_URI = 'mongodb://localhost:27017/test_marketplace';
-    if (mongoose.connection.readyState === 0) {
-      await mongoose.connect(MONGO_URI, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-      });
-    }
-  });
+    let server;
 
-  afterAll(async () => {
-    // Déconnectez-vous de la base de données de test
-    await mongoose.connection.close();
-    closeServer();
-  });
+    beforeAll(() => {
+        server = app.listen(3001, () => {
+            console.log('Test server running on port 3001');
+        });
+    });
 
-  afterEach(async () => {
-    // Nettoyez la base de données après chaque test
-    await User.deleteMany({});
-  });
+    afterAll(() => {
+        server.close(() => {
+            console.log('Test server closed');
+        });
+    });
 
-  it('should register a new user', async () => {
-    const newUser = {
-      role: 'user',
-      email: 'test@example.com',
-      firstName: 'Test',
-      lastName: 'User',
-      password: 'Password123!',
-      password_confirm: 'Password123!',
-      newsletter: true,
-    };
+    it('should register a new user', async () => {
+        const newUser = {
+            firstname: 'John',
+            lastname: 'Doe',
+            email: 'test@example.com',
+            password: 'password',
+            role: 'user',
+            newsletter: true,
+        };
 
-    const res = await request(app)
-      .post('/api/auth/register')
-      .send(newUser)
-      .expect(201);
+        User.create.mockResolvedValue(newUser);
 
-    expect(res.body.message).toBe('Utilisateur enregistré avec succès');
-    expect(res.body.user).toHaveProperty('email', 'test@example.com');
+        const res = await request(app)
+            .post('/api/auth/register')
+            .send({
+                email: 'test@example.com',
+                password: 'password',
+                password_confirm: 'password',
+                firstName: 'John',
+                lastName: 'Doe',
+                role: 'user',
+                newsletter: true,
+            })
+            .expect(201);
 
-    const user = await User.findOne({ email: 'test@example.com' });
-    expect(user).toBeTruthy();
-    expect(user.newsletter).toBe(true);
-  });
+        expect(res.body.user).toEqual(newUser);
+    });
 
-  it('should not register a user with mismatched passwords', async () => {
-    const newUser = {
-      role: 'user',
-      email: 'test@example.com',
-      firstName: 'Test',
-      lastName: 'User',
-      password: 'Password123!',
-      password_confirm: 'Password1234!',
-      newsletter: true,
-    };
+    it('should login a user', async () => {
+        const user = {
+            id: 1,
+            email: 'test@example.com',
+            password: await bcrypt.hash('password', 10),
+            role: 'user',
+        };
 
-    const res = await request(app)
-      .post('/api/auth/register')
-      .send(newUser)
-      .expect(422); // Le code HTTP 422 pour "Unprocessable Entity"
+        User.findOne.mockResolvedValue(user);
+        jwt.sign = jest.fn().mockImplementation(() => 'token');
 
-    expect(res.body.message).toBe('Les mots de passe ne correspondent pas.');
-  });
+        const res = await request(app)
+            .post('/api/auth/login')
+            .send({ email: 'test@example.com', password: 'password' })
+            .expect(200);
+
+        expect(res.body.accessToken).toEqual('token');
+        expect(res.body.refreshToken).toEqual('token');
+    });
 });

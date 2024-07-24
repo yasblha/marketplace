@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 require('dotenv').config();
 
-const MONGO_URI = 'mongodb://mongo:27018/marketplace';
+const MONGO_URI = 'mongodb://localhost:27018/marketplace';
 
 console.log('Attempting to connect to MongoDB with URI:', MONGO_URI);
 
