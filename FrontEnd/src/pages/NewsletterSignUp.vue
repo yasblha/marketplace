@@ -10,6 +10,8 @@
   </template>
   
   <script>
+  import axios from 'axios';
+  
   export default {
     data() {
       return {
@@ -20,21 +22,17 @@
     methods: {
       async subscribe() {
         try {
-          const response = await fetch('/api/alerts/newsletters/subscribe', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ email: this.email })
+          const response = await axios.post('/api/alerts/newsletters/subscribe', {
+            email: this.email
           });
-          const data = await response.json();
-          if (response.ok) {
+  
+          if (response.status === 201) {
             this.message = 'Subscribed successfully!';
           } else {
-            this.message = `Error: ${data.error}`;
+            this.message = `Error: ${response.data.error}`;
           }
         } catch (error) {
-          this.message = `Error: ${error.message}`;
+          this.message = `Error: ${error.response ? error.response.data.error : error.message}`;
         }
       }
     }
