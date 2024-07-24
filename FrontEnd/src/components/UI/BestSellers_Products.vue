@@ -17,7 +17,7 @@
         <h2>{{ product.name }}</h2>
         <p>{{ product.category }}</p>
         <div class="prices">
-          <span class="priceNormal">${{ product.price.toFixed(2) }}</span>
+          <span class="priceNormal">${{ product.price.toFixed(2) }}</span>  
         </div>
       </div>
     </div>

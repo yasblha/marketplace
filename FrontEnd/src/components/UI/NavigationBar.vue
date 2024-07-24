@@ -39,8 +39,12 @@
           <span class="cart-count" v-if="cartCount > 0">{{ cartCount }}</span>
         </router-link>
       </li>
-      <li class="nav-item"><router-link class="nav-link2" to="/wishlist"><img src="../../assets/ui_assets/hart.svg" alt="wishlist"></router-link></li>
-    </ul>
+      <li class="nav-item favorite-icon">
+        <router-link class="nav-link2" to="/Favorites">
+          <img src="../../assets/ui_assets/hart.svg" alt="wishlist">
+          <span class="favorite-count" v-if="favoriteCount > 0">{{ favoriteCount }}</span>
+        </router-link>
+      </li>    </ul>
   </nav>
 </template>
 
@@ -49,6 +53,7 @@ import {ref, computed, watchEffect} from 'vue';
 import {useAuthStore} from '@/stores/user';
 import {useAuthModalStore} from '@/stores/authModale';
 import {useCartStore} from '@/stores/panier';
+
 
 const authModalStore = useAuthModalStore();
 const authStore = useAuthStore();

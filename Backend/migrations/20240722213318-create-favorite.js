@@ -1,42 +1,26 @@
 'use strict';
 
-/** @type {import('sequelize-cli').Migration} */
 module.exports = {
     up: async (queryInterface, Sequelize) => {
-        await queryInterface.createTable('favorite', {
-            id: {
-                type: Sequelize.INTEGER,
-                autoIncrement: true,
-                primaryKey: true,
-            },
-            userid: {
-                type: Sequelize.INTEGER,
-                allowNull: false,
-                references: {
-                    model: 'Clients',
-                    key: 'id'
-                }
-            },
-            productids: {
-                type: Sequelize.ARRAY(Sequelize.INTEGER),
-                defaultValue: [],
-                allowNull: true,
-            },
-            createdAt: {
-                allowNull: false,
-                type: Sequelize.DATE,
-                defaultValue: Sequelize.NOW,
-            },
-            updatedAt: {
-                allowNull: false,
-                type: Sequelize.DATE,
-                defaultValue: Sequelize.NOW,
+        await queryInterface.addColumn('Favorite', 'productid', {
+            type: Sequelize.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'Products',
+                key: 'id'
             }
         });
+
+        await queryInterface.removeColumn('Favorite', 'productids');
     },
 
     down: async (queryInterface, Sequelize) => {
-        await queryInterface.dropTable('favorite');
-    },
+        await queryInterface.addColumn('Favorite', 'productids', {
+            type: Sequelize.ARRAY(Sequelize.INTEGER),
+            allowNull: true,
+            defaultValue: []
+        });
 
+        await queryInterface.removeColumn('Favorite', 'productid');
+    }
 };

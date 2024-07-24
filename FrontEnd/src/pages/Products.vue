@@ -156,7 +156,7 @@ const updateSort = (sortValue: string) => {
 watch(() => route.query, () => filterProducts(), { deep: true });
 </script>
 
-<style scoped>
+<style scoped>  
 .product-section {
   padding: 20px;
 }

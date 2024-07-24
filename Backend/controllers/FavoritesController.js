@@ -1,76 +1,65 @@
 const Favorite = require('../models/postgres_models/Favorite');
-const Client = require('../models/postgres_models/UserPg');
 const Product = require('../models/postgres_models/ProductPg');
 
-
-exports.addFavorite = async (req, res) => {
+exports.addProductToFavorites = async (req, res) => {
+    const { userId, productId } = req.body;
 
     try {
-        const { userid, productids } = req.body;
+        // Créer une nouvelle entrée de favoris pour l'utilisateur et le produit
+        const [favorite, created] = await Favorite.findOrCreate({
+            where: { userid: userId, productid: productId }
+        });
 
-        const client = await Client.findByPk(userid);
-
-        if (!client) {
-            return res.status(404).json({ message: 'Client not found' });
+        if (!created) {
+            return res.status(400).json({ message: 'Product already in favorites' });
         }
 
-        for (const productid of productids) {
-            console.log(productid)
-            const product = await Product.findByPk(productid);
-            console.log('le produit récupéré', product);
-            if (!product) {
-                return res.status(404).json({ message: `Product with id ${productid} not found` });
-            }
-        }
-
-
-        const favorite = await Favorite.create({ userid, productids });
-        res.status(201).json(favorite);
+        res.status(200).json(favorite);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error('Error adding product to favorites:', error);
+        res.status(500).json({ message: 'Internal server error' });
     }
 };
 
-// controllers/favoriteController.js
+exports.getFavoritesByUserId = async (req, res) => {
+    const userId = req.params.userId;
 
-
-exports.getFavorites = async (req, res) => {
     try {
-        const { userid } = req.params;
-        const favorite = await Favorite.findOne({ where: { userid } });
+        const favorites = await Favorite.findAll({ where: { userid: userId } });
 
-        if (!favorite) {
-            return res.status(404).json({ message: 'Favorites not found' });
+        if (!favorites.length) {
+            return res.status(404).json({ message: 'No favorites found for this user' });
         }
 
-        // Récupération des produits favoris
-        const products = await Product.findAll({ where: { id: favorite.productids } });
+        const productIds = favorites.map(fav => fav.productid);
+        const products = await Product.findAll({
+            where: {
+                id: productIds
+            }
+        });
+
         res.status(200).json(products);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error('Error fetching favorites:', error);
+        res.status(500).json({ message: 'Internal server error' });
     }
 };
 
-
 exports.removeFavorite = async (req, res) => {
-    try {
-        const { userid, productid } = req.body;
+    const { userId, productId } = req.body;
 
-        const favorite = await Favorite.findOne({ where: { userid } });
+    try {
+        const favorite = await Favorite.findOne({ where: { userid: userId, productid: productId } });
 
         if (!favorite) {
             return res.status(404).json({ message: 'Favorite not found' });
         }
 
-        // Retirer le produit de la liste des favoris
-        const index = favorite.productids.indexOf(productid);
-        if (index > -1) {
-            favorite.productids.splice(index, 1);
-            await favorite.save();
-        }
+        await favorite.destroy();
 
         res.status(204).json({ message: 'Favorite removed' });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error('Error removing favorite:', error);
+        res.status(500).json({ message: 'Internal server error' });
     }
 };

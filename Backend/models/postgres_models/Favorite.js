@@ -17,21 +17,20 @@ const Favorite = sequelize.define('Favorite', {
             key: 'id'
         }
     },
-    productids: {
-        type: DataTypes.ARRAY(DataTypes.INTEGER),
-        defaultValue: [],
-        allowNull: true,
+    productid: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+            model: 'Products',
+            key: 'id'
+        }
     }
-
 }, {
-    tableName: 'favorites',
+    tableName: 'Favorite',
     timestamps: false,
 });
 
-// Définition des associations
 Favorite.belongsTo(Client, { foreignKey: 'userid' });
-
-// Product n'est pas directement associé ici car productids est une liste d'IDs, pas des objets Product
-// Les produits doivent être récupérés séparément lors de l'affichage des favoris
+Favorite.belongsTo(Product, { foreignKey: 'productid' });
 
 module.exports = Favorite;

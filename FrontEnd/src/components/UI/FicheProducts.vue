@@ -8,14 +8,11 @@
               <img :src="getImage(product)" :alt="product.name" />
               <div class="heartOverlay" @click.stop="toggleFavorite(product)">
                 <div class="heartWrapper">
-                  <svg
-                      @mouseover="hoverHeart = product._id"
-                      @mouseleave="hoverHeart = null"
-                      :class="['heartIcon', { 'hover': hoverHeart === product._id || isFavorite(product) }]"
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="currentColor">
-                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 6.01 4.01 4 6.5 4c1.54 0 3.04.99 3.57 2.36h.07C11.46 4.99 12.96 4 14.5 4 16.99 4 19 6.01 19 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                  <svg @mouseover="hoverHeart = product._id" @mouseleave="hoverHeart = null"
+                    :class="['heartIcon', { 'hover': hoverHeart === product._id || isFavorite(product), 'favorite': isFavorite(product) }]"
+                    xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                      d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 6.01 4.01 4 6.5 4c1.54 0 3.04.99 3.57 2.36h.07C11.46 4.99 12.96 4 14.5 4 16.99 4 19 6.01 19 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
                   </svg>
                 </div>
               </div>
@@ -44,22 +41,12 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, ref } from 'vue';
+import { defineProps, ref, onMounted } from 'vue';
 import { useCartStore } from '@/stores/panier';
+import { useAuthStore } from '@/stores/user';
+import { useFavoriteStore } from '@/stores/Favorites'; // Correction du nom de l'import
 import defaultImage from '@/assets/ui_assets/image1.png';
 import type { Product } from "@/stores/products";
-
-/*interface Product {
-  _id: string;
-  name: string;
-  description: string;
-  category: string;
-  brand: string;
-  price: number;
-  stock_available: number;
-  status: string;
-  images: string[];
-}*/
 
 const props = defineProps<{
   products: Product[],
@@ -77,15 +64,37 @@ const getImage = (product: Product) => {
 const favorites = ref(new Set<string>());
 const hoverHeart = ref<string | null>(null);
 const cartStore = useCartStore();
+const authStore = useAuthStore();
+const favoriteStore = useFavoriteStore();
 
-const toggleFavorite = (product: Product) => {
-  if (favorites.value.has(product._id)) {
+// Load favorite products on component mount
+onMounted(async () => {
+  const userId = authStore.user?.id;
+  if (userId) {
+    const favoriteProducts = await favoriteStore.getFavorites(userId);
+    favoriteProducts.forEach((product: Product) => {
+      favorites.value.add(product._id);
+    });
+  }
+});
+
+// Méthode pour gérer l'ajout ou la suppression des favoris
+const toggleFavorite = async (product: Product) => {
+  const userId = authStore.user?.id;
+  if (!userId) {
+    console.error('User ID is not available');
+    return;
+  }
+  if (isFavorite(product)) {
     favorites.value.delete(product._id);
+    await favoriteStore.removeFromFavorite(userId, product._id);
   } else {
     favorites.value.add(product._id);
+    await favoriteStore.addToFavorite(userId, product._id);
   }
 };
 
+// Vérifie si un produit est dans les favoris
 const isFavorite = (product: Product) => {
   return favorites.value.has(product._id);
 };
@@ -93,10 +102,13 @@ const isFavorite = (product: Product) => {
 interface ProductWithImageUrl extends Product {
   imageUrl: string;
 }
+
+// Méthode pour ajouter un produit au panier
 const addToCart = (product: Product) => {
   const imageUrl = getImage(product);
   const productWithImageUrl: ProductWithImageUrl = { ...product, imageUrl };
-  cartStore.addToCart(productWithImageUrl);};
+  cartStore.addToCart(productWithImageUrl);
+};
 </script>
 
 <style scoped>
@@ -140,7 +152,8 @@ const addToCart = (product: Product) => {
 
 .imageWrapper {
   width: 100%;
-  height: 200px; /* Fixed height for the image container */
+  height: 200px;
+  /* Fixed height for the image container */
   position: relative;
 }
 
@@ -159,7 +172,6 @@ const addToCart = (product: Product) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.8);
   border-radius: 50%;
 }
 
@@ -174,11 +186,15 @@ const addToCart = (product: Product) => {
   height: 24px;
   color: #ccc;
   cursor: pointer;
-  transition: color 0.3s;
+  transition: color 0.3s, background-color 0.3s;
 }
 
 .heartIcon.hover {
   color: red;
+}
+
+.heartIcon.favorite {
+  background-color: red;
 }
 
 .productDetails {
