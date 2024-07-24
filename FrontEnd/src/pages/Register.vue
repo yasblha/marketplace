@@ -33,6 +33,12 @@
         <input v-model="form.password_confirm" id="password_confirm" type="password" class="form-control" required />
         <span v-if="form.password !== form.password_confirm" class="text-danger">Les mots de passe ne correspondent pas.</span>
       </div>
+      <div class="form-group">
+        <label for="newsletter" class="form-label">
+          <input v-model="form.newsletter" id="newsletter" type="checkbox" />
+          Subscribe to Newsletter
+        </label>
+      </div>
       <button type="submit" class="btn btn-primary" :disabled="!isFormValid">Register</button>
     </form>
   </div>
@@ -52,7 +58,8 @@ const form = ref({
   firstName: '',
   lastName: '',
   password: '',
-  password_confirm: ''
+  password_confirm: '',
+  newsletter: false 
 });
 
 const isPasswordValid = computed(() => {

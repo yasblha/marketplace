@@ -38,6 +38,10 @@ const UserSchema = new Mongoose.Schema({
         default: "Basic",
         required: true,
     },
+    newsletter: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 const User = Mongoose.model("User", UserSchema);

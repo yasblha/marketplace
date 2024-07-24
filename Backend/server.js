@@ -6,8 +6,8 @@ const bodyParser = require("body-parser");
 const credentials = require('./middleware/credentials');
 const errorHandler = require('./middleware/error_handler');
 const authRoutes = require('./routes/api/auth');
-const products = require('./routes/api/products')
-const uploadRoutes = require('./routes/api/uploadRoute')
+const products = require('./routes/api/products');
+const uploadRoutes = require('./routes/api/uploadRoute');
 const sectionRoutes = require('./routes/api/MenuRoute');
 const cartRoutes = require('./routes/api/PanierRoute');
 const cron = require('node-cron');
@@ -34,13 +34,14 @@ app.use(cors());
 app.use(credentials);
 app.use(cookieParser());
 
+// Définition des routes
 app.use('/api/auth', authRoutes);
 app.use('/api/products', products);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/sections', sectionRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-app.use('/api/newsletter', newsletterRoutes);
+app.use('/api/newsletter', newsletterRoutes);  
 
 cron.schedule('0 0 * * *', checkPasswordRenewal);
 
@@ -48,6 +49,7 @@ app.get('/', (req, res) => {
     res.send('Welcome to my server!');
 });
 
+// Gestion des erreurs
 app.use(errorHandler);
 
 let server;

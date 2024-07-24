@@ -66,6 +66,12 @@
                 <input v-model="passwordConfirm" id="password_confirm" type="password" class="form-control" required />
                 <span v-if="password !== passwordConfirm" class="text-danger">Les mots de passe ne correspondent pas.</span>
               </div>
+              <div class="form-group">
+                <label for="newsletter" class="form-label">
+                  <input v-model="newsletter" id="newsletter" type="checkbox" />
+                  S'inscrire à la Newsletter
+                </label>
+              </div>
               <button type="submit" class="btn btn-primary" :disabled="!isFormValid">S'inscrire</button>
             </form>
           </div>
@@ -102,6 +108,7 @@ const role = ref('');
 const firstName = ref('');
 const lastName = ref('');
 const passwordConfirm = ref('');
+const newsletter = ref(false);
 const isLogin = ref(true);
 const rememberMe = ref(false);
 
@@ -113,6 +120,7 @@ watch(() => props.isVisible, (newValue) => {
     firstName.value = '';
     lastName.value = '';
     passwordConfirm.value = '';
+    newsletter.value = false;
   }
 });
 
@@ -157,7 +165,8 @@ async function handleRegister() {
       firstName: firstName.value,
       lastName: lastName.value,
       password: password.value,
-      password_confirm: passwordConfirm.value
+      password_confirm: passwordConfirm.value,
+      newsletter: newsletter.value
     };
     const response = await authStore.register(userData);
     alert(`Inscription réussie ! Réponse :\n${JSON.stringify(response)}`);

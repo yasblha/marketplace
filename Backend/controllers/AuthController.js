@@ -44,7 +44,7 @@ async function sendAccountBlockedEmail(email) {
 }
 
 async function register(req, res, next) {
-    const { role, email, lastName, firstName, password, password_confirm } = req.body;
+    const { role, email, lastName, firstName, password, password_confirm, newsletter  } = req.body;
 
     if (!role || !email || !firstName || !lastName || !password || !password_confirm) {
         return res.status(422).json({ message: 'Tous les champs sont obligatoires' });
@@ -63,7 +63,14 @@ async function register(req, res, next) {
             email,
             password: hashedPassword,
             role,
+            newsletter,
         });
+
+        await newUser.save();
+
+        if (newsletter) {
+            await sendEmail(email, 'Subscription Successful', 'You have subscribed to our newsletter.');
+        }
 
         return res.status(201).json({ message: 'Utilisateur créé avec succès', user: newUser });
     } catch (error) {

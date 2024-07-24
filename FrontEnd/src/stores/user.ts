@@ -18,6 +18,7 @@ interface RegisterData {
     firstName: string;
     password: string;
     password_confirm: string;
+    newsletter: boolean; 
 }
 
 export const useAuthStore = defineStore('auth', () => {
@@ -81,7 +82,7 @@ export const useAuthStore = defineStore('auth', () => {
             console.error('Erreur d\'inscription:', error);
             throw error;
         }
-    }
+    }    
 
     async function login(email: string, password: string) {
         try {
