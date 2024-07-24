@@ -21,7 +21,7 @@ exports.createCheckoutSession = async (req, res) => {
 
   try {
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
+      payment_method_types: ['paypal', 'card'],
       line_items: items.map(item => ({
         price_data: {
           currency: 'usd',
@@ -44,6 +44,46 @@ exports.createCheckoutSession = async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error', details: error.message });
   }
 };
+
+/**
+ * Creates a Stripe Checkout Session to handle the payment process.
+ * 
+ * @param {Object} req - The request object.
+ * @param {Object} req.body - The body of the request.
+ * @param {Array} req.body.items - The items to be purchased.
+ * @param {Object} req.body.customer - The customer information.
+ * @param {string} req.body.customer.email - The customer's email address.
+ * @param {Object} res - The response object.
+ * 
+ * @returns {void}
+ */
+exports.createCheckoutSessionPaypal = async (req, res) => {
+    const { items, customer } = req.body;
+    try {
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ['paypal','card'],
+        line_items: items.map(item => ({
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: item.name || "Test Product" // Nom du produit
+            },
+            unit_amount: item.price * 100, // Montant en cents
+          },
+          quantity: item.quantity || 1, // Quantité envoyée ou par défaut à 1
+        })),
+        customer_email: customer.email || "test@example.com", // Email envoyé ou par défaut
+        mode: 'payment',
+        success_url: 'http://localhost:5173/paymentSuccess',
+        cancel_url: 'http://localhost:5173/paymentCancel',
+      });
+  
+      res.json({ sessionId: session.id });
+    } catch (error) {
+      console.error('Error creating checkout session:', error);
+      res.status(500).json({ error: 'Internal Server Error', details: error.message });
+    }
+  };
 
 /**
  * Creates a Stripe Payment Intent to handle the payment process.

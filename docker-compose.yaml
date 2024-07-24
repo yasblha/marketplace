@@ -56,18 +56,18 @@ services:
       - mongodb-data:/data/db
       - mongodb-log:/var/log/mongodb
 
-  frontend:
-    build:
-      context: ./frontend/
-      dockerfile: Dockerfile
-    container_name: frontend
-    restart: always
-    ports:
-      - '8080:8080'
-    volumes:
-      - ./frontend:/app
-    depends_on:
-      - nodejs
+  # frontend:
+  #   build:
+  #     context: ./frontend/
+  #     dockerfile: Dockerfile
+  #   container_name: frontend
+  #   restart: always
+  #   ports:
+  #     - '8080:8080'
+  #   volumes:
+  #     - ./frontend:/app
+  #   depends_on:
+  #     - nodejs
 
 volumes:
   db:

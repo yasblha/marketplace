@@ -1,82 +1,45 @@
 <template>
     <div class="checkout-page">
-        <div class="titles">
-        <h2>Your chekout</h2>
+      <div class="titles">
+        <h2>Your checkout</h2>
         <span>Not ready to checkout? Continue Shopping</span>
-      </div>      <section class="checkout-container">
+      </div>
+      <section class="checkout-container">
         <div class="checkout-form">
- 
           <div class="steps">
             <span>Address</span>
             <span>Shipping</span>
             <span class="active-step">Payment</span>
           </div>
   
-          <form @submit.prevent="handleSubmit">
-            <div class="payment-methods">
-              <button type="button" @click="selectPaymentMethod('paypal')" :class="{ active: selectedPaymentMethod === 'paypal' }">PayPal</button>
-              <button type="button" @click="selectPaymentMethod('card')" :class="{ active: selectedPaymentMethod === 'card' }">Credit Card</button>
-            </div>
+          <div class="payment-methods">
+            <button type="button" @click="selectPaymentMethod('paypal')" :class="{ active: selectedPaymentMethod === 'paypal' }">PayPal</button>
+            <button type="button" @click="selectPaymentMethod('card')" :class="{ active: selectedPaymentMethod === 'card' }">Credit Card</button>
+          </div>
   
+          <form @submit.prevent="selectedPaymentMethod === 'card' ? handleSubmit() : handlePaypalCheckout()">
             <div v-if="selectedPaymentMethod === 'card'" class="payment-details">
               <label for="card-name">Cardholder Name</label>
               <input type="text" id="card-name" v-model="cardName" required />
   
-              <label for="card-number">Card Number</label>
-              <input type="text" id="card-number" v-model="cardNumber" required />
-  
-              <div class="card-details">
-                <div>
-                  <label for="card-expiry-month">Month</label>
-                  <select id="card-expiry-month" v-model="cardExpiryMonth" required>
-                    <option value="">Month</option>
-                    <option value="01">01</option>
-                    <option value="02">02</option>
-                    <option value="03">03</option>
-                    <option value="04">04</option>
-                    <option value="05">05</option>
-                    <option value="06">06</option>
-                    <option value="07">07</option>
-                    <option value="08">08</option>
-                    <option value="09">09</option>
-                    <option value="10">10</option>
-                    <option value="11">11</option>
-                    <option value="12">12</option>
-                  </select>
-                </div>
-                <div>
-                  <label for="card-expiry-year">Year</label>
-                  <select id="card-expiry-year" v-model="cardExpiryYear" required>
-                    <option value="">Year</option>
-                    <option value="2023">2023</option>
-                    <option value="2024">2024</option>
-                    <option value="2025">2025</option>
-                    <option value="2026">2026</option>
-                    <option value="2027">2027</option>
-                    <option value="2028">2028</option>
-                    <option value="2029">2029</option>
-                    <option value="2030">2030</option>
-                  </select>
-                </div>
-                <div>
-                  <label for="card-cvc">CVC</label>
-                  <input type="text" id="card-cvc" v-model="cardCvc" required />
-                </div>
+              <label for="card-element">Card Details</label>
+              <div id="card-element">
+                <!-- Stripe Card Element will be inserted here -->
               </div>
   
               <label class="save-card">
                 <input type="checkbox" v-model="saveCard" /> Save card data for future payments
               </label>
   
-              <div id="card-error" class="error-message"></div>
+              <div id="card-error" class="error-message">{{ error }}</div>
   
+              <button type="submit" :disabled="loading">{{ loading ? 'Processing...' : 'Pay with card' }}</button>
             </div>
-
+  
+            <button v-if="selectedPaymentMethod === 'paypal'" type="submit" :disabled="loading">{{ loading ? 'Processing...' : 'Pay with PayPal' }}</button>
           </form>
-          <button type="submit" :disabled="loading">{{ loading ? 'Processing...' : 'Pay with card' }}</button>
-
         </div>
-
+  
         <div class="cart-summary">
           <h3>Your cart</h3>
           <div v-for="item in cartItems" :key="item._id" class="cart-item">
@@ -95,64 +58,149 @@
   </template>
   
   
+  
+  
+  
+  
+  
   <script setup lang="ts">
-  import { ref, computed } from 'vue';
-  import { useCartStore } from '@/stores/cart';
-  import { loadStripe } from '@stripe/stripe-js';
-  import Footer from "../components/UI/Footer.vue";
-  import axios from 'axios';
-  
-  const cartStore = useCartStore();
-  const cartItems = computed(() => cartStore.cartItems);
-  
-  const selectedPaymentMethod = ref('card');
-  const cardName = ref('');
-  const cardNumber = ref('');
-  const cardExpiryMonth = ref('');
-  const cardExpiryYear = ref('');
-  const cardCvc = ref('');
-  const saveCard = ref(false);
-  const loading = ref(false);
-  
-  const selectPaymentMethod = (method: string) => {
-    selectedPaymentMethod.value = method;
-  };
-  
-  const handleSubmit = async () => {
-    loading.value = true;
-  
-    try {
-      const response = await axios.post('http://localhost:4242/create-checkout-session', {
-        items: cartItems.value.map(item => ({
-          id: item._id,
-          quantity: item.quantity,
-          name: item.name,
-          price: item.price
-        })),
-        customer: {
-          name: cardName.value,
-          email: cardName.value // Assuming cardName is the email for now
-        }
-      });
-  
-      const { sessionId } = response.data;
-      const stripe = await loadStripe('your-publishable-key');
-      const { error } = await stripe.redirectToCheckout({ sessionId });
-  
-      if (error) {
-        console.error('Error redirecting to Stripe Checkout:', error);
-      }
-    } catch (error) {
-      console.error('Error creating checkout session:', error);
-    } finally {
-      loading.value = false;
+import { ref, computed, onMounted } from 'vue';
+import { useCartStore } from '@/stores/cart';
+import { loadStripe } from '@stripe/stripe-js';
+import Footer from "../components/UI/Footer.vue";
+import axios from 'axios';
+
+const stripePromise = loadStripe('pk_test_51MzKwrI4CWQS7W9jUqGbkjMfywCGLlu3ssgCbslIKp31FYWHiOrDnZmuUK1QNOMZ35v1QgR3dB1FkoRhWjwbprii00vdSRgTX6'); // Remplacez par votre clé publique
+
+const cartStore = useCartStore();
+const cartItems = computed(() => cartStore.cartItems);
+
+const selectedPaymentMethod = ref('card');
+const cardName = ref('');
+const saveCard = ref(false);
+const loading = ref(false);
+const error = ref('');
+
+const selectPaymentMethod = (method: string) => {
+  selectedPaymentMethod.value = method;
+};
+
+let stripe;
+let elements;
+let card;
+
+onMounted(async () => {
+  stripe = await stripePromise;
+  elements = stripe.elements();
+  card = elements.create('card');
+  card.mount('#card-element');
+});
+
+const handleSubmit = async () => {
+  loading.value = true;
+  error.value = '';
+
+  // Vérifier si cartItems.value est défini et n'est pas vide, sinon utiliser des données mockées
+  const items = (cartItems.value && cartItems.value.length > 0) ? cartItems.value : [
+    {
+      _id: 'mock1',
+      name: 'Test Product',
+      quantity: 1,
+      price: 10,
     }
-  };
+  ];
+
+  if (!stripe || !elements || !card) {
+    console.error('Stripe has not been initialized.');
+    loading.value = false;
+    return;
+  }
+
+  try {
+    const amount = items.reduce((total, item) => total + item.price * item.quantity, 0) * 100;
+
+    console.log('Amount to be charged:', amount);
+
+    const response = await axios.post('http://localhost:3000/api/stripe/create-payment-intent', {
+      amount: amount,
+      customer: {
+        email: cardName.value || 'test@example.com' // Utiliser un email de test si aucun email n'est fourni
+      }
+    });
+
+    const clientSecret = response.data.clientSecret;
+    console.log('Client secret received:', clientSecret); // Log the client secret
+
+    const { error: stripeError, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+      payment_method: {
+        card: card,
+        billing_details: {
+          name: cardName.value
+        }
+      }
+    });
+
+    if (stripeError) {
+      console.error(stripeError.message);
+      error.value = stripeError.message;
+    } else {
+      console.log('Payment successful!', paymentIntent);
+      // Redirect or display a success message
+    }
+  } catch (err) {
+    console.error('Error creating payment intent:', err);
+    error.value = 'An error occurred. Please try again.';
+  } finally {
+    loading.value = false;
+  }
+};
+
+const handlePaypalCheckout = async () => {
+  loading.value = true;
+
+  // Vérifier si cartItems.value est défini et n'est pas vide, sinon utiliser des données mockées
+  const items = (cartItems.value && cartItems.value.length > 0) ? cartItems.value : [
+    {
+      _id: 'mock1',
+      name: 'Test Product',
+      quantity: 1,
+      price: 10,
+    }
+  ];
+
+  try {
+    const response = await axios.post('http://localhost:3000/api/stripe/create-paypal-checkout-session', {
+      items: items,
+      customer: {
+        email: cardName.value || 'test@example.com' // Utiliser un email de test si aucun email n'est fourni
+      }
+    });
+
+    const { sessionId } = response.data;
+    const stripe = await stripePromise;
+    const { error } = await stripe.redirectToCheckout({ sessionId });
+
+    if (error) {
+      console.error('Error redirecting to Stripe Checkout:', error);
+    }
+  } catch (err) {
+    console.error('Error creating PayPal checkout session:', err);
+    error.value = 'An error occurred. Please try again.';
+  } finally {
+    loading.value = false;
+  }
+};
+
+const removeItem = (itemId: string) => {
+  cartStore.removeFromCart(itemId);
+};
+</script>
+
   
-  const removeItem = (itemId: string) => {
-    cartStore.removeFromCart(itemId);
-  };
-  </script>
+  
+
+
+  
   
 
 
