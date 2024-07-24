@@ -44,7 +44,7 @@ async function sendAccountBlockedEmail(email) {
 }
 
 async function register(req, res, next) {
-    const { role, email, lastName, firstName, password, password_confirm, newsletter  } = req.body;
+    const { role, email, lastName, firstName, password, password_confirm, newsletter } = req.body;
 
     if (!role || !email || !firstName || !lastName || !password || !password_confirm) {
         return res.status(422).json({ message: 'Tous les champs sont obligatoires' });

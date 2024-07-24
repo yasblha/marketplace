@@ -78,7 +78,7 @@ User.getUserById = async (id) => {
     return User.findByPk(id);
 };
 
-User.createUser = async ({ firstname, lastname, email, password, role }) => {
+User.createUser = async ({ firstname, lastname, email, password, role, newsletter}) => {
     try {
         //const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -89,6 +89,7 @@ User.createUser = async ({ firstname, lastname, email, password, role }) => {
             password,
             role,
             confirmed: false,
+            newsletter
         });
 
         return newUser;

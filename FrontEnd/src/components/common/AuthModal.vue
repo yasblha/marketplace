@@ -68,7 +68,7 @@
               </div>
               <div class="form-group">
                 <label for="newsletter" class="form-label">
-                  <input v-model="newsletter" id="newsletter" type="checkbox" />
+                  <input type="checkbox" v-model="newsletter" id="newsletter"/>
                   S'inscrire à la Newsletter
                 </label>
               </div>
