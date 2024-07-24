@@ -16,6 +16,7 @@ import ProfilPage from "@/pages/profil/profilPage.vue";
 import SearchResult from "@/components/common/SearchResult.vue";
 import Checkout from "@/pages/Checkout.vue";
 import Newsletter from "@/pages/NewsletterSignUp.vue";
+import InvoicePdf from "@/pages/GenerateInvoicesPdf.vue";
 
 
 const routes = [
@@ -121,6 +122,12 @@ const routes = [
     path: '/newsletter',
     name: 'Newsletters',
     component: Newsletter
+
+},
+{   
+    path: '/invoicePdf',
+    name: 'invoicePdf',
+    component: InvoicePdf
 
 },
 ];

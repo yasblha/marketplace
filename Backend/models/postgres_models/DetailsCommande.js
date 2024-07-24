@@ -1,7 +1,7 @@
 // models/OrderDetail.js
 const { DataTypes } = require('sequelize');
 const sequelize = require('../../config/postgres');
-const Order = require('./Order');
+const Order = require('./../postgres_models/Commande');
 const Product = require('../mongo_models/Product');
 
 const OrderDetail = sequelize.define('OrderDetail', {
@@ -19,9 +19,12 @@ const OrderDetail = sequelize.define('OrderDetail', {
         type: DataTypes.FLOAT,
         allowNull: false,
     },
+    orderId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+    },
 });
 
-OrderDetail.belongsTo(Order, { foreignKey: 'order_id' });
-OrderDetail.belongsTo(Product, { foreignKey: 'product_id' });
+OrderDetail.belongsTo(Order, { foreignKey: 'orderId' });
 
 module.exports = OrderDetail;

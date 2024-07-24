@@ -1,6 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../../config/postgres');
-const Order = require('./Order');
+const Order = require('../postgres_models/Commande');
 
 const Invoice = sequelize.define('Invoice', {
   id: {

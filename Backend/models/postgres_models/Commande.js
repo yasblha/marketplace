@@ -26,6 +26,10 @@ const Order = sequelize.define('Order', {
         type: DataTypes.ARRAY(DataTypes.INTEGER),
         allowNull: false,
     },
+    userId: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+      },
 });
 
 Order.belongsTo(User, { foreignKey: 'userId' });
