@@ -66,35 +66,19 @@ process.on("unhandledRejection", err => {
 });
 
 const BrevoMailing = require('./config/mailing');
-const PayloadBuilder = require('./services/brevo/playloadBuilder');
-const Alert = require('./models/postgres_models/Alert');
-
 const brevoMailing = new BrevoMailing(process.env.BREVO_API_KEY);
 
-async function sendAlert(eventType, userId, productId) {
-  try {
-    const payload = await PayloadBuilder.build(eventType, userId, productId);
-    const response = await brevoMailing.sendAlert(payload);
-
-    // Update the alert status
-    const alert = await Alert.create({ 
-      alert_type: eventType, 
-      status: 'sent', 
-      user_id: userId, 
-      product_id: productId 
-    });
-
-    console.log('Email sent successfully:', response);
-  } catch (error) {
-    console.error('Error sending alert:', error);
-  }
-}
-
-// Example usage with PayloadBuilder
-sendAlert('Welcome.newUser', 1, null); // Replace with actual userId and productId
-
+const testPayload = {
+    to: [{ email: 'test@gmail.com' }],
+    templateId: 11, // Using the 'Welcome.newUser' template as an example
+    params: {
+      subject: 'Bienvenue sur notre plateforme',
+      // Add other params as needed
+    }
+  };
+ 
 // Example usage with test payload
-brevoMailing.sendAlert(testPayload)
+brevoMailing.sendMail(testPayload)
   .then(response => {
     console.log('Test email sent successfully:', response);
   })
