@@ -1,5 +1,4 @@
 const axios = require('axios');
-const brevoMailingConfig = require('./brevoConfig');
 
 class BrevoMailing {
   constructor(apiKey) {

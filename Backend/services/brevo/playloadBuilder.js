@@ -1,9 +1,10 @@
 const brevoMailingConfig = require('./brevoConfig');
-const { User } = require('../../models/postgres_models/UserPg'); // Assuming User model is defined in models
-
+const  User = require('../../models/postgres_models/UserPg');
+const  Product = require('../../models/postgres_models/ProductPg');
 class PayloadBuilder {
-  static async build(eventType, userId) {
+  static async build(eventType, userId, productId) {
     const user = await User.findByPk(userId);
+    const product = await Product.findByPk(productId);
     if (!user) {
       throw new Error('User not found');
     }
