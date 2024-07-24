@@ -22,7 +22,7 @@
     methods: {
       async subscribe() {
         try {
-          const response = await axios.post('/api/alerts/newsletters/subscribe', {
+          const response = await axios.post('/newsletters/subscribe', {
             email: this.email
           });
   

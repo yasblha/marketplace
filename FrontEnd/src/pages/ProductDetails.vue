@@ -1,6 +1,4 @@
 <template>
-  <BarreDeRecherche @search="searchProducts" />
-
   <section class="product-details">
     <div class="product-container" v-if="product">
       <div class="image-section">
@@ -31,6 +29,7 @@
         <button @click="addToCart(product)" class="add-to-cart-button">Add to Cart</button>
         <p class="availability">Availability: {{ product.status === 'available' ? 'In Stock' : 'Out of Stock' }}</p>
         <p class="shipping">Free standard shipping | Free returns</p>
+        <button v-if="product.status === 'out_of_stock'" @click="subscribeToAlert(product.id, userId)" class="subscribe-alert-button">Subscribe to Alert</button>
       </div>
     </div>
   </section>
@@ -38,11 +37,13 @@
   <Footer />
 </template>
 
+
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useCartStore } from '@/stores/panier';
 import { useProductStore } from '@/stores/products';
+import axios from 'axios';
 import type { Product } from '@/stores/products';
 import defaultImage from "@/assets/ui_assets/image1.png";
 import BarreDeRecherche from "@/components/UI/SearchBar.vue";
@@ -64,7 +65,7 @@ const quantity = ref(1);
 
 const fetchProductById = async (id: string) => {
   product.value = await productStore.getProductById(id);
-  console.log(product.value);
+  console.log('Product status:', product.value?.status); // Debugging log
 };
 
 onMounted(async () => {
@@ -102,7 +103,26 @@ const decreaseQuantity = () => {
 const searchProducts = (query: string) => {
   productStore.searchProducts(query);
 };
+
+const subscribeToAlert = async (productId: string, userId: number) => {
+  try {
+    // Retrieve the alert ID associated with the product
+    const alertResponse = await axios.get(`http://localhost:3000/alerts?productId=${productId}`);
+    const alertId = alertResponse.data.id;
+
+    const response = await axios.post('http://localhost:3000/alerts/subscribe', { user_id: userId, alert_id: alertId });
+    alert('You have successfully subscribed to the product alert.');
+  } catch (error) {
+    console.error('Error subscribing to alert:', error);
+    alert('There was an error subscribing to the product alert.');
+  }
+};
 </script>
+
+
+
+
+
 
 <style scoped>
 .product-details {
@@ -120,6 +140,7 @@ const searchProducts = (query: string) => {
   background-color: #fff;
   border-radius: 10px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  color: #000;
 }
 
 .image-section {

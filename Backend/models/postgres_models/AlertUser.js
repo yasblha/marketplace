@@ -1,6 +1,8 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../../config/postgres");
 const User = require("../postgres_models/UserPg");
+const Alert = require("../postgres_models/Alert");
+const { user } = require("../../controllers/AuthController");
 
 const AlertUser = sequelize.define("Alert", {
   id: {
@@ -16,12 +18,17 @@ const AlertUser = sequelize.define("Alert", {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
+  userId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
   // mail: {
   //   type: DataTypes.STRING,
   //   allowNull: false,
   // },
 });
 
-AlertUser.belongsTo(User, { foreignKey: "user_id" });
+AlertUser.belongsTo(User, { foreignKey: "userId" });
+AlertUser.belongsTo(Alert, { foreignKey: "alertId" });
 
 module.exports = AlertUser;
