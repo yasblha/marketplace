@@ -12,6 +12,7 @@ const sectionRoutes = require('./routes/api/MenuRoute');
 const cartRoutes = require('./routes/api/PanierRoute');
 const orderRoutes = require('./routes/api/CommandeRoutes');
 const alertRoutes = require('./routes/api/alertRoute');
+const  invoiceRoutes = require('./routes/api/invoiceRoute');
 const cron = require('node-cron');
 const upload = require('./middleware/upload');
 const cookieParser = require('cookie-parser');
@@ -44,6 +45,7 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/order', orderRoutes);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/alert', alertRoutes);
+app.use('/api/invoice', invoiceRoutes);
 
 
 
