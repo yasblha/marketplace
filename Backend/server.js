@@ -11,6 +11,7 @@ const uploadRoutes = require('./routes/api/uploadRoute')
 const sectionRoutes = require('./routes/api/MenuRoute');
 const cartRoutes = require('./routes/api/PanierRoute');
 const orderRoutes = require('./routes/api/CommandeRoutes');
+const alertRoutes = require('./routes/api/alertRoute');
 const cron = require('node-cron');
 const upload = require('./middleware/upload');
 const cookieParser = require('cookie-parser');
@@ -42,6 +43,7 @@ app.use('/api/sections', sectionRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/order', orderRoutes);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/api/alert', alertRoutes);
 
 
 
@@ -69,7 +71,7 @@ const BrevoMailing = require('./config/mailing');
 const brevoMailing = new BrevoMailing(process.env.BREVO_API_KEY);
 
 // const testPayload = {
-//     to: [{ email: 'test@gmail.com' }],
+//     to: [{ email: 'yassineboul98@gmail.com' }],
 //     templateId: 12, // Using the 'Welcome.newUser' template as an example
 //     params: {
 //       subject: 'Bienvenue sur notre plateforme',

@@ -22,5 +22,4 @@ export const products: Product[] = [
         price: 16.48,
         images: ['/src/assets/outfit1.jpg']
     },
-   
 ];

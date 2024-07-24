@@ -16,7 +16,7 @@ const Alert = sequelize.define("Alert", {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  product_id: {
+  productId: {
     type: DataTypes.INTEGER,
     allowNull: false,
   },

@@ -7,14 +7,11 @@ import NavigationBar from "@/components/UI/NavigationBar.vue";
 import AuthModal from "@/components/common/AuthModal.vue";
 import { useAuthModalStore } from '@/stores/authModale';
 
-import { useCartStore } from '@/stores/cart';
 
 const cartStore = useCartStore();
-cartStore.loadState();
 
 import {useRoute} from "vue-router";
 
-const cartStore = useCartStore();
 const route = useRoute();
 const authModalStore = useAuthModalStore();
 

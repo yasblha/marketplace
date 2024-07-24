@@ -8,16 +8,20 @@ const AlertUser = sequelize.define("Alert", {
     autoIncrement: true,
     primaryKey: true,
   },
-  user_id: {
+  userId: {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
-  product_id: {
+ alertId: {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
+  // mail: {
+  //   type: DataTypes.STRING,
+  //   allowNull: false,
+  // },
 });
 
 AlertUser.belongsTo(User, { foreignKey: "user_id" });
 
-module.exports = Alert;
+module.exports = AlertUser;

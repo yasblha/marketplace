@@ -15,6 +15,7 @@ import NotFound from "@/pages/NotFound.vue";
 import ProfilPage from "@/pages/profil/profilPage.vue";
 import SearchResult from "@/components/common/SearchResult.vue";
 import Checkout from "@/pages/Checkout.vue";
+import Newsletter from "@/pages/NewsletterSignUp.vue";
 
 
 const routes = [
@@ -105,7 +106,7 @@ const routes = [
         path: '/checkout',
         name: 'Checkout',
         component: Checkout,
-    }/*{
+    },/*{
     path: '/admin',
     name: 'AdminLayout',
     component: AdminLayout,
@@ -116,7 +117,12 @@ const routes = [
       { path: 'list', name: 'ListItems', component: ListItems },
     ],
   },*/
+{   
+    path: '/newsletter',
+    name: 'Newsletters',
+    component: Newsletter
 
+},
 ];
 
 const router = createRouter({

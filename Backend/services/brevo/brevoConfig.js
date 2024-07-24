@@ -1,3 +1,5 @@
+const brevoMailing = require("../../server");
+
 const brevoMailingConfig = {
     "Product.productAvailable": [
       {
@@ -7,7 +9,7 @@ const brevoMailingConfig = {
       },
     ],
     "Product.productOutOfStock": [
-      {
+      {     
         templateId: 2,
         subject: 'Produit en rupture de stock',
         type: 'alert'
