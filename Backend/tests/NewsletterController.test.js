@@ -1,36 +1,42 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const User = require('../models/postgres_models/UserPg');
-const newsletterRoutes = require('../routes/api/newsletter'); // Assurez-vous que le chemin est correct
 const request = require('supertest');
-const app = express();
+const mongoose = require('mongoose');
+const User = require('../models/mongo_models/User'); // Chemin correct pour le modèle Mongoose
+const newsletterRoutes = require('../routes/api/newsletter');
 
+jest.mock('../models/mongo_models/User'); // Mock du modèle Mongoose
+
+const app = express();
 app.use(bodyParser.json());
 app.use('/api/newsletter', newsletterRoutes);
 
-jest.mock('../models/postgres_models/UserPg');
+let server;
 
 describe('Newsletter Controller', () => {
-    let server;
-
-    beforeAll(() => {
-        server = app.listen(3001, () => console.log('Test server running on port 3001'));
+    beforeAll((done) => {
+        server = app.listen(3001, () => {
+            console.log('Test server running on port 3001');
+            done();
+        });
     });
 
-    afterAll(() => {
+    afterAll((done) => {
         server.close(() => {
             console.log('Test server closed');
+            done();
         });
     });
 
     it('should send promotional emails', async () => {
         const users = [{ email: 'john.doe@example.com' }];
-        User.findAll.mockResolvedValue(users);
+
+        jest.spyOn(User, 'find').mockResolvedValue(users); // Utilisation de jest.spyOn pour mocker la méthode find
 
         const res = await request(app)
-            .post('/api/newsletter/send')
+            .post('/api/newsletter/send-promotions')
             .expect(200);
 
-        expect(User.findAll).toHaveBeenCalled();
+        expect(res.body.message).toBe('Les emails promotionnels ont été envoyés avec succès.');
     });
 });
