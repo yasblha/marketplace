@@ -1,17 +1,17 @@
 <template>
   <section class="produits">
     <div class="itemsView">
-      <div v-for="product in products" :key="product._id" class="productCard">
+      <div v-for="product in products" :key="product.Id" class="productCard">
         <div class="OneProduct">
-          <a :href="'/product/' + product._id" class="productLink">
+          <a :href="'/product/' + product.Id" class="productLink">
             <div class="imageWrapper">
               <img :src="getImage(product)" :alt="product.name" />
               <div class="heartOverlay" @click.stop="toggleFavorite(product)">
                 <div class="heartWrapper">
                   <svg
-                      @mouseover="hoverHeart = product._id"
+                      @mouseover="hoverHeart = product.Id"
                       @mouseleave="hoverHeart = null"
-                      :class="['heartIcon', { 'hover': hoverHeart === product._id || isFavorite(product) }]"
+                      :class="['heartIcon', { 'hover': hoverHeart === product.Id || isFavorite(product) }]"
                       xmlns="http://www.w3.org/2000/svg"
                       viewBox="0 0 24 24"
                       fill="currentColor">
@@ -50,7 +50,7 @@ import defaultImage from '@/assets/ui_assets/image1.png';
 import type { Product } from "@/stores/products";
 
 /*interface Product {
-  _id: string;
+  Id: string;
   name: string;
   description: string;
   category: string;
@@ -79,15 +79,15 @@ const hoverHeart = ref<string | null>(null);
 const cartStore = useCartStore();
 
 const toggleFavorite = (product: Product) => {
-  if (favorites.value.has(product._id)) {
-    favorites.value.delete(product._id);
+  if (favorites.value.has(product.Id)) {
+    favorites.value.delete(product.Id);
   } else {
-    favorites.value.add(product._id);
+    favorites.value.add(product.Id);
   }
 };
 
 const isFavorite = (product: Product) => {
-  return favorites.value.has(product._id);
+  return favorites.value.has(product.Id);
 };
 
 interface ProductWithImageUrl extends Product {

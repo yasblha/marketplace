@@ -115,7 +115,7 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      user_id: {
+      userId: {
         type: Sequelize.INTEGER,
         references: {
           model: 'Clients',
@@ -150,7 +150,7 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      user_id: {
+      userId: {
         type: Sequelize.INTEGER,
         references: {
           model: 'Clients',
@@ -158,7 +158,7 @@ module.exports = {
         },
         allowNull: false,
       },
-      product_id: {
+      productId: {
         type: Sequelize.INTEGER,
         references: {
           model: 'Product',
@@ -198,7 +198,7 @@ module.exports = {
         type: Sequelize.FLOAT,
         allowNull: false,
       },
-      user_id: {
+      userId: {
         type: Sequelize.INTEGER,
         references: {
           model: 'Clients',
@@ -234,7 +234,7 @@ module.exports = {
         type: Sequelize.FLOAT,
         allowNull: false,
       },
-      order_id: {
+      orderId: {
         type: Sequelize.INTEGER,
         references: {
           model: 'Order',
@@ -242,7 +242,7 @@ module.exports = {
         },
         allowNull: false,
       },
-      product_id: {
+      productId: {
         type: Sequelize.INTEGER,
         references: {
           model: 'Product',

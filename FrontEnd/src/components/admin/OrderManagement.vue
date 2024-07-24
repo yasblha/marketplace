@@ -26,7 +26,7 @@
           <p><strong>Date:</strong> {{ selectedOrder?.date_order }}</p>
           <p><strong>Status:</strong> {{ selectedOrder?.status_order }}</p>
           <p><strong>Total Amount:</strong> {{ selectedOrder?.total_amount }}</p>
-          <p><strong>Products:</strong> {{ selectedOrder?.product_ids.join(', ') }}</p>
+          <p><strong>Products:</strong> {{ selectedOrder?.productIds.join(', ') }}</p>
         </div>
       </div>
     </Modal>
@@ -45,7 +45,7 @@ interface Order {
   date_order: Date;
   status_order: string;
   total_amount: number;
-  product_ids: number[];
+  productIds: number[];
   userId: number;
 }
 
@@ -68,7 +68,7 @@ const columns: Column<Order>[] = [
   { key: 'date_order', label: 'Date', searchable: true },
   { key: 'status_order', label: 'Status', searchable: true },
   { key: 'total_amount', label: 'Total Amount' },
-  { key: 'product_ids', label: 'Products' },
+  { key: 'productIds', label: 'Products' },
 ];
 
 onMounted(async () => {

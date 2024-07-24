@@ -4,12 +4,12 @@ const Product = require('../models/mongo_models/Product');
 const sequelize = require('../config/postgres');
 
 class OrderService {
-    static async createOrder(userId, status_order, total_amount, product_ids) {
+    static async createOrder(userId, status_order, total_amount, productIds) {
         const order = await Order.create({
             userId,
             status_order,
             total_amount,
-            product_ids
+            productIds
         });
         return order;
     }
@@ -42,7 +42,7 @@ class OrderService {
         const order = await Order.findByPk(orderId);
         if (!order) throw new Error('Order not found');
 
-        order.product_ids.push(productId);
+        order.productIds.push(productId);
         await order.save();
         return order;
     }
@@ -51,7 +51,7 @@ class OrderService {
         const order = await Order.findByPk(orderId);
         if (!order) throw new Error('Order not found');
 
-        order.product_ids = order.product_ids.filter(id => id !== productId);
+        order.productIds = order.productIds.filter(id => id !== productId);
         await order.save();
         return order;
     }
@@ -63,7 +63,7 @@ class OrderService {
         const products = await Product.findAll({
             where: {
                 id: {
-                    [sequelize.Op.in]: order.product_ids
+                    [sequelize.Op.in]: order.productIds
                 }
             }
         });

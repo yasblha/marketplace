@@ -73,7 +73,7 @@ exports.getCartItems = async (req, res) => {
         const products = await ProductService.getProductsByIds(productIds);
 
         const cartItemsWithProducts = cartItems.map(cartItem => {
-            const product = products.find(p => p._id.toString() === padProductId(cartItem.productid));
+            const product = products.find(p => p.Id.toString() === padProductId(cartItem.productid));
             return {
                 ...cartItem.toJSON(),
                 product,

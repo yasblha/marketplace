@@ -22,7 +22,7 @@ const Order = sequelize.define('Order', {
         type: DataTypes.FLOAT,
         allowNull: false,
     },
-    product_ids: {
+    productIds: {
         type: DataTypes.ARRAY(DataTypes.INTEGER),
         allowNull: false,
     },

@@ -1,7 +1,7 @@
 import { ref, computed, watch } from 'vue';
 
 export interface Product {
-    _id: string;
+    Id: string;
     name: string;
     price: number;
     images: string[];
@@ -29,7 +29,7 @@ export const useCart = () => {
     }, { deep: true });
 
     const addToCart = (product: Product, quantity: number) => {
-        const existingItem = cartItems.value.find(item => item.product._id === product._id);
+        const existingItem = cartItems.value.find(item => item.product.Id === product.Id);
         if (existingItem) {
             existingItem.quantity += quantity;
         } else {
@@ -38,7 +38,7 @@ export const useCart = () => {
     };
 
     const removeFromCart = (productId: string) => {
-        cartItems.value = cartItems.value.filter(item => item.product._id !== productId);
+        cartItems.value = cartItems.value.filter(item => item.product.Id !== productId);
     };
 
     const clearCart = () => {

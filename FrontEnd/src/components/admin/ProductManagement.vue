@@ -49,7 +49,7 @@ import AddProductForm from '@/components/common/AddProductForm.vue';
 import type { Product } from '@/stores/products';
 
 /*interface Product {
-  _id?: string;
+  Id?: string;
   name: string;
   description: string;
   category: string;
@@ -122,7 +122,7 @@ const deleteProduct = async (product: Product) => {
   if (confirm('Are you sure you want to delete this product?')) {
     try {
       console.log('Deleting product:', product);
-      await productStore.deleteProduct(product._id ?? '');
+      await productStore.deleteProduct(product.Id ?? '');
       console.log('Product deleted, refreshing list...');
       await productStore.fetchProducts();
     } catch (error) {

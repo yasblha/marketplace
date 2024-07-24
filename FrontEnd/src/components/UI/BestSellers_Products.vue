@@ -32,7 +32,7 @@ import { useProductStore } from '@/stores/products';
 import defaultImage from '@/assets/ui_assets/image1.png';
 
 interface Product {
-  _id: string;
+  Id: string;
   name: string;
   description: string;
   category: string;

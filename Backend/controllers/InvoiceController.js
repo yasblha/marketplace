@@ -8,7 +8,7 @@ const PDFDocument = require("pdfkit");
 const { v4: uuidv4 } = require("uuid");
 
 const calculateAmounts = (totalAmount) => {
-  const vatRate = 0.2;
+  const vatRate = 0.20;
   const grossAmount = totalAmount;
   const netAmount = grossAmount / (1 + vatRate);
   const vatAmount = grossAmount - netAmount;
@@ -19,14 +19,22 @@ const createInvoice = async (req, res) => {
   try {
     const { orderId } = req.body;
 
-    const order = await Order.findByPk(orderId);
+    const order = await Order.findByPk(orderId, {
+      include: [
+        {
+          model: OrderDetail,
+          include: [{ model: Product }],
+        },
+        {
+          model: User,
+        },
+      ],
+    });
     if (!order) {
-      return res.status(404).json({ error: "Order not found" });
+      return res.status(404).json({ error: 'Order not found' });
     }
 
-    const { netAmount, vatAmount, grossAmount } = calculateAmounts(
-      order.total_amount
-    );
+    const { netAmount, vatAmount, grossAmount } = calculateAmounts(order.total_amount);
 
     const invoice = await Invoice.create({
       uniref: uuidv4(),
@@ -61,40 +69,29 @@ const downloadInvoice = async (req, res) => {
     });
 
     if (!invoice) {
-      return res.status(404).json({ error: "Invoice not found" });
+      return res.status(404).json({ error: 'Invoice not found' });
     }
 
     const doc = new PDFDocument();
     let filename = `invoice_${invoice.uniref}.pdf`;
-    res.setHeader("Content-disposition", `attachment; filename=${filename}`);
-    res.setHeader("Content-type", "application/pdf");
+    res.setHeader('Content-disposition', `attachment; filename=${filename}`);
+    res.setHeader('Content-type', 'application/pdf');
 
     // Add styles
-    doc.fontSize(25).text("Invoice", { align: "center" });
-    doc.fontSize(12).text(`Invoice Ref: ${invoice.uniref}`, { align: "right" });
-    doc.text(`Issue Date: ${invoice.issue_date}`, { align: "right" });
-    doc.text(`Order ID: ${invoice.orderId}`, { align: "right" });
-    doc.text(`Net Amount: €${invoice.net_amount.toFixed(2)}`, {
-      align: "right",
-    });
-    doc.text(`VAT Amount: €${invoice.vat_amount.toFixed(2)}`, {
-      align: "right",
-    });
-    doc.text(`Gross Amount: €${invoice.gross_amount.toFixed(2)}`, {
-      align: "right",
-    });
+    doc.fontSize(25).text('Invoice', { align: 'center' });
+    doc.fontSize(12).text(`Invoice Ref: ${invoice.uniref}`, { align: 'right' });
+    doc.text(`Issue Date: ${invoice.issue_date}`, { align: 'right' });
+    doc.text(`Order ID: ${invoice.orderId}`, { align: 'right' });
+    doc.text(`Net Amount: €${invoice.net_amount.toFixed(2)}`, { align: 'right' });
+    doc.text(`VAT Amount: €${invoice.vat_amount.toFixed(2)}`, { align: 'right' });
+    doc.text(`Gross Amount: €${invoice.gross_amount.toFixed(2)}`, { align: 'right' });
 
     const user = invoice.Order.User;
-    doc.text(`Customer: ${user ? user.name : "Guest"}`, { align: "left" });
+    doc.text(`Customer: ${user ? user.name : 'Guest'}`, { align: 'left' });
 
-    doc.text("Products:", { align: "left" });
-    invoice.Order.OrderDetails.forEach((detail) => {
-      doc.text(
-        `${detail.Product.name} - €${detail.unit_price.toFixed(2)} x ${
-          detail.quantity
-        }`,
-        { align: "left" }
-      );
+    doc.text('Products:', { align: 'left' });
+    invoice.Order.OrderDetails.forEach(detail => {
+      doc.text(`${detail.Product.name} - €${detail.unit_price.toFixed(2)} x ${detail.quantity}`, { align: 'left' });
     });
 
     doc.end();

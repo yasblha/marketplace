@@ -4,7 +4,7 @@ import { useAuthStore } from '@/stores/user';
 import axiosInstance from "@/services/api";
 
 export interface Product {
-    _id: string;
+    Id: string;
     name: string;
     description: string;
     category: string;
@@ -94,7 +94,7 @@ export const useProductStore = defineStore('product', () => {
                     'Authorization': `Bearer ${authStore.token}`
                 }
             });
-            const index = products.value.findIndex(p => p._id === id);
+            const index = products.value.findIndex(p => p.Id === id);
             if (index !== -1) {
                 products.value[index] = response.data;
             }
@@ -112,7 +112,7 @@ export const useProductStore = defineStore('product', () => {
                     'Authorization': `Bearer ${authStore.token}`
                 }
             });
-            products.value = products.value.filter(p => p._id !== id);
+            products.value = products.value.filter(p => p.Id !== id);
             console.log(`Product with ID ${id} deleted`);
         } catch (error) {
             console.error('Error deleting product:', error);
@@ -127,7 +127,7 @@ export const useProductStore = defineStore('product', () => {
                     'Authorization': `Bearer ${authStore.token}`
                 }
             });
-            const index = products.value.findIndex(p => p._id === id);
+            const index = products.value.findIndex(p => p.Id === id);
             if (index !== -1) {
                 products.value[index] = { ...products.value[index], ...response.data };
             }

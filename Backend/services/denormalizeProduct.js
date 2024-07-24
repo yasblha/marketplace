@@ -26,7 +26,7 @@ module.exports = async function denormalizeProduct(productId) {
 
         // Préparation des données pour MongoDB
         const productForMongo = {
-            _id: new mongoose.Types.ObjectId(productDenormalized.id.toString().padStart(24, '0')),
+            Id: new mongoose.Types.ObjectId(productDenormalized.id.toString().padStart(24, '0')),
             name: productDenormalized.name,
             description: productDenormalized.description,
             category: productDenormalized.category,
@@ -39,7 +39,7 @@ module.exports = async function denormalizeProduct(productId) {
 
         // Mise à jour ou insertion du produit dans MongoDB
         const productMongo = await ProductMongo.findByIdAndUpdate(
-            productForMongo._id,
+            productForMongo.Id,
             productForMongo,
             {
                 upsert: true,

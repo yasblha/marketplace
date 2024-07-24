@@ -2,8 +2,8 @@ const OrderService = require('../services/CommandeServices');
 
 exports.createOrder = async (req, res) => {
     try {
-        const { userId, status_order, total_amount, product_ids } = req.body;
-        const order = await OrderService.createOrder(userId, status_order, total_amount, product_ids);
+        const { userId, status_order, total_amount, productIds } = req.body;
+        const order = await OrderService.createOrder(userId, status_order, total_amount, productIds);
         res.status(201).json(order);
     } catch (error) {
         res.status(500).json({ message: error.message });

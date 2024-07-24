@@ -9,8 +9,8 @@
       <input id="total_amount" v-model.number="form.total_amount" type="number" required />
     </div>
     <div>
-      <label for="product_ids">Product IDs</label>
-      <input id="product_ids" v-model="form.product_ids" required />
+      <label for="productIds">Product IDs</label>
+      <input id="productIds" v-model="form.productIds" required />
     </div>
     <button type="submit">{{ initialData ? 'Update' : 'Add' }} Order</button>
   </form>
@@ -29,7 +29,7 @@ const emit = defineEmits(['order-added', 'order-updated']);
 const form = ref({
   status_order: '',
   total_amount: 0,
-  product_ids: [] as number[],
+  productIds: [] as number[],
   userId: 1,
 });
 
@@ -40,7 +40,7 @@ watch(
         form.value = {
           status_order: newData.status_order || '',
           total_amount: newData.total_amount || 0,
-          product_ids: newData.product_ids || [],
+          productIds: newData.productIds || [],
           userId: newData.userId || 1,
         };
       }

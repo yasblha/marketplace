@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { products } from '../products_simulate/products_data';
 
 export interface Product {
-  _id: string;
+  Id: string;
   name: string;
   description: string;
   category: string;
@@ -23,16 +23,16 @@ export const useCartStore = defineStore('cart', {
     cartTotal: (state) => state.cart.reduce((total, product) => total + product.price * (product.quantity || 0), 0),
     isProductInStock: (state) => {
       return (productId: string, quantity: number) => {
-        const product = state.products.find(p => p._id === productId);
+        const product = state.products.find(p => p.Id === productId);
         return product ? product.stock_available >= quantity : false;
       };
     }
   },
   actions: {
     addToCart(productId: string, quantity: number) {
-      const product = this.products.find(p => p._id === productId);
+      const product = this.products.find(p => p.Id === productId);
       if (product && product.stock_available >= quantity) {
-        const cartProduct = this.cart.find(p => p._id === productId);
+        const cartProduct = this.cart.find(p => p.Id === productId);
         if (cartProduct) {
           cartProduct.quantity = (cartProduct.quantity || 0) + quantity;
         } else {
@@ -48,10 +48,10 @@ export const useCartStore = defineStore('cart', {
       }
     },
     removeFromCart(productId: string) {
-      const cartProductIndex = this.cart.findIndex(p => p._id === productId);
+      const cartProductIndex = this.cart.findIndex(p => p.Id === productId);
       if (cartProductIndex !== -1) {
         const cartProduct = this.cart[cartProductIndex];
-        const product = this.products.find(p => p._id === productId);
+        const product = this.products.find(p => p.Id === productId);
         if (product) {
           product.stock_available += cartProduct.quantity || 0;
         }
@@ -63,8 +63,8 @@ export const useCartStore = defineStore('cart', {
       }
     },
     updateCartQuantity(productId: string, quantity: number) {
-      const cartProduct = this.cart.find(p => p._id === productId);
-      const product = this.products.find(p => p._id === productId);
+      const cartProduct = this.cart.find(p => p.Id === productId);
+      const product = this.products.find(p => p.Id === productId);
       if (cartProduct && product) {
         const difference = quantity - cartProduct.quantity;
         if (product.stock_available >= difference) {

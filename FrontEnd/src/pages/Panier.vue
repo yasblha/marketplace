@@ -11,7 +11,7 @@
           <p>Your cart is empty</p>
         </div>
         <div v-else>
-          <div class="ProductFiche" v-for="product in cartItems" :key="product._id">
+          <div class="ProductFiche" v-for="product in cartItems" :key="product.Id">
             <div class="produit">
               <img :src="product.images[0]" alt="">
               <div class="infos">
@@ -28,7 +28,7 @@
                   </div>
                 </div>
                 <div class="priceDelete">
-                  <button @click="removeProduct(product._id)">Supprimer</button>
+                  <button @click="removeProduct(product.Id)">Supprimer</button>
                 </div>
               </div>
             </div>
@@ -81,11 +81,11 @@
   };
   
   const decreaseQuantity = (product) => {
-    cartStore.updateCartQuantity(product._id, product.quantity - 1);
+    cartStore.updateCartQuantity(product.Id, product.quantity - 1);
   };
   
   const increaseQuantity = (product) => {
-    cartStore.updateCartQuantity(product._id, product.quantity + 1);
+    cartStore.updateCartQuantity(product.Id, product.quantity + 1);
   };
   
   const redirectToCheckout = async () => {
@@ -94,7 +94,7 @@
     try {
       const response = await axios.post('http://localhost:4242/create-payment-intent', {
         items: cartItems.value.map(product => ({
-          id: product._id,
+          id: product.Id,
           quantity: product.quantity,
           name: product.name,
           price: product.price

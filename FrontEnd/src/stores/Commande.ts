@@ -7,7 +7,7 @@ export interface Order {
     date_order: Date;
     status_order: string;
     total_amount: number;
-    product_ids: number[];
+    productIds: number[];
     userId: number;
 }
 
@@ -15,13 +15,13 @@ interface OrderCreateData {
     userId: number;
     status_order: string;
     total_amount: number;
-    product_ids: number[];
+    productIds: number[];
 }
 
 interface OrderUpdateData {
     status_order?: string;
     total_amount?: number;
-    product_ids?: number[];
+    productIds?: number[];
 }
 
 export const useOrderStore = defineStore('order', () => {

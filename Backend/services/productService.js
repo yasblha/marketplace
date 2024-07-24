@@ -18,7 +18,7 @@ class ProductService {
 
     static async getProductsByIds(productIds) {
         const paddedProductIds = productIds.map(id => id.toString().padStart(24, '0'));
-        return await ProductMongo.find({ _id: { $in: paddedProductIds } });
+        return await ProductMongo.find({ Id: { $in: paddedProductIds } });
     }
 
     static async createProduct(productData) {

@@ -1,6 +1,6 @@
 create table if not exists "Clients"
 (
-    id        integer default nextval('"User_id_seq"'::regclass) not null
+    id        integer default nextval('"UserId_seq"'::regclass) not null
         constraint "User_pkey"
             primary key,
     firstname varchar(255),

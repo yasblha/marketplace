@@ -22,6 +22,6 @@ const AlertUser = sequelize.define("Alert", {
   // },
 });
 
-AlertUser.belongsTo(User, { foreignKey: "user_id" });
+AlertUser.belongsTo(User, { foreignKey: "userId" });
 
 module.exports = AlertUser;

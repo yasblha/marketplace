@@ -3,7 +3,7 @@ import { defineStore } from 'pinia';
 import axiosInstance from "@/services/api";
 
 interface Product {
-    _id: string;
+    Id: string;
     name: string;
     description: string;
     category: string; 
@@ -40,7 +40,7 @@ export const useProductStore = defineStore('product', () => {
         const response = await axiosInstance.put<Product>(`/products/${id}`, productData, {
             headers: { 'Content-Type': 'multipart/form-data' }
         });
-        const index = products.value.findIndex(p => p._id === id);
+        const index = products.value.findIndex(p => p.Id === id);
         if (index !== -1) {
             products.value[index] = response.data;
         }
@@ -48,12 +48,12 @@ export const useProductStore = defineStore('product', () => {
 
     const deleteProduct = async (id: string): Promise<void> => {
         await axiosInstance.delete(`/products/${id}`);
-        products.value = products.value.filter(p => p._id !== id);
+        products.value = products.value.filter(p => p.Id !== id);
     };
 
     const updateProductStock = async (id: string, stockData: { stock_available: number }): Promise<void> => {
         const response = await axiosInstance.patch<Product>(`/products/${id}/stock`, stockData);
-        const index = products.value.findIndex(p => p._id === id);
+        const index = products.value.findIndex(p => p.Id === id);
         if (index !== -1) {
             products.value[index] = { ...products.value[index], ...response.data };
         }

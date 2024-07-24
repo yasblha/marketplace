@@ -6,7 +6,7 @@ import axiosInstance from "@/services/api";
 import type { Product } from '@/stores/products';
 import type { User } from '@/stores/user';
 
-type CartProduct = Pick<Product, '_id' | 'name' | 'price' | 'images'> & { quantity: number, reservedUntil?: Date };
+type CartProduct = Pick<Product, 'Id' | 'name' | 'price' | 'images'> & { quantity: number, reservedUntil?: Date };
 
 export const useCartStore = defineStore('cart', () => {
     const items = ref<CartProduct[]>(JSON.parse(localStorage.getItem('cartItems') || '[]'));
@@ -15,8 +15,8 @@ export const useCartStore = defineStore('cart', () => {
 
     const isAuthenticated = computed(() => authStore.isAuthenticated);
 
-    const addToCart = async (product: Pick<Product, '_id' | 'name' | 'price' | 'images'>) => {
-        const existingItem = items.value.find(item => item._id === product._id);
+    const addToCart = async (product: Pick<Product, 'Id' | 'name' | 'price' | 'images'>) => {
+        const existingItem = items.value.find(item => item.Id === product.Id);
         if (existingItem) {
             existingItem.quantity += 1;
         } else {
@@ -27,7 +27,7 @@ export const useCartStore = defineStore('cart', () => {
         if (isAuthenticated.value) {
             try {
                 const response = await axiosInstance.post('/cart/', {
-                    productid: product._id.toString(),
+                    productid: product.Id.toString(),
                     quantity: 1,
                     userid: authStore.user?.id
                 });
@@ -35,7 +35,7 @@ export const useCartStore = defineStore('cart', () => {
                 if (existingItem) {
                     existingItem.reservedUntil = reservedUntil;
                 } else {
-                    const addedItem = items.value.find(item => item._id === product._id);
+                    const addedItem = items.value.find(item => item.Id === product.Id);
                     if (addedItem) {
                         addedItem.reservedUntil = reservedUntil;
                     }
@@ -59,7 +59,7 @@ export const useCartStore = defineStore('cart', () => {
 
         if (isAuthenticated.value) {
             try {
-                await axiosInstance.put(`/cart/${product._id}`, {
+                await axiosInstance.put(`/cart/${product.Id}`, {
                     quantity
                 });
                 saveCart();
@@ -76,7 +76,7 @@ export const useCartStore = defineStore('cart', () => {
 
         if (isAuthenticated.value) {
             try {
-                await axiosInstance.delete(`/cart/${product._id}`);
+                await axiosInstance.delete(`/cart/${product.Id}`);
                 saveCart();
             } catch (error) {
                 console.error('Error removing from cart:', error);
@@ -114,13 +114,13 @@ export const useCartStore = defineStore('cart', () => {
             const cartItems = response.data;
 
             for (const item of cartItems) {
-                const product = await productStore.getProductById(item.product._id);
-                const existingItem = items.value.find(cartItem => cartItem._id === product._id);
+                const product = await productStore.getProductById(item.product.Id);
+                const existingItem = items.value.find(cartItem => cartItem.Id === product.Id);
                 if (existingItem) {
                     existingItem.quantity += item.quantity;
                 } else {
                     items.value.push({
-                        _id: product._id,
+                        Id: product.Id,
                         name: product.name,
                         price: product.price,
                         images: product.images,

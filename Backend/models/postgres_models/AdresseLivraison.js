@@ -33,6 +33,6 @@ const DeliveryAddress = sequelize.define('DeliveryAddress', {
     },
 });
 
-DeliveryAddress.belongsTo(User, { foreignKey: 'user_id' });
+DeliveryAddress.belongsTo(User, { foreignKey: 'userId' });
 
 module.exports = DeliveryAddress;

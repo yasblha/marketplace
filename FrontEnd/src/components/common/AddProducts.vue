@@ -37,7 +37,7 @@ import { ref, computed, watch } from 'vue';
 import { useProductStore } from '@/stores/products';
 
 interface ProductData {
-  _id?: string;
+  Id?: string;
   name: string;
   description: string;
   category: string;
@@ -88,7 +88,7 @@ const productData = ref<ProductData>({
   image: '',
 });
 
-const isEditing = computed(() => !!props.initialData?._id);
+const isEditing = computed(() => !!props.initialData?.Id);
 const error = ref('');
 const loading = ref(false);
 
@@ -103,7 +103,7 @@ watch(() => props.initialData, (newVal) => {
       stock_available: newVal.stock_available || 0,
       status: newVal.status || 'available',
       image: newVal.image || '',
-      _id: newVal._id,
+      Id: newVal.Id,
     };
   }
 }, { deep: true });
@@ -123,7 +123,7 @@ const submitForm = async () => {
   try {
     const formData = new FormData();
     Object.entries(productData.value).forEach(([key, value]) => {
-      if (key !== '_id' && value !== undefined) {
+      if (key !== 'Id' && value !== undefined) {
         formData.append(key, value.toString());
       }
     });
@@ -133,8 +133,8 @@ const submitForm = async () => {
       formData.append('image', fileInput.files[0]);
     }
 
-    if (isEditing.value && productData.value._id) {
-      await productStore.updateProduct(productData.value._id, formData);
+    if (isEditing.value && productData.value.Id) {
+      await productStore.updateProduct(productData.value.Id, formData);
       emit('product-updated');
     } else {
       await productStore.createProduct(formData);

@@ -20,8 +20,8 @@
         </tr>
         </thead>
         <tbody>
-        <tr v-for="item in paginatedItems" :key="item._id">
-          <td class="checkbox-column"><input type="checkbox" v-model="selectedItems" :value="item._id" /></td>
+        <tr v-for="item in paginatedItems" :key="item.Id">
+          <td class="checkbox-column"><input type="checkbox" v-model="selectedItems" :value="item.Id" /></td>
           <td v-for="column in columns" :key="column.key" :data-label="column.label">
             {{ item[column.key] }}
           </td>
@@ -130,7 +130,7 @@ const deleteItem = async (item: any) => {
 
 const toggleSelectAll = () => {
   if (selectAll.value) {
-    selectedItems.value = sortedItems.value.map(item => item._id);
+    selectedItems.value = sortedItems.value.map(item => item.Id);
   } else {
     selectedItems.value = [];
   }
@@ -139,7 +139,7 @@ const toggleSelectAll = () => {
 const deleteSelected = async () => {
   if (confirm('Êtes-vous sûr de vouloir supprimer les produits sélectionnés ?')) {
     for (const id of selectedItems.value) {
-      const item = props.items.find(i => i._id === id);
+      const item = props.items.find(i => i.Id === id);
       if (item) await props.onDelete(item);
     }
     selectedItems.value = [];
@@ -150,7 +150,7 @@ const deleteSelected = async () => {
 const exportCSV = () => {
   const headers = props.columns.map(col => col.label).join(',');
   const rows = selectedItems.value.length > 0
-      ? props.items.filter(item => selectedItems.value.includes(item._id))
+      ? props.items.filter(item => selectedItems.value.includes(item.Id))
       : props.items;
   const csv = [
     headers,

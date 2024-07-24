@@ -4,8 +4,8 @@ const User = require('../models/postgres_models/UserPg');
 
 const createAlert = async (req, res) => {
     try {
-      const { alert_type, status, product_id } = req.body;
-      const alert = await Alert.create({ alert_type, status, product_id });
+      const { alert_type, status, productId } = req.body;
+      const alert = await Alert.create({ alert_type, status, productId });
       res.status(201).json(alert);
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -24,8 +24,8 @@ const createAlert = async (req, res) => {
   
   const subscribeToAlert = async (req, res) => {
     try {
-      const { user_id, alert_id } = req.body;
-      const alertUser = await AlertUser.create({ user_id, alert_id });
+      const { userId, alertId } = req.body;
+      const alertUser = await AlertUser.create({ userId, alertId });
       res.status(201).json(alertUser);
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -34,8 +34,8 @@ const createAlert = async (req, res) => {
   
   const unsubscribeFromAlert = async (req, res) => {
     try {
-      const { user_id, alert_id } = req.body;
-      await AlertUser.destroy({ where: { user_id, alert_id } });
+      const { userId, alertId } = req.body;
+      await AlertUser.destroy({ where: { userId, alertId } });
       res.status(200).json({ message: 'Unsubscribed from alert successfully' });
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -63,7 +63,7 @@ const createAlert = async (req, res) => {
       if (!user) {
         return res.status(404).json({ error: 'User not found' });
       }
-      await AlertUser.destroy({ where: { userId: user.id, alertId: 2 } }); // Assuming alert_id 2 is for newsletter
+      await AlertUser.destroy({ where: { userId: user.id, alertId: 2 } }); // Assuming alertId 2 is for newsletter
       res.status(200).json({ message: 'Unsubscribed from newsletter successfully' });
     } catch (error) {
       res.status(500).json({ error: error.message });

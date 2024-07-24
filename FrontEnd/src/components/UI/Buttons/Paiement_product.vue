@@ -29,7 +29,7 @@ const cartStore = useCartStore();
 const showConfirmation = ref(false);
 
 const product = computed(() => {
-  return cartStore.products.find(p => p._id === props.productId);
+  return cartStore.products.find(p => p.Id === props.productId);
 });
 
 const maxQuantity = computed(() => {
@@ -63,9 +63,9 @@ const validateQuantity = () => {
 
 const emitAddToCart = () => {
   if (quantity.value <= maxQuantity.value && product.value) {
-    console.log('Adding product to cart:', product.value._id, 'Quantity:', quantity.value);
-    cartStore.addToCart(product.value._id, quantity.value); // Ajout ici
-    emit('addToCart', { productId: product.value._id, quantity: quantity.value });
+    console.log('Adding product to cart:', product.value.Id, 'Quantity:', quantity.value);
+    cartStore.addToCart(product.value.Id, quantity.value); // Ajout ici
+    emit('addToCart', { productId: product.value.Id, quantity: quantity.value });
 
     // Afficher le message de confirmation
     showConfirmation.value = true;

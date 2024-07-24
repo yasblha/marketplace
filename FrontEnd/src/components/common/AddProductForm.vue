@@ -55,7 +55,7 @@ import { z } from 'zod';
 import { useProductStore } from '@/stores/products';
 
 interface ProductData {
-  _id?: string;
+  Id?: string;
   name: string;
   description: string;
   category: string;
@@ -103,7 +103,7 @@ const productData = ref<ProductData>({
   status: 'available',
 });
 
-const isEditing = computed(() => !!props.initialData?._id);
+const isEditing = computed(() => !!props.initialData?.Id);
 
 watch(() => props.initialData, (newValue) => {
   if (newValue) {
@@ -182,8 +182,8 @@ const handleSubmit = async () => {
         formData.append('images', image.file); // Ajout des fichiers sous le champ 'images'
       });
 
-      if (isEditing.value && productData.value._id) {
-        await productStore.updateProduct(productData.value._id, formData);
+      if (isEditing.value && productData.value.Id) {
+        await productStore.updateProduct(productData.value.Id, formData);
         emit('product-updated');
       } else {
         await productStore.createProduct(formData);
