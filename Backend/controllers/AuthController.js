@@ -63,13 +63,13 @@ async function register(req, res, next) {
             email,
             password: hashedPassword,
             role,
-            newsletter,
+            newsletter: newsletter || false,
         });
 
         await newUser.save();
 
         if (newsletter) {
-            await sendEmail(email, 'Subscription Successful', 'You have subscribed to our newsletter.');
+            await sendEmail(email, 'Inscription à la Newsletter', 'Vous avez souscrit à la newsletter. Vous recevrez des emails pour vous prévenir des promotions ou des nouveaux produits.');
         }
 
         return res.status(201).json({ message: 'Utilisateur créé avec succès', user: newUser });
