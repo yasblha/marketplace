@@ -1,6 +1,6 @@
 const axios = require('axios');
 const AlertUser = require('../models/postgres_models/Alert');
-const User = require('../models/postgres_models/Userpg');
+const User = require('../models/postgres_models/UserPg');
 
 class BrevoMailing {
   constructor(apiKey) {

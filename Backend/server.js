@@ -6,8 +6,8 @@ const bodyParser = require("body-parser");
 const credentials = require('./middleware/credentials');
 const errorHandler = require('./middleware/error_handler');
 const authRoutes = require('./routes/api/auth');
-const products = require('./routes/api/products')
-const uploadRoutes = require('./routes/api/uploadRoute')
+const products = require('./routes/api/products');
+const uploadRoutes = require('./routes/api/uploadRoute');
 const sectionRoutes = require('./routes/api/MenuRoute');
 const cartRoutes = require('./routes/api/PanierRoute');
 const orderRoutes = require('./routes/api/CommandeRoutes');
@@ -16,9 +16,8 @@ const cron = require('node-cron');
 const upload = require('./middleware/upload');
 const cookieParser = require('cookie-parser');
 const { checkPasswordRenewal } = require('./services/reset_mail');
-//import injectProducts from './utils/faker';
 const path = require('path');
-
+const newsletterRoutes = require('./routes/api/newsletter');
 
 require('dotenv').config();
 
@@ -28,6 +27,7 @@ async function init() {
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const TEST_PORT = 3001;  // Port différent pour les tests
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -36,6 +36,7 @@ app.use(cors());
 app.use(credentials);
 app.use(cookieParser());
 
+// Définition des routes
 app.use('/api/auth', authRoutes);
 app.use('/api/products', products);
 app.use('/api/upload', uploadRoutes);
@@ -53,39 +54,18 @@ app.get('/', (req, res) => {
     res.send('Welcome to my server!');
 });
 
+// Gestion des erreurs
 app.use(errorHandler);
 
-const server = app.listen(PORT, () => {
-    console.log(`App is listening at http://localhost:${PORT}`);
-    //init();
-});
+let server;
 
-//injectProducts();
+if (require.main === module) {
+    server = app.listen(PORT, () => {
+        console.log(`App is listening at http://localhost:${PORT}`);
+    });
 
 process.on("unhandledRejection", err => {
     console.error(`Unhandled Rejection: ${err.message}`);
     server.close(() => process.exit(1));
 });
-
-const BrevoMailing = require('./config/mailing');
-const brevoMailing = new BrevoMailing(process.env.BREVO_API_KEY);
-
-// const testPayload = {
-//     to: [{ email: 'iouahabi1@myges.fr' }],
-//     templateId: 13, // Using the 'Welcome.newUser' template as an example
-//     params: {
-//       subject: 'Bienvenue sur notre plateforme',
-//       productName: 'chocolat chaud'
-//     }
-//   };
- 
-// // Example usage with test payload
-// brevoMailing.sendMail(testPayload)
-//   .then(response => {
-//     console.log('Test email sent successfully:', response);
-//   })
-//   .catch(error => {
-//     console.error('Error sending test email:', error);
-//   });
-
-module.exports = brevoMailing;
+}
