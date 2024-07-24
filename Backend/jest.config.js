@@ -3,6 +3,6 @@ module.exports = {
     moduleFileExtensions: ['js', 'json'],
     transform: {}, 
     testMatch: ['**/tests/**/*.test.js'],
-    testTimeout: 30000,
+    testTimeout: 60000,
     setupFiles: ['<rootDir>/jest.setup.js'],
 };

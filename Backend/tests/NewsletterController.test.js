@@ -2,10 +2,10 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const request = require('supertest');
 const mongoose = require('mongoose');
-const User = require('../models/mongo_models/User'); // Chemin correct pour le modèle Mongoose
+const User = require('../models/mongo_models/User'); 
 const newsletterRoutes = require('../routes/api/newsletter');
 
-jest.mock('../models/mongo_models/User'); // Mock du modèle Mongoose
+jest.mock('../models/mongo_models/User'); 
 
 const app = express();
 app.use(bodyParser.json());
@@ -31,8 +31,8 @@ describe('Newsletter Controller', () => {
     it('should send promotional emails', async () => {
         const users = [{ email: 'john.doe@example.com' }];
 
-        jest.spyOn(User, 'find').mockResolvedValue(users); // Utilisation de jest.spyOn pour mocker la méthode find
-
+        jest.spyOn(User, 'find').mockResolvedValue(users); 
+        
         const res = await request(app)
             .post('/api/newsletter/send-promotions')
             .expect(200);

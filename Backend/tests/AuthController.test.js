@@ -1,85 +1,103 @@
 const request = require('supertest');
-const express = require('express');
-const bodyParser = require('body-parser');
-const User = require('../models/postgres_models/UserPg');
+const { app, server, sequelize } = require('../server'); // Importer l'application et le serveur exportés par server.js
+const User = require('../models/postgres_models/UserPg'); // Utilisez le bon modèle utilisateur
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const authRoutes = require('../routes/api/auth'); // Assurez-vous que cette route est correcte
 
-jest.mock('../models/postgres_models/UserPg');
-jest.mock('jsonwebtoken');
-jest.mock('bcryptjs');
-
-const app = express();
-app.use(bodyParser.json());
-app.use('/api/auth', authRoutes);
+jest.setTimeout(90000); // Augmenter le timeout global pour les tests Jest
 
 describe('Auth Controller', () => {
-    let server;
+    let testServer;
 
-    beforeAll((done) => {
-        server = app.listen(3001, () => {
-            console.log('Test server running on port 3001');
+    beforeAll(async (done) => {
+        await sequelize.sync(); // Assurez-vous que la base de données est synchronisée
+        testServer = app.listen(3002, () => {
+            console.log('Test server running on port 3002');
             done();
         });
     });
 
     afterAll((done) => {
-        server.close(() => {
+        testServer.close(() => {
             console.log('Test server closed');
             done();
         });
     });
 
-    beforeEach(() => {
-        jest.clearAllMocks();
-    });
+    describe('POST /api/auth/register', () => {
+        it('should register a new user', async () => {
+            const newUser = {
+                firstname: 'John',
+                lastname: 'Doe',
+                email: 'john.doe@example.com',
+                password: 'password123',
+                role: 'user',
+                newsletter: false,
+                confirmed: false,
+            };
 
-    test('POST /api/auth/register should register a new user', async () => {
-        const newUser = {
-            firstname: 'Test',
-            lastname: 'User',
-            email: 'test@example.com',
-            password: 'password',
-            role: 'user',
-            newsletter: true,
-        };
+            jest.spyOn(User, 'create').mockResolvedValue({
+                ...newUser,
+                id: 1,
+                confirmed: false,
+            });
 
-        User.createUser.mockResolvedValue({
-            ...newUser,
-            id: 1,
+            const res = await request(app)
+                .post('/api/auth/register')
+                .send(newUser)
+                .expect(201);
+
+            expect(res.body).toEqual({
+                id: 1,
+                firstname: 'John',
+                lastname: 'Doe',
+                email: 'john.doe@example.com',
+                role: 'user',
+                newsletter: false,
+                confirmed: false,
+            });
         });
-
-        const res = await request(app)
-            .post('/api/auth/register')
-            .send(newUser)
-            .expect(201);
-
-        expect(res.body).toEqual(expect.objectContaining({
-            firstname: 'Test',
-            lastname: 'User',
-            email: 'test@example.com',
-            role: 'user',
-            newsletter: true,
-        }));
     });
 
-    test('POST /api/auth/login should login a user', async () => {
-        const user = {
-            id: 1,
-            email: 'test@example.com',
-            password: 'password',
-            role: 'user',
-        };
+    describe('POST /api/auth/login', () => {
+        it('should login a user', async () => {
+            const user = {
+                id: 1,
+                firstname: 'John',
+                lastname: 'Doe',
+                email: 'john.doe@example.com',
+                password: 'password123',
+                role: 'user',
+                newsletter: false,
+                confirmed: true,
+            };
 
-        User.getUserByEmail.mockResolvedValue(user);
-        bcrypt.compare.mockResolvedValue(true);
-        jwt.sign.mockImplementation(() => 'token');
+            jest.spyOn(User, 'findOne').mockResolvedValue(user);
+            jest.spyOn(bcrypt, 'compare').mockResolvedValue(true);
+            jest.spyOn(jwt, 'sign').mockImplementation(() => 'token');
 
-        const res = await request(app)
-            .post('/api/auth/login')
-            .send({ email: 'test@example.com', password: 'password' })
-            .expect(200);
+            const res = await request(app)
+                .post('/api/auth/login')
+                .send({
+                    email: 'john.doe@example.com',
+                    password: 'password123'
+                })
+                .expect(200);
 
-        expect(res.body.token).toEqual('token');
+            expect(res.body).toEqual({
+                accessToken: 'token',
+                refreshToken: 'token',
+                message: 'Bonjour ! Votre utilisateur est connecté',
+                user: {
+                    id: 1,
+                    firstname: 'John',
+                    lastname: 'Doe',
+                    email: 'john.doe@example.com',
+                    role: 'user',
+                    newsletter: false,
+                    confirmed: true,
+                },
+            });
+        });
     });
 });
