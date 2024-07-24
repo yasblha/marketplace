@@ -17,7 +17,7 @@ import SearchResult from "@/components/common/SearchResult.vue";
 import Checkout from "@/pages/Checkout.vue";
 import Cgv from "@/pages/RGPD/Cgv.vue";
 import MentionLegales from "@/pages/RGPD/MentionsLegales.vue";
-
+import PaiementSecu  from   "@/pages/RGPD/paiement-securise.vue" ;
 import protectionData  from  "@/pages/RGPD/protection-donnees.vue" ;
 
 
@@ -101,6 +101,12 @@ const routes = [
         path: '/cgv',
         name: 'Cgv',
         component: Cgv,
+        meta: { requiresAuth: false }
+    },
+    {
+        path: '/paiement-securise',
+        name: 'paiement-securise',
+        component: PaiementSecu,
         meta: { requiresAuth: false }
     },
     {

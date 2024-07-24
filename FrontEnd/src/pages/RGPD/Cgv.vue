@@ -60,17 +60,17 @@
         <h2>7. Livraison</h2>
         <h3>7.1. Zones de Livraison</h3>
         <p>
-          <strong>MAMBAFIT</strong> livre en France et dans tous les pays de l'Union Européenne.
+          <strong>MAMBAFIT</strong> livre uniquement en France.
         </p>
   
         <h3>7.2. Délais de Livraison</h3>
         <p>
-          Les délais de livraison sont estimés et peuvent varier en fonction de la destination. En cas de retard, le Client sera informé par e-mail.
+          Les délais de livraison sont estimés et peuvent varier en fonction de la destination en France. En cas de retard, le Client sera informé par e-mail.
         </p>
   
         <h3>7.3. Frais de Livraison</h3>
         <p>
-          Les frais de livraison sont calculés en fonction du poids des produits et de la destination. Ils sont indiqués avant la validation de la commande.
+          Les frais de livraison sont calculés en fonction du poids des produits et de la destination en France. Ils sont indiqués avant la validation de la commande.
         </p>
   
         <h2>8. Retour et Rétractation</h2>
@@ -90,14 +90,19 @@
         </p>
   
         <h2>9. Garanties</h2>
-        <h3>9.1. Garantie Légale de Conformité</h3>
+        <h3>9.1. Equipements Sportifs</h3>
         <p>
-          Les produits sont couverts par la garantie légale de conformité de 2 ans à compter de la réception. En cas de défaut de conformité, le Client peut demander la réparation, le remplacement ou, si cela n’est pas possible, le remboursement du produit.
+          Les équipements sportifs sont couverts par une garantie légale de conformité de 2 ans à compter de la réception. En cas de défaut de conformité, le Client peut demander la réparation, le remplacement ou, si cela n’est pas possible, le remboursement du produit.
         </p>
   
-        <h3>9.2. Garantie des Vices Cachés</h3>
+        <h3>9.2. Produits de Nutrition</h3>
         <p>
-          En cas de vice caché affectant le produit, le Client peut faire jouer la garantie des vices cachés.
+          Les produits de nutrition bénéficient d'une garantie limitée à la date de péremption indiquée sur l'emballage. Aucun retour ou remboursement ne sera accepté après cette date.
+        </p>
+  
+        <h3>9.3. Vêtements Sportifs</h3>
+        <p>
+          Les vêtements sportifs sont garantis contre les défauts de fabrication pour une période de 6 mois à compter de la réception. En cas de défaut, le Client peut demander un échange ou un remboursement.
         </p>
   
         <h2>10. Responsabilité</h2>
@@ -145,78 +150,75 @@
   // Déclarations des variables et méthodes si nécessaire
   const currentDate = ref(new Date().toLocaleDateString());
   </script>
+  
   <style>
   .cgv-page {
-  font-family: 'Arial', sans-serif;
-  margin: 20px auto;
-  padding: 20px;
-  max-width: 800px;
-  background-color: #ffffff;
-  color: #333;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.cgv-header {
-  text-align: center;
-  margin-bottom: 40px;
-}
-
-.cgv-header h1 {
-  font-size: 36px;
-  color: #007bff; /* Blue color */
-  margin-bottom: 10px;
-}
-
-.cgv-header p {
-  font-size: 20px;
-  color: #555;
-}
-
-.cgv-content h2 {
-  font-size: 24px;
-  margin-top: 30px;
-  margin-bottom: 10px;
-  color: #343a40; /* Dark gray color */
-  border-bottom: 2px solid #007bff; /* Blue underline */
-  padding-bottom: 5px;
-}
-
-.cgv-content h3 {
-  font-size: 20px;
-  margin-top: 20px;
-  margin-bottom: 10px;
-  color: #495057; /* Slightly lighter gray color */
-}
-
-.cgv-content p {
-  font-size: 16px;
-  line-height: 1.7;
-  margin-top: 10px;
-  color: #555;
-}
-
-.cgv-content ul {
-  list-style-type: disc;
-  margin-left: 20px;
-  margin-top: 10px;
-}
-
-.cgv-content li {
-  margin-bottom: 10px;
-}
-
-.cgv-content a {
-  color: #007bff;
-  text-decoration: none;
-}
-
-.cgv-content a:hover {
-  text-decoration: underline;
-}
-
-
-
-</style>
-    
+    font-family: 'Arial', sans-serif;
+    margin: 20px auto;
+    padding: 20px;
+    max-width: 800px;
+    background-color: #ffffff;
+    color: #333;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .cgv-header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  
+  .cgv-header h1 {
+    font-size: 36px;
+    color: #007bff; /* Blue color */
+    margin-bottom: 10px;
+  }
+  
+  .cgv-header p {
+    font-size: 20px;
+    color: #555;
+  }
+  
+  .cgv-content h2 {
+    font-size: 24px;
+    margin-top: 30px;
+    margin-bottom: 10px;
+    color: #343a40; /* Dark gray color */
+    border-bottom: 2px solid #007bff; /* Blue underline */
+    padding-bottom: 5px;
+  }
+  
+  .cgv-content h3 {
+    font-size: 20px;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    color: #495057; /* Slightly lighter gray color */
+  }
+  
+  .cgv-content p {
+    font-size: 12px;
+    line-height: 1.7;
+    margin-top: 10px;
+    color: #555;
+  }
+  
+  .cgv-content ul {
+    list-style-type: disc;
+    margin-left: 20px;
+    margin-top: 10px;
+  }
+  
+  .cgv-content li {
+    margin-bottom: 10px;
+  }
+  
+  .cgv-content a {
+    color: #007bff;
+    text-decoration: none;
+  }
+  
+  .cgv-content a:hover {
+    text-decoration: underline;
+  }
+  </style>
   

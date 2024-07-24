@@ -16,7 +16,7 @@
             Email : <a href="mailto:contact@mambafit.fr">contact@mambafit.fr</a>
           </p>
           <p>
-            Directeur de la publication : <strong>Jean Dupont</strong>
+            Directeur de la publication : <strong>Leonce zang</strong>
           </p>
           <p>
             Hébergeur : <strong>OVH</strong><br>
@@ -61,7 +61,10 @@
             Le site MAMBAFIT utilise des cookies pour améliorer votre expérience de navigation. Les cookies sont des fichiers stockés sur votre appareil et qui permettent d'analyser votre utilisation du site.
           </p>
           <p>
-            Vous pouvez à tout moment désactiver les cookies en configurant les paramètres de votre navigateur.
+            Afin de pouvoir acheter des produits sur notre site, il est nécessaire d'accepter les cookies. Si vous choisissez de désactiver les cookies, vous ne pourrez pas finaliser votre achat.
+          </p>
+          <p>
+            Vous pouvez gérer vos préférences en matière de cookies en configurant les paramètres de votre navigateur. Pour plus d'informations sur l'utilisation des cookies, veuillez consulter notre politique de confidentialité.
           </p>
         </div>
         <div class="section">
@@ -129,7 +132,7 @@
   }
   
   .section p {
-    font-size: 16px;
+    font-size: 12px;
     line-height: 1.7;
     margin-top: 10px;
     color: #555;
@@ -154,4 +157,3 @@
     text-decoration: underline;
   }
   </style>
-  

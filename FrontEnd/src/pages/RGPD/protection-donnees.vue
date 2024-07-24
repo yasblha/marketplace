@@ -154,7 +154,7 @@
   }
   
   .section p {
-    font-size: 16px;
+    font-size: 12px;
     line-height: 1.7;
     margin-top: 10px;
     color: #555;
