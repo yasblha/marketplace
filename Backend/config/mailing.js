@@ -36,7 +36,7 @@ class BrevoMailing {
       for (const alertUser of alertUsers) {
         const payload = {
           to: [{ email: alertUser.User.email }],
-          templateId: 3, Template ,
+          templateId: 13, Template ,
           params: {
             subject: 'Newsletter',
             name: User.name,
