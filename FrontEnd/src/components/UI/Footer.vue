@@ -26,9 +26,10 @@
                 <li class="bigli"><a href="">Legal</a></li>
                 <br>
                 <li><a href="">About</a></li>
-                <li><a href="">Carrier</a></li>
-                <li><a href="">We are hiring</a></li>
-                <li><a href="">Blog</a></li>
+                <li><a href="protection-donnees">Politique de protection des données</a></li>
+                <li><a href="/mentionslegales">Mentions Legales</a></li>
+                <li><a href="/cgv">Cgv</a></li>
+               
             </ul>
             <ul>
                 <li class="bigli"><a href="">Features</a></li>

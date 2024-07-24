@@ -15,6 +15,14 @@ import NotFound from "@/pages/NotFound.vue";
 import ProfilPage from "@/pages/profil/profilPage.vue";
 import SearchResult from "@/components/common/SearchResult.vue";
 import Checkout from "@/pages/Checkout.vue";
+import Cgv from "@/pages/RGPD/Cgv.vue";
+import MentionLegales from "@/pages/RGPD/MentionsLegales.vue";
+
+import protectionData  from  "@/pages/RGPD/protection-donnees.vue" ;
+
+
+
+
 
 
 const routes = [
@@ -87,6 +95,24 @@ const routes = [
         path: '/cart',
         name: 'Cart',
         component: Cart,
+        meta: { requiresAuth: false }
+    },
+    {
+        path: '/cgv',
+        name: 'Cgv',
+        component: Cgv,
+        meta: { requiresAuth: false }
+    },
+    {
+        path: '/protection-donnees',
+        name: 'protection-donnees',
+        component: protectionData,
+        meta: { requiresAuth: false }
+    },
+    {
+        path: '/mentionslegales',
+        name: 'MentionsLegales',
+        component: MentionLegales,
         meta: { requiresAuth: false }
     },
     {
