@@ -68,20 +68,22 @@ process.on("unhandledRejection", err => {
 const BrevoMailing = require('./config/mailing');
 const brevoMailing = new BrevoMailing(process.env.BREVO_API_KEY);
 
-const testPayload = {
-    to: [{ email: 'test@gmail.com' }],
-    templateId: 11, // Using the 'Welcome.newUser' template as an example
-    params: {
-      subject: 'Bienvenue sur notre plateforme',
-      // Add other params as needed
-    }
-  };
+// const testPayload = {
+//     to: [{ email: 'test@gmail.com' }],
+//     templateId: 12, // Using the 'Welcome.newUser' template as an example
+//     params: {
+//       subject: 'Bienvenue sur notre plateforme',
+//       productName: 'chocolat chaud'
+//     }
+//   };
  
-// Example usage with test payload
-brevoMailing.sendMail(testPayload)
-  .then(response => {
-    console.log('Test email sent successfully:', response);
-  })
-  .catch(error => {
-    console.error('Error sending test email:', error);
-  });
+// // Example usage with test payload
+// brevoMailing.sendMail(testPayload)
+//   .then(response => {
+//     console.log('Test email sent successfully:', response);
+//   })
+//   .catch(error => {
+//     console.error('Error sending test email:', error);
+//   });
+
+module.exports = brevoMailing;

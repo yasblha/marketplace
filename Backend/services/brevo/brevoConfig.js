@@ -1,12 +1,12 @@
 const brevoMailingConfig = {
-    "Alert.productAvailable": [
+    "Product.productAvailable": [
       {
         templateId: 1,
         subject: 'Produit Disponible',
         type: 'alert'
       },
     ],
-    "Alert.productOutOfStock": [
+    "Product.productOutOfStock": [
       {
         templateId: 2,
         subject: 'Produit en rupture de stock',
