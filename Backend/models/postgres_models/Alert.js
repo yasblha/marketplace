@@ -19,11 +19,11 @@ const Alert = sequelize.define('Alert', {
   },
   productId: {
     type: DataTypes.STRING, // Assuming productId is a string from MongoDB
-    allowNull: false,
+    allowNull: true,
   },
   userId: {
     type: DataTypes.INTEGER,
-    allowNull: false,
+    allowNull: true,
   },
 }, {
   tableName: 'Alert', // Explicitly specify the table name

@@ -1,6 +1,5 @@
 <template>
   <div class="home-container">
-    <!--<NavigationBar @openAuthModal="openAuthModal" />-->
     <AuthModal :isVisible="isAuthModalVisible" @close="closeAuthModal" />
 
     <section class="hero-section">
@@ -36,10 +35,12 @@
       <div class="newsletter-content">
         <h2 class="newsletter-title">Subscribe to Our Newsletter</h2>
         <p class="newsletter-description">Stay updated with our latest products and offers</p>
-        <form class="newsletter-form">
-          <input type="email" placeholder="Enter your email" required>
+        <form class="newsletter-form" @submit.prevent="subscribeToNewsletter">
+          <input v-model="email" type="email" placeholder="Enter your email" required>
           <button type="submit">Subscribe</button>
         </form>
+        <p v-if="successMessage" class="success-message">{{ successMessage }}</p>
+        <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
       </div>
     </section>
 
@@ -49,12 +50,31 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import { useAlertStore } from '@/stores/alert';
 import NavigationBar from "@/components/UI/NavigationBar.vue";
 import Footer from "@/components/UI/Footer.vue";
 import BestSellers_Products from "@/components/UI/BestSellers_Products.vue";
 import AuthModal from '@/components/common/AuthModal.vue';
 
 const isAuthModalVisible = ref(false);
+const email = ref('');
+const successMessage = ref('');
+const errorMessage = ref('');
+
+const alertStore = useAlertStore();
+
+const subscribeToNewsletter = async () => {
+  try {
+    await alertStore.subscribeToNewsletter(email.value);
+    successMessage.value = 'You have successfully subscribed to the newsletter.';
+    errorMessage.value = '';
+    email.value = '';
+  } catch (error) {
+    console.error('Error subscribing to newsletter:', error);
+    errorMessage.value = 'There was an error subscribing to the newsletter.';
+    successMessage.value = '';
+  }
+};
 
 function openAuthModal() {
   isAuthModalVisible.value = true;
@@ -85,6 +105,19 @@ const products = [
   }
 ];
 </script>
+
+<style scoped>
+/* Ajoutez ici vos styles pour les messages de succès et d'erreur */
+.success-message {
+  color: green;
+  margin-top: 10px;
+}
+.error-message {
+  color: red;
+  margin-top: 10px;
+}
+</style>
+
 
 <style scoped>
 .home-container {

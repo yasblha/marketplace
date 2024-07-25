@@ -1,6 +1,7 @@
 const express = require('express');
 const db = require('./config/postgres');
 const mongodb = require('./config/mongodb');
+const BrevoMailing = require('./config/mailing');
 const cors = require('cors');
 const bodyParser = require("body-parser");
 const credentials = require('./middleware/credentials');
@@ -66,8 +67,6 @@ process.on("unhandledRejection", err => {
     console.error(`Unhandled Rejection: ${err.message}`);
     server.close(() => process.exit(1));
 });
-
-const BrevoMailing = require('./config/mailing');
 const brevoMailing = new BrevoMailing(process.env.BREVO_API_KEY);
 
 // const testPayload = {

@@ -8,9 +8,9 @@ const brevoMailingConfig = {
         type: 'alert'
       },
     ],
-    "Product.productOutOfStock": [
+    "Product.OutOfStock": [
       {     
-        templateId: 2,
+        templateId: 12,
         subject: 'Produit en rupture de stock',
         type: 'alert'
       },
@@ -43,20 +43,7 @@ const brevoMailingConfig = {
         type: 'mail'
       },
     ],
-    "Invoice.available": [
-      {
-        templateId: 6,
-        subject: 'Votre facture est disponible',
-        type: 'mail'
-      },
-    ],
-    "PasswordToken.updated": [
-      {
-        templateId: 8,
-        subject: 'Demande de réinitialisation de mot de passe',
-        type: 'mail'
-      },
-    ],
+    
     
     // "Password.updated": [
     //   {

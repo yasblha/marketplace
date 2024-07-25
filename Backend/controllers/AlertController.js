@@ -1,5 +1,7 @@
 const Alert = require('../models/postgres_models/Alert');
 const User = require('../models/postgres_models/UserPg');
+const brevoMailing = require('../server');
+const PayloadBuilder = require('../services/brevo/playloadBuilder');
 
 const subscribeToAlert = async (req, res) => {
   try {
@@ -26,10 +28,7 @@ const subscribeToAlert = async (req, res) => {
       userId: userId,
     });
 
-    // // Construisez le payload de l'email
-    // const payload = await PayloadBuilder.build('Product.Restock', userId, productId);
-
-    // // Envoyez l'email
+    // const payload = await PayloadBuilder.build('Product.OutOfStock', userId, productId);
     // await brevoMailing.sendMail(payload);
 
     res.status(201).json(alert);
@@ -61,8 +60,29 @@ const unsubscribeFromAlert = async (req, res) => {
 
 const subscribeToNewsletter = async (req, res) => {
   try {
-    const { userId } = req.params;
+    const { email } = req.params;
 
+    // Trouver l'utilisateur par e-mail
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const userId = user.id;
+
+    // Vérifiez si l'utilisateur est déjà abonné à cette newsletter
+    const existingAlert = await Alert.findOne({
+      where: {
+        userId: userId,
+        alert_type: 'newsletter',
+      },
+    });
+
+    if (existingAlert) {
+      return res.status(400).json({ error: 'User is already subscribed to the newsletter' });
+    }
+
+    // Créez une nouvelle alerte pour la newsletter
     const alert = await Alert.create({
       alert_type: 'newsletter',
       status: 'active',
@@ -77,7 +97,15 @@ const subscribeToNewsletter = async (req, res) => {
 
 const unsubscribeFromNewsletter = async (req, res) => {
   try {
-    const { userId } = req.params;
+    const { email } = req.params;
+
+    // Trouver l'utilisateur par e-mail
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const userId = user.id;
 
     await Alert.destroy({
       where: {
@@ -91,6 +119,7 @@ const unsubscribeFromNewsletter = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 
 module.exports = {
   subscribeToAlert,
