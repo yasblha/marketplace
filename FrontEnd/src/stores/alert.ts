@@ -3,6 +3,9 @@ import { defineStore } from 'pinia';
 import { useAuthStore } from '@/stores/user';
 import axiosInstance from "@/services/api";
 
+// Utility function to denormalize MongoDB IDs for PostgreSQL
+const removeLeftZeros = (str: string) => str.replace(/^0+/, '');
+
 export interface Alert {
     id: string;
     alert_type: string;
@@ -21,7 +24,10 @@ export const useAlertStore = defineStore('alert', () => {
             if (!userId) {
                 throw new Error('User not authenticated');
             }
-            const response = await axiosInstance.post(`/alerts/subscribe/${userId}/${productId}`);
+            // Denormalize the productId
+            const normalizedProductId = removeLeftZeros(productId);
+            console.log('Normalized product ID:', normalizedProductId);
+            const response = await axiosInstance.post(`/alerts/subscribe/${userId}/${normalizedProductId}`);
             alerts.value.push(response.data);
             console.log('Subscribed to alert:', response.data);
         } catch (error) {

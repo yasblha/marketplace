@@ -29,7 +29,7 @@
         <button @click="addToCart(product)" class="add-to-cart-button">Add to Cart</button>
         <p class="availability">Availability: {{ product.status === 'available' ? 'In Stock' : 'Out of Stock' }}</p>
         <p class="shipping">Free standard shipping | Free returns</p>
-        <button v-if="product.status === 'out_of_stock'" @click="subscribeToAlert(product.id)" class="subscribe-alert-button">Subscribe to Alert</button>
+        <button v-if="product.status === 'out_of_stock'" @click="subscribeToAlert(product._id)" class="subscribe-alert-button">Subscribe to Alert</button>
       </div>
     </div>
   </section>
@@ -63,8 +63,12 @@ const selectedSize = ref('M');
 const quantity = ref(1);
 
 const fetchProductById = async (id: string) => {
-  product.value = await productStore.getProductById(id);
-  console.log('Product status:', product.value?.status); // Debugging log
+  try {
+    product.value = await productStore.getProductById(id);
+    console.log('Product fetched:', product.value);
+  } catch (error) {
+    console.error('Error fetching product by ID:', error);
+  }
 };
 
 onMounted(async () => {
@@ -101,6 +105,10 @@ const decreaseQuantity = () => {
 
 const subscribeToAlert = async (productId: string) => {
   try {
+    console.log('Subscribing to alert for product ID:', productId);
+    if (!productId) {
+      throw new Error('Product ID is undefined');
+    }
     await alertStore.subscribeToAlert(productId);
     alert('You have successfully subscribed to the product alert.');
   } catch (error) {
@@ -110,7 +118,6 @@ const subscribeToAlert = async (productId: string) => {
 };
 
 </script>
-
 
 
 
