@@ -1,14 +1,19 @@
 const Alert = require('../models/postgres_models/Alert');
-const AlertUser = require('../models/postgres_models/AlertUser');
 const User = require('../models/postgres_models/UserPg');
 
 const subscribeToAlert = async (req, res) => {
   try {
-    const { user_id, alert_id } = req.body;
+    const { userId, productId } = req.params;
 
-    // Create a subscription for the user
-    const alertUser = await AlertUser.create({ userId: user_id, alertId: alert_id });
-    res.status(201).json(alertUser);
+    // Create a new alert for stock
+    const alert = await Alert.create({
+      alert_type: 'stock',
+      status: 'active',
+      productId: productId,
+      userId: userId,
+    });
+
+    res.status(201).json(alert);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -16,8 +21,16 @@ const subscribeToAlert = async (req, res) => {
 
 const unsubscribeFromAlert = async (req, res) => {
   try {
-    const { user_id, alert_id } = req.body;
-    await AlertUser.destroy({ where: { userId: user_id, alertId: alert_id } });
+    const { userId, productId } = req.params;
+
+    await Alert.destroy({
+      where: {
+        userId: userId,
+        productId: productId,
+        alert_type: 'stock',
+      },
+    });
+
     res.status(200).json({ message: 'Unsubscribed from alert successfully' });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -26,14 +39,15 @@ const unsubscribeFromAlert = async (req, res) => {
 
 const subscribeToNewsletter = async (req, res) => {
   try {
-    const { email } = req.body;
-    let user = await User.findOne({ where: { email } });
-    if (!user) {
-      user = await User.create({ email }); 
-    }
-    const alert = await Alert.findOne({ where: { alert_type: 'newsletter' } });
-    const alertUser = await AlertUser.create({ userId: user.id, alertId: alert.id });
-    res.status(201).json(alertUser);
+    const { userId } = req.params;
+
+    const alert = await Alert.create({
+      alert_type: 'newsletter',
+      status: 'active',
+      userId: userId,
+    });
+
+    res.status(201).json(alert);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -41,13 +55,15 @@ const subscribeToNewsletter = async (req, res) => {
 
 const unsubscribeFromNewsletter = async (req, res) => {
   try {
-    const { email } = req.body;
-    const user = await User.findOne({ where: { email } });
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-    const alert = await Alert.findOne({ where: { alert_type: 'newsletter' } });
-    await AlertUser.destroy({ where: { userId: user.id, alertId: alert.id } });
+    const { userId } = req.params;
+
+    await Alert.destroy({
+      where: {
+        userId: userId,
+        alert_type: 'newsletter',
+      },
+    });
+
     res.status(200).json({ message: 'Unsubscribed from newsletter successfully' });
   } catch (error) {
     res.status(500).json({ error: error.message });

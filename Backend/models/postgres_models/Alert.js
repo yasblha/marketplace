@@ -1,5 +1,6 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../../config/postgres");
+const User = require("../postgres_models/UserPg");
 
 
 const Alert = sequelize.define("Alert", {
@@ -20,7 +21,14 @@ const Alert = sequelize.define("Alert", {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
+  userId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  
 });
+
+Alert.belongsTo(User, { foreignKey: "userId" });
 
 
 

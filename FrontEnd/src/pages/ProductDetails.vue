@@ -29,7 +29,7 @@
         <button @click="addToCart(product)" class="add-to-cart-button">Add to Cart</button>
         <p class="availability">Availability: {{ product.status === 'available' ? 'In Stock' : 'Out of Stock' }}</p>
         <p class="shipping">Free standard shipping | Free returns</p>
-        <button v-if="product.status === 'out_of_stock'" @click="subscribeToAlert(product.id, userId)" class="subscribe-alert-button">Subscribe to Alert</button>
+        <button v-if="product.status === 'out_of_stock'" @click="subscribeToAlert(product.id)" class="subscribe-alert-button">Subscribe to Alert</button>
       </div>
     </div>
   </section>
@@ -37,16 +37,14 @@
   <Footer />
 </template>
 
-
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useCartStore } from '@/stores/panier';
 import { useProductStore } from '@/stores/products';
-import axios from 'axios';
+import { useAlertStore } from '@/stores/alert';
 import type { Product } from '@/stores/products';
 import defaultImage from "@/assets/ui_assets/image1.png";
-import BarreDeRecherche from "@/components/UI/SearchBar.vue";
 import Footer from "@/components/UI/Footer.vue";
 
 interface ProductWithQuantity extends Product {
@@ -58,6 +56,7 @@ const productId = route.params.id as string;
 const product = ref<Product | null>(null);
 const productStore = useProductStore();
 const cartStore = useCartStore();
+const alertStore = useAlertStore();
 
 const sizes = ref(['S', 'M', 'L']);
 const selectedSize = ref('M');
@@ -100,23 +99,16 @@ const decreaseQuantity = () => {
   if (quantity.value > 1) quantity.value--;
 };
 
-const searchProducts = (query: string) => {
-  productStore.searchProducts(query);
-};
-
-const subscribeToAlert = async (productId: string, userId: number) => {
+const subscribeToAlert = async (productId: string) => {
   try {
-    // Retrieve the alert ID associated with the product
-    const alertResponse = await axios.get(`http://localhost:3000/alerts?productId=${productId}`);
-    const alertId = alertResponse.data.id;
-
-    const response = await axios.post('http://localhost:3000/alerts/subscribe', { user_id: userId, alert_id: alertId });
+    await alertStore.subscribeToAlert(productId);
     alert('You have successfully subscribed to the product alert.');
   } catch (error) {
     console.error('Error subscribing to alert:', error);
     alert('There was an error subscribing to the product alert.');
   }
 };
+
 </script>
 
 
