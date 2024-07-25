@@ -1,11 +1,28 @@
 <template>
   <div class="home-container">
-    <!--<NavigationBar @openAuthModal="openAuthModal" />-->
     <AuthModal :isVisible="isAuthModalVisible" @close="closeAuthModal" />
+
+    <div v-if="!hasAcceptedCookies" class="cookie-banner">
+      <p>
+        Notre boutique en ligne Mambafit et ses partenaires utilisent des cookies et autres traceurs pour garantir une
+        expérience de navigation optimale. Ces outils nous permettent d'améliorer votre expérience utilisateur, de
+        recueillir des statistiques ciblées, et d'optimiser nos opérations promotionnelles et commerciales en fonction
+        de vos habitudes et centres d'intérêt. Avec votre consentement, des données pseudonymisées peuvent être
+        transmises à des tiers tels que Google ou Meta pour mesurer la performance de nos annonces publicitaires. Vous
+        pouvez choisir d'accepter, de personnaliser ou de refuser ces outils de suivi et d'optimisation. Pour plus de
+        détails, veuillez lire notre politique de cookies.
+        <a href="/mentionslegales">Lire les politiques de cookies</a>
+      </p>
+      <div class="cookie-button">
+        <button @click="acceptCookies">Accepter</button>
+        <button id="buttonRefus" @click="rejectCookies">Refuser</button>
+      </div>
+    </div>
 
     <section class="hero-section">
       <div class="hero-content">
-        <span class="hero-text">We know how large objects will act, but things on a small scale just do not act that way.</span>
+        <span class="hero-text">We know how large objects will act, but things on a small scale just do not act that
+          way.</span>
         <button class="start-button">Start now</button>
       </div>
     </section>
@@ -48,21 +65,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import NavigationBar from "@/components/UI/NavigationBar.vue";
-import Footer from "@/components/UI/Footer.vue";
-import BestSellers_Products from "@/components/UI/BestSellers_Products.vue";
+import { ref, onMounted } from 'vue';
+import axios from 'axios';
+import Footer from '@/components/UI/Footer.vue';
+import BestSellers_Products from '@/components/UI/BestSellers_Products.vue';
 import AuthModal from '@/components/common/AuthModal.vue';
 
 const isAuthModalVisible = ref(false);
-
-function openAuthModal() {
-  isAuthModalVisible.value = true;
-}
-
-function closeAuthModal() {
-  isAuthModalVisible.value = false;
-}
+const hasAcceptedCookies = ref(false);
 
 const products = [
   {
@@ -84,6 +94,47 @@ const products = [
     image: new URL('../assets/ui_assets/image3.png', import.meta.url).href
   }
 ];
+
+function openAuthModal() {
+  isAuthModalVisible.value = true;
+}
+
+function closeAuthModal() {
+  isAuthModalVisible.value = false;
+}
+
+async function fetchCookieConsent() {
+  try {
+    const response = await axios.get('/api/cookies/check-cookies');
+    hasAcceptedCookies.value = response.data.hasAcceptedCookies;
+  } catch (error) {
+    console.error('Error fetching cookie consent:', error);
+  }
+}
+
+// Fonction pour accepter les cookies
+const rejectCookies = async () => {
+  try {
+    await axios.post('http://localhost:3000/api/cookies/reject-cookies');
+    hasAcceptedCookies.value = true;
+  } catch (error) {
+    console.error('Error rejecting cookies:', error);
+  }
+};
+
+const acceptCookies = async () => {
+  try {
+    await axios.post('http://localhost:3000/api/cookies/accept-cookies');
+    hasAcceptedCookies.value = true;
+  } catch (error) {
+    console.error('Error accepting cookies:', error);
+  }
+};
+
+// Vérifiez le consentement des cookies lorsque le composant est monté
+onMounted(() => {
+  fetchCookieConsent();
+});
 </script>
 
 <style scoped>
@@ -102,6 +153,14 @@ const products = [
   text-align: center;
 }
 
+.cookie-button {
+  padding: 12px;
+}
+
+#buttonRefus {
+  background-color: red;
+}
+
 .hero-content {
   width: 32%;
 }
@@ -111,6 +170,15 @@ const products = [
   font-size: 18px;
   display: block;
   margin-bottom: 20px;
+}
+
+.button.disabled {
+  background-color: #ddd;
+  cursor: not-allowed;
+}
+
+.button.disabled:hover {
+  background-color: #ddd;
 }
 
 .start-button {
@@ -131,7 +199,7 @@ const products = [
   padding: 61px;
   background: #80808012;
   justify-content: space-between;
-  max-width:105rem ;
+  max-width: 105rem;
 }
 
 .product-card {
@@ -160,7 +228,8 @@ const products = [
   margin: 10px 0;
 }
 
-.product-tag, .product-cta {
+.product-tag,
+.product-cta {
   color: #808080ad;
 }
 
@@ -201,6 +270,38 @@ const products = [
 .best-sellers-list {
   flex: 2;
   min-width: 300px;
+}
+
+.cookie-banner {
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: #333;
+  color: #fff;
+  padding: 10px;
+  text-align: center;
+  z-index: 1000;
+}
+
+.cookie-banner button {
+  background: #1955dcf7;
+  color: #fff;
+  border: none;
+  padding: 7px 13px;
+  margin-left: 10px;
+  cursor: pointer;
+  border-radius: 3px;
+}
+
+.cookie-banner a {
+  color: rgb(0, 229, 255);
+}
+
+.cookie-banner button:hover {
+  background: #0056b3;
 }
 
 @media (max-width: 768px) {
