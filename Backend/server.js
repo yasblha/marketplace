@@ -43,7 +43,7 @@ app.use('/api/sections', sectionRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/order', orderRoutes);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-app.use('/api/alert', alertRoutes);
+app.use('/api/alerts', alertRoutes);
 
 
 
