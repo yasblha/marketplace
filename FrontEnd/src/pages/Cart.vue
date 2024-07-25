@@ -84,25 +84,36 @@
       </div>
       <div class="copyrights-sitecom-all">Copyrights site.com. All Rights Reserved</div>
     </div>
+
+    <Modal v-if="showErrorModal" v-model="showErrorModal" title="Error">
+      <div class="error-modal">
+        <p>Your cart is empty. Please add products to your cart before proceeding.</p>
+        <button @click="closeErrorModal">OK</button>
+      </div>
+    </Modal>
   </section>
   <Footer />
 </template>
 
 <script setup>
-import {ref, onMounted} from 'vue';
-import {useCartStore} from '@/stores/panier';
-import NavigationBar from "../components/UI/NavigationBar.vue";
-import Footer from "@/components/UI/Footer.vue";
+import { ref, onMounted } from 'vue';
+import { useCartStore } from '@/stores/panier';
+import { useOrderStore } from '@/stores/Commande';
+import { useRouter } from 'vue-router';
 import defaultImage from "@/assets/ui_assets/image1.png";
+import Modal from '@/components/common/Modale.vue';
 
 const cartStore = useCartStore();
+const orderStore = useOrderStore();
+const router = useRouter();
+const showErrorModal = ref(false);
 
 const orderInformation = ref([
   {
     title: 'Return Policy',
     description: 'This is our example return policy which is everything you need to know about our returns.'
   },
-  {title: 'Shipping Options', description: 'Various shipping options are available for your convenience.'}
+  { title: 'Shipping Options', description: 'Various shipping options are available for your convenience.' }
 ]);
 
 const getImage = (product) => {
@@ -113,15 +124,48 @@ const getImage = (product) => {
   return defaultImage;
 };
 
-const checkout = () => {
-  router.push('/checkout');
+const checkout = async () => {
+  if (cartStore.items.length === 0) {
+    showErrorModal.value = true;
+    return;
+  }
+
+  try {
+    const { subtotal } = cartStore.calculateTotals();
+    const userId = cartStore.isAuthenticated ? cartStore.authStore.user.id : null;
+    const products = cartStore.items.map(item => ({
+      productId: item._id,
+      quantity: item.quantity
+    }));
+
+    const response = await orderStore.createOrder({
+      userId,
+      statusOrder: 'Pending Validation',
+      totalAmount: subtotal,
+      products
+    });
+
+    const orderId = response;
+    console.log(orderId);
+    console.log(response);
+
+    cartStore.clearCart();
+    router.push({ path: '/checkout', query: { orderId } });
+  } catch (error) {
+    console.error('Failed to create order and continue to checkout:', error);
+  }
 };
+
 const removeItem = (index) => {
   cartStore.removeFromCart(index);
 };
 
 const updateQuantity = (index, quantity) => {
   cartStore.updateCartItemQuantity(index, quantity);
+};
+
+const closeErrorModal = () => {
+  showErrorModal.value = false;
 };
 
 onMounted(() => {

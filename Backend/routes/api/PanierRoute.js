@@ -5,7 +5,7 @@ const {authenticateToken} = require("../../middleware/authAdmin");
 
 
 router.post('/', cartController.createCartItem);
-router.get('/:useridOrSessionId', cartController.getCartItems);
+router.get('/:userid', cartController.getCartItems);
 router.put('/:id', authenticateToken,cartController.updateCartItem);
 router.delete('/:id',authenticateToken, cartController.deleteCartItem);
 

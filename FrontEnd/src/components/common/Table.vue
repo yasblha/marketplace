@@ -23,7 +23,7 @@
         <tr v-for="item in paginatedItems" :key="item._id">
           <td class="checkbox-column"><input type="checkbox" v-model="selectedItems" :value="item._id" /></td>
           <td v-for="column in columns" :key="column.key" :data-label="column.label">
-            {{ item[column.key] }}
+            {{ column.formatter ? column.formatter(item[column.key]) : item[column.key] }}
           </td>
           <td class="actions-column">
             <div class="table-actions">
@@ -51,6 +51,7 @@ import DeleteButton from "@/components/common/DeteleButton.vue";
 interface Column<T> {
   key: keyof T & string;
   label: string;
+  formatter?: (value: any) => string;
   searchable?: boolean;
 }
 
@@ -145,7 +146,6 @@ const deleteSelected = async () => {
     selectedItems.value = [];
   }
 };
-
 
 const exportCSV = () => {
   const headers = props.columns.map(col => col.label).join(',');

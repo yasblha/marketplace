@@ -44,6 +44,7 @@ import { useRoute } from 'vue-router';
 import { useCartStore } from '@/stores/panier';
 import { useProductStore } from '@/stores/products';
 import type { Product } from '@/stores/products';
+import { decodeBase64 } from '@/utils/encodage';
 import defaultImage from "@/assets/ui_assets/image1.png";
 import BarreDeRecherche from "@/components/UI/SearchBar.vue";
 import Footer from "@/components/UI/Footer.vue";
@@ -53,7 +54,8 @@ interface ProductWithQuantity extends Product {
 }
 
 const route = useRoute();
-const productId = route.params.id as string;
+const encodedProductId = route.params.id as string;
+const productId = decodeBase64(encodedProductId); // Décodage de l'ID
 const product = ref<Product | null>(null);
 const productStore = useProductStore();
 const cartStore = useCartStore();
@@ -72,11 +74,7 @@ onMounted(async () => {
 });
 
 const addToCart = (product: Product) => {
-  const productWithQuantity: ProductWithQuantity = {
-    ...product,
-    quantity: quantity.value,
-  };
-  cartStore.addToCart(productWithQuantity);
+  cartStore.addToCart(product, quantity.value);
 };
 
 const getImage = (product: { images: string[] }) => {

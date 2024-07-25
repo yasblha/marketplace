@@ -1,4 +1,3 @@
-<!-- components/common/Modal.vue -->
 <template>
   <div v-if="modelValue" class="modal-overlay" @click.self="close">
     <div class="modal">
@@ -14,7 +13,6 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
 import { defineProps, defineEmits } from 'vue';
 
 const props = defineProps({
@@ -45,7 +43,7 @@ const close = () => {
   background: white;
   padding: 1rem;
   border-radius: 8px;
-  max-width: 500px;
+  max-width: 800px;
   width: 100%;
 }
 .modal-header {
@@ -53,7 +51,9 @@ const close = () => {
   justify-content: space-between;
   align-items: center;
 }
-
+.modal-body {
+  margin-top: 1rem;
+}
 h3 {
   color: black;
 }

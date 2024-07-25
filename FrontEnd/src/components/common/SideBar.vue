@@ -26,9 +26,9 @@
             <span>Products</span>
           </a>
         </li>
-        <li @click="setActiveMenu('customers')" :class="{ 'active': activeMenu === 'customers' }">
+        <li @click="setActiveMenu('users')" :class="{ 'active': activeMenu === 'customers' }">
           <a href="#">
-            <i class="fas fa-users"></i>
+            <i class="fa fa-users"></i>
             <span>Customers</span>
           </a>
         </li>
@@ -44,22 +44,24 @@
             <span>Settings</span>
           </a>
         </li>
+        <hr class="menu-separator">
+        <li @click="home">
+          <a href="#">
+            <i class="fas fa-globe"></i>
+            <span>My Website</span>
+          </a>
+        </li>
         <li @click="logout">
           <a href="#">
             <i class="fas fa-sign-out-alt"></i>
             <span>Logout</span>
           </a>
         </li>
-        <li @click="home">
-          <a href="#">
-            <i class="fas fa-bounce"></i>
-            <span>My Website</span>
-          </a>
-        </li>
       </ul>
     </nav>
   </aside>
 </template>
+
 
 <script setup lang="ts">
 import { defineProps, defineEmits } from 'vue';
@@ -171,6 +173,15 @@ const home = async () => {
 }
 
 .sidebar-menu li i {
-  margin-right: 10px;
+  margin-right: 15px;
+  font-size: 18px;
+}
+
+.menu-separator {
+  border: 0;
+  height: 1px;
+  background-color: #e0e0e0;
+  margin: 10px 0;
 }
 </style>
+

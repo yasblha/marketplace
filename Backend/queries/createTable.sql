@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS public."Order"
 CREATE TABLE IF NOT EXISTS public."OrderDetail"
 (
     id serial NOT NULL,
-    orderid integer,
+    orderId integer,
     productid integer,
     quantity integer,
     unitprice numeric(10, 2),

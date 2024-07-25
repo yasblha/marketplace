@@ -1,16 +1,12 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../../config/postgres');
-const User = require('../mongo_models/User');
+const User = require('../postgres_models/UserPg');
 
 const DeliveryAddress = sequelize.define('DeliveryAddress', {
     id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
         primaryKey: true,
-    },
-    fullname: {
-        type: DataTypes.STRING,
-        allowNull: false,
     },
     address: {
         type: DataTypes.STRING,
@@ -31,8 +27,17 @@ const DeliveryAddress = sequelize.define('DeliveryAddress', {
         type: DataTypes.STRING,
         allowNull: false,
     },
-});
+    userid: {
+        type: DataTypes.INTEGER,
+        references: {
+            model: User,
+            key: 'id'
+        }
+    }
+},{
+    tableName: 'DeliveryAdress',
+    timestamps: false,});
 
-DeliveryAddress.belongsTo(User, { foreignKey: 'user_id' });
+DeliveryAddress.belongsTo(User, { foreignKey: 'userid' });
 
 module.exports = DeliveryAddress;

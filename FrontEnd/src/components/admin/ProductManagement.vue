@@ -42,11 +42,13 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue';
 import { useProductStore } from '@/stores/products';
+
 import Table from '@/components/common/Table.vue';
 import Modal from '@/components/common/Modale.vue';
 import AddProductForm from '@/components/common/AddProductForm.vue';
+import type { Product } from '@/stores/products';
 
-interface Product {
+/*interface Product {
   _id?: string;
   name: string;
   description: string;
@@ -56,7 +58,7 @@ interface Product {
   stock_available: number;
   status: string;
   images: string[]; // Add images array
-}
+}*/
 
 interface Column<T> {
   key: keyof T & string;
@@ -89,6 +91,7 @@ onMounted(async () => {
   console.log('Component mounted, fetching products...');
   await productStore.fetchProducts();
   console.log('Products after fetch:', productStore.products);
+  await useAuthStore.fetchUsers()
 });
 
 watch(() => productStore.products, (newProducts) => {

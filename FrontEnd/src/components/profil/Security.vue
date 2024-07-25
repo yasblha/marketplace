@@ -25,6 +25,9 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import { useAuthStore } from '@/stores/user';
+
+const authStore = useAuthStore();
 
 const currentPassword = ref('');
 const newPassword = ref('');
@@ -32,7 +35,11 @@ const confirmPassword = ref('');
 const twoFactorEnabled = ref(false);
 
 const updatePassword = () => {
-  // Logique pour mettre à jour le mot de passe
+  if (newPassword.value !== confirmPassword.value) {
+    alert('Les mots de passe ne correspondent pas');
+    return;
+  }
+  authStore.updatePassword(currentPassword.value, newPassword.value);
 };
 
 const toggleTwoFactorAuth = () => {

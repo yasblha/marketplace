@@ -4,7 +4,6 @@ import { useAuthStore } from '@/stores/user';
 import { useProductStore } from '@/stores/products';
 import axiosInstance from "@/services/api";
 import type { Product } from '@/stores/products';
-import type { User } from '@/stores/user';
 
 type CartProduct = Pick<Product, '_id' | 'name' | 'price' | 'images'> & { quantity: number, reservedUntil?: Date };
 
@@ -15,12 +14,12 @@ export const useCartStore = defineStore('cart', () => {
 
     const isAuthenticated = computed(() => authStore.isAuthenticated);
 
-    const addToCart = async (product: Pick<Product, '_id' | 'name' | 'price' | 'images'>) => {
+    const addToCart = async (product: Pick<Product, '_id' | 'name' | 'price' | 'images'>, quantity: number = 1) => {
         const existingItem = items.value.find(item => item._id === product._id);
         if (existingItem) {
-            existingItem.quantity += 1;
+            existingItem.quantity += quantity;
         } else {
-            items.value.push({ ...product, quantity: 1 });
+            items.value.push({ ...product, quantity });
         }
         saveCart();
 
@@ -28,7 +27,7 @@ export const useCartStore = defineStore('cart', () => {
             try {
                 const response = await axiosInstance.post('/cart/', {
                     productid: product._id.toString(),
-                    quantity: 1,
+                    quantity,
                     userid: authStore.user?.id
                 });
                 const reservedUntil = new Date(response.data.reservedUntil);
@@ -59,7 +58,9 @@ export const useCartStore = defineStore('cart', () => {
 
         if (isAuthenticated.value) {
             try {
-                await axiosInstance.put(`/cart/${product._id}`, {
+                await axiosInstance.put(`/cart/update`, {
+                    userid: authStore.user?.id,
+                    productid: product._id,
                     quantity
                 });
                 saveCart();
@@ -164,6 +165,6 @@ export const useCartStore = defineStore('cart', () => {
         saveCart,
         loadCart,
         clearCart,
-        updateCartItemQuantity
+        updateCartItemQuantity,
     };
 });

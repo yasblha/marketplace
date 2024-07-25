@@ -1,9 +1,7 @@
-// models/User.js
 const { DataTypes, Op } = require('sequelize');
 const sequelize = require('../../config/postgres');
 const bcrypt = require('bcryptjs');
 const Product = require('./ProductPg');
-
 
 const User = sequelize.define('User', {
     id: {
@@ -50,6 +48,13 @@ const User = sequelize.define('User', {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
     },
+    confirmation_token: {
+        type: DataTypes.STRING,
+    },
+    confirmation_token_expiry: {
+        type: DataTypes.DATE,
+        allowNull: true,
+    },
 }, {
     tableName: 'Clients',
     timestamps: false,
@@ -58,7 +63,8 @@ const User = sequelize.define('User', {
 User.belongsToMany(Product, { through: 'Client_Product', foreignKey: 'userId' });
 
 User.getUsers = async () => {
-    return User.findAll();
+    const users = await User.findAll();
+    return users;
 };
 
 User.getUser = async (email, password) => {
@@ -76,8 +82,6 @@ User.getUserById = async (id) => {
 
 User.createUser = async ({ firstname, lastname, email, password, role }) => {
     try {
-        //const hashedPassword = await bcrypt.hash(password, 10);
-
         const newUser = await User.create({
             firstname,
             lastname,
@@ -92,7 +96,6 @@ User.createUser = async ({ firstname, lastname, email, password, role }) => {
         throw error;
     }
 };
-
 
 User.updateUser = async (id, updates) => {
     const { firstname, lastname, email, role } = updates;
@@ -116,7 +119,6 @@ User.deleteUser = async (id) => {
         },
     });
 };
-
 
 User.getUserByEmail = async (email) => {
     try {
@@ -145,7 +147,6 @@ User.updateUserByEmail = async (email, updates) => {
     });
 };
 
-
 User.updateUserByToken = async (token, updates) => {
     const updateFields = {};
     if (updates.password !== undefined) updateFields.password = updates.password;
@@ -153,7 +154,6 @@ User.updateUserByToken = async (token, updates) => {
     if (updates.reset_token_expiry !== undefined) {
         const resetTokenExpiryDate = new Date(updates.reset_token_expiry);
         if (!isNaN(resetTokenExpiryDate.getTime())) {
-            console.log(resetTokenExpiryDate);
             updateFields.reset_token_expiry = resetTokenExpiryDate;
         } else {
             throw new Error('Invalid reset_token_expiry date');
@@ -169,6 +169,5 @@ User.updateUserByToken = async (token, updates) => {
         },
     });
 };
-
 
 module.exports = User;

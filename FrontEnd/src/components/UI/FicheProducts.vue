@@ -3,7 +3,7 @@
     <div class="itemsView">
       <div v-for="product in products" :key="product._id" class="productCard">
         <div class="OneProduct">
-          <a :href="'/product/' + product._id" class="productLink">
+          <a :href="'/product/' + encodeBase64(product._id)" class="productLink">
             <div class="imageWrapper">
               <img :src="getImage(product)" :alt="product.name" />
               <div class="heartOverlay" @click.stop="toggleFavorite(product)">
@@ -22,17 +22,16 @@
             </div>
           </a>
           <div class="productDetails">
-            <h2>{{ product.name }}</h2>
+            <a :href="'/product/' + encodeBase64(product._id)" class="productTitleLink">
+              <h2>{{ product.name }}</h2>
+            </a>
             <p class="category">{{ product.category }}</p>
-            <div class="ratings">
-              <span class="stars">⭐⭐⭐⭐⭐</span>
-              <span class="ratingCount">(0)</span>
-            </div>
             <div class="prices">
               <span class="priceNormal">${{ product.price.toFixed(2) }}</span>
             </div>
-            <div class="availability">
-              <span>Livré en un jour</span>
+            <div class="quantity-selector">
+              <label for="quantity">Quantity:</label>
+              <input type="number" v-model.number="quantities[product._id]" min="1" />
             </div>
             <button class="addToCartButton" @click.stop="addToCart(product)">Ajouter au panier</button>
           </div>
@@ -43,23 +42,15 @@
   <Footer />
 </template>
 
+
+
 <script setup lang="ts">
-import { defineProps, ref } from 'vue';
+import { defineProps, ref, onMounted } from 'vue';
 import { useCartStore } from '@/stores/panier';
 import defaultImage from '@/assets/ui_assets/image1.png';
 import type { Product } from "@/stores/products";
+import { encodeBase64 } from '@/utils/encodage';
 
-/*interface Product {
-  _id: string;
-  name: string;
-  description: string;
-  category: string;
-  brand: string;
-  price: number;
-  stock_available: number;
-  status: string;
-  images: string[];
-}*/
 
 const props = defineProps<{
   products: Product[],
@@ -77,6 +68,15 @@ const getImage = (product: Product) => {
 const favorites = ref(new Set<string>());
 const hoverHeart = ref<string | null>(null);
 const cartStore = useCartStore();
+const quantities = ref<Record<string, number>>({});
+
+onMounted(() => {
+  props.products.forEach(product => {
+    if (!quantities.value[product._id]) {
+      quantities.value[product._id] = 1;
+    }
+  });
+});
 
 const toggleFavorite = (product: Product) => {
   if (favorites.value.has(product._id)) {
@@ -93,10 +93,18 @@ const isFavorite = (product: Product) => {
 interface ProductWithImageUrl extends Product {
   imageUrl: string;
 }
+
+const encodeId = (id: string) => {
+  return encodeBase64(id);
+};
+
 const addToCart = (product: Product) => {
   const imageUrl = getImage(product);
   const productWithImageUrl: ProductWithImageUrl = { ...product, imageUrl };
-  cartStore.addToCart(productWithImageUrl);};
+  const quantity = quantities.value[product._id] || 1;
+  console.log('quantité', quantities.value[product._id]);
+  cartStore.addToCart(productWithImageUrl, quantity);
+};
 </script>
 
 <style scoped>
@@ -200,24 +208,6 @@ const addToCart = (product: Product) => {
   margin-bottom: 10px;
 }
 
-.ratings {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 10px;
-}
-
-.stars {
-  color: gold;
-  font-size: 14px;
-}
-
-.ratingCount {
-  font-size: 14px;
-  color: #777;
-  margin-left: 5px;
-}
-
 .prices {
   display: flex;
   align-items: center;
@@ -231,10 +221,26 @@ const addToCart = (product: Product) => {
   color: #000;
 }
 
-.availability {
-  font-size: 14px;
-  color: #23a6f0;
+.quantity-selector {
   margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.quantity-selector label {
+  margin-right: 10px;
+  font-size: 14px;
+  color: #333;
+}
+
+.quantity-selector input {
+  width: 50px;
+  text-align: center;
+  font-size: 14px;
+  padding: 5px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
 }
 
 .addToCartButton {
