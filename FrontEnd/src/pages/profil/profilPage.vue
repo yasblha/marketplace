@@ -43,13 +43,13 @@
       </nav>
     </aside>
     <section class="content">
-      <component :is="currentComponent" />
+      <component :is="currentComponent" :user="user" :addresses="addresses" />
     </section>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed } from 'vue';
 import { useAuthStore } from '@/stores/user';
 import Profile from '@/components/profil/Profile.vue';
 import Orders from '@/components/profil/Commandes.vue';
@@ -76,12 +76,15 @@ const setActiveMenu = (menu: string) => {
 };
 
 const authStore = useAuthStore();
-onMounted(() => {
-  if (authStore.isAuthenticated) {
-    authStore.fetchUser();
-  }
-});
+const user = computed(() => authStore.user);
+
+const addresses = ref([]);
 </script>
+
+<style scoped>
+/* Your styles here */
+</style>
+
 
 <style scoped>
 .profile-page {

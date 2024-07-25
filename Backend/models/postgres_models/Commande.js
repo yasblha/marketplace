@@ -21,6 +21,14 @@ const Order = sequelize.define('Order', {
         type: DataTypes.FLOAT,
         allowNull: false,
     },
+    userId: {
+        type: DataTypes.INTEGER,
+        references: {
+            model: Clients,
+            key: 'id',
+        },
+        allowNull: false,
+    },
     createdAt: {
         type: DataTypes.DATE,
         allowNull: false,

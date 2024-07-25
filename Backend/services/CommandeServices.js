@@ -141,6 +141,21 @@ class OrderService {
 
         return orders;
     }
+
+    static async getOrdersByUserId(userId) {
+        const orders = await Order.findAll({
+            where: { userId },
+            include: { model: OrderDetails }
+        });
+
+        orders.forEach(order => {
+            order.OrderDetails.forEach(detail => {
+                detail.productId = padProductId(detail.productId);
+            });
+        });
+
+        return orders;
+    }
 }
 
 module.exports = OrderService;

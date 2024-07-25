@@ -121,3 +121,27 @@ exports.getProductsFromOrder = async (req, res, next) => {
         next(error);
     }
 };
+
+exports.getOrdersByUserId = async (req, res, next) => {
+    try {
+        const { userId } = req.params;
+        const orders = await OrderService.getOrdersByUserId(userId);
+
+        const detailedOrders = await Promise.all(orders.map(async order => {
+            const detailedProducts = await Promise.all(order.OrderDetails.map(async product => {
+                const productDetails = await ProductService.getProductById(product.productId);
+                return {
+                    productName: product.productName,
+                    unitPrice: product.unitPrice,
+                    quantity: product.quantity,
+                };
+            }));
+            return { ...order.toJSON(), OrderDetails: detailedProducts };
+        }));
+
+        res.status(200).json(detailedOrders);
+    } catch (error) {
+        next(error);
+    }
+};
+

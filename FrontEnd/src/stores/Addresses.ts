@@ -10,7 +10,7 @@ export interface Address {
     postalcode: string;
     department?: string;
     country: string;
-    user_id: number;
+    userid: number;
 }
 
 interface AddressCreateData {
@@ -74,7 +74,7 @@ export const useAddressStore = defineStore('address', () => {
             if (authStore.isAuthenticated) {
                 const response = await axiosInstance.post('/addresses', {
                     ...addressData,
-                    user_id: authStore.user?.id
+                    userid: authStore.user?.id
                 });
                 addresses.value.push(response.data);
             } else {
@@ -116,7 +116,25 @@ export const useAddressStore = defineStore('address', () => {
         }
     };
 
+    const fetchAddressesByUserId = async () => {
+        isLoading.value = true;
+        error.value = null;
+        try {
+            if (authStore.isAuthenticated) {
+                const response = await axiosInstance.get(`/addresses/users/${authStore.user?.id}/addresses`);
+                addresses.value = response.data;
+            } else {
+                error.value = 'User not authenticated';
+            }
+        } catch (err) {
+            error.value = 'Failed to fetch addresses';
+        } finally {
+            isLoading.value = false;
+        }
+    };
+
     return {
+        fetchAddressesByUserId,
         addresses,
         isLoading,
         error,

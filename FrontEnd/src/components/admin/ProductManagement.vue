@@ -1,18 +1,18 @@
 <template>
   <div>
     <button class="add-product-button" @click="showProductModal = true">Add Product</button>
-    <button class="inject-products-button" @click="handleInjectProducts">Inject Products</button> <!-- Bouton d'injection -->
+    <button class="inject-products-button" @click="handleInjectProducts">Inject Products</button>
 
     <Table
         :items="combinedProducts"
         :columns="columns"
         :itemsPerPage="10"
-        :onView="viewProduct"
-        :onEdit="editProduct"
-        :onDelete="deleteProduct"
+        @view="viewProduct"
+        @edit="editProduct"
+        @delete="deleteProduct"
     />
 
-    <Modal v-model="showProductModal" title="Add Product">
+    <Modal v-model="showProductModal" :title="modalTitle">
       <AddProductForm
           :initialData="selectedProduct"
           @product-added="onProductAdded"
@@ -42,23 +42,12 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue';
 import { useProductStore } from '@/stores/products';
+import { useAuthStore } from '@/stores/user';
 
 import Table from '@/components/common/Table.vue';
 import Modal from '@/components/common/Modale.vue';
 import AddProductForm from '@/components/common/AddProductForm.vue';
 import type { Product } from '@/stores/products';
-
-/*interface Product {
-  _id?: string;
-  name: string;
-  description: string;
-  category: string;
-  brand: string;
-  price: number;
-  stock_available: number;
-  status: string;
-  images: string[]; // Add images array
-}*/
 
 interface Column<T> {
   key: keyof T & string;
@@ -67,14 +56,13 @@ interface Column<T> {
 }
 
 const productStore = useProductStore();
+const authStore = useAuthStore();
+
 const showProductModal = ref(false);
 const showProductDetailsModal = ref(false);
 const selectedProduct = ref<Partial<Product> | undefined>(undefined);
 
-const combinedProducts = computed(() => {
-  console.log('Computing combined products:', productStore.products);
-  return productStore.products;
-});
+const combinedProducts = computed(() => productStore.products);
 
 const modalTitle = computed(() => selectedProduct.value ? 'Edit Product' : 'Add Product');
 
@@ -88,10 +76,8 @@ const columns: Column<Product>[] = [
 ];
 
 onMounted(async () => {
-  console.log('Component mounted, fetching products...');
   await productStore.fetchProducts();
-  console.log('Products after fetch:', productStore.products);
-  await useAuthStore.fetchUsers()
+  await authStore.fetchUsers();
 });
 
 watch(() => productStore.products, (newProducts) => {
@@ -100,20 +86,18 @@ watch(() => productStore.products, (newProducts) => {
 
 const getImage = (product: Partial<Product> | undefined) => {
   if (product?.images && product.images.length > 0) {
-    const baseUrl = 'http://localhost:3000'; // Update with your actual base URL
+    const baseUrl = 'http://localhost:3000';
     return `${baseUrl}/${product.images[0]}`;
   }
-  return 'path/to/default/image.jpg'; // Update with your default image path
+  return 'path/to/default/image.jpg';
 };
 
 const viewProduct = (product: Product) => {
-  console.log('Viewing product:', product);
   selectedProduct.value = { ...product };
   showProductDetailsModal.value = true;
 };
 
 const editProduct = (product: Product) => {
-  console.log('Editing product:', product);
   selectedProduct.value = { ...product };
   showProductModal.value = true;
 };
@@ -121,9 +105,7 @@ const editProduct = (product: Product) => {
 const deleteProduct = async (product: Product) => {
   if (confirm('Are you sure you want to delete this product?')) {
     try {
-      console.log('Deleting product:', product);
       await productStore.deleteProduct(product._id ?? '');
-      console.log('Product deleted, refreshing list...');
       await productStore.fetchProducts();
     } catch (error) {
       console.error('Error deleting product:', error);
@@ -141,13 +123,11 @@ const handleInjectProducts = async () => {
 };
 
 const onProductAdded = async () => {
-  console.log('Product added, refreshing list...');
   showProductModal.value = false;
   await productStore.fetchProducts();
 };
 
 const onProductUpdated = async () => {
-  console.log('Product updated, refreshing list...');
   showProductModal.value = false;
   selectedProduct.value = undefined;
   await productStore.fetchProducts();
@@ -155,7 +135,6 @@ const onProductUpdated = async () => {
 </script>
 
 <style scoped>
-/* Styles for ProductManagement.vue */
 .add-product-button,
 .inject-products-button {
   background-color: #007bff;
@@ -177,7 +156,6 @@ const onProductUpdated = async () => {
   background-color: #0056b3;
 }
 
-/* Styles for Product Details Modale */
 .product-details-modal {
   display: flex;
   flex-direction: column;

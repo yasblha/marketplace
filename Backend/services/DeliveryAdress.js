@@ -2,7 +2,7 @@ const DeliveryAddress = require('../models/postgres_models/AdresseLivraison');
 
 class DeliveryAddressService {
     static async createAddress(userId, addressData) {
-        return DeliveryAddress.create({ ...addressData, user_id: userId });
+        return DeliveryAddress.create({ ...addressData, userid: userId });
     }
 
     static async getAddressById(addressId) {
@@ -27,7 +27,7 @@ class DeliveryAddressService {
     }
 
     static async getAddressesByUserId(userId) {
-        return DeliveryAddress.findAll({ where: { user_id: userId } });
+        return DeliveryAddress.findAll({ where: { userid: userId } });
     }
 }
 

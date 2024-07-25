@@ -32,7 +32,7 @@
             <span>Customers</span>
           </a>
         </li>
-        <li @click="setActiveMenu('analytics')" :class="{ 'active': activeMenu === 'analytics' }">
+        <li @click="setActiveMenu('list')" :class="{ 'active': activeMenu === 'list' }">
           <a href="#">
             <i class="fas fa-chart-line"></i>
             <span>Analytics</span>
