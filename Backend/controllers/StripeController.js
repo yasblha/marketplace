@@ -98,23 +98,27 @@ exports.createCheckoutSessionPaypal = async (req, res) => {
  * @returns {void}
  */
 exports.createPaymentIntent = async (req, res) => {
-    const { amount, customer } = req.body;
-  
-    console.log('Request body:', req.body); // Log the request body
-  
-    try {
-      const paymentIntent = await stripe.paymentIntents.create({
-        amount: amount,
-        currency: 'usd',
-        payment_method_types: ['card'],
-        receipt_email: customer.email
-      });
-  
-      console.log('Created PaymentIntent:', paymentIntent); // Log the created PaymentIntent
-  
-      res.json({ clientSecret: paymentIntent.client_secret });
-    } catch (error) {
-      console.error('Error creating payment intent:', error);
-      res.status(500).json({ error: 'Internal Server Error', details: error.message });
-    }
-  };
+  const { amount, customer } = req.body;
+
+  console.log('Request body:', req.body); // Log the request body
+
+  try {
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: amount,
+      currency: 'usd',
+      payment_method_types: ['card'],
+      receipt_email: customer.email,
+      metadata: {
+        success_url: 'http://localhost:5173/paymentSuccess',
+        cancel_url: 'http://localhost:5173/paymentCancel',
+      }
+    });
+
+    console.log('Created PaymentIntent:', paymentIntent); // Log the created PaymentIntent
+
+    res.json({ clientSecret: paymentIntent.client_secret });
+  } catch (error) {
+    console.error('Error creating payment intent:', error);
+    res.status(500).json({ error: 'Internal Server Error', details: error.message });
+  }
+};
