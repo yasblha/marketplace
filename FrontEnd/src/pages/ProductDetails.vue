@@ -1,6 +1,4 @@
 <template>
-  <BarreDeRecherche @search="searchProducts" />
-
   <section class="product-details">
     <div class="product-container" v-if="product">
       <div class="image-section">
@@ -31,6 +29,9 @@
         <button @click="addToCart(product)" class="add-to-cart-button">Add to Cart</button>
         <p class="availability">Availability: {{ product.status === 'available' ? 'In Stock' : 'Out of Stock' }}</p>
         <p class="shipping">Free standard shipping | Free returns</p>
+        <button v-if="product.status === 'out_of_stock'" @click="toggleAlertSubscription" class="subscribe-alert-button">
+          {{ isSubscribed ? 'Unsubscribe from Alert' : 'Subscribe to Alert' }}
+        </button>
       </div>
     </div>
   </section>
@@ -43,10 +44,10 @@ import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useCartStore } from '@/stores/panier';
 import { useProductStore } from '@/stores/products';
+import { useAlertStore } from '@/stores/alert';
+import { useAuthStore } from '@/stores/user';
 import type { Product } from '@/stores/products';
-import { decodeBase64 } from '@/utils/encodage';
 import defaultImage from "@/assets/ui_assets/image1.png";
-import BarreDeRecherche from "@/components/UI/SearchBar.vue";
 import Footer from "@/components/UI/Footer.vue";
 
 interface ProductWithQuantity extends Product {
@@ -54,19 +55,37 @@ interface ProductWithQuantity extends Product {
 }
 
 const route = useRoute();
-const encodedProductId = route.params.id as string;
-const productId = decodeBase64(encodedProductId); // Décodage de l'ID
+const productId = route.params.id as string;
 const product = ref<Product | null>(null);
 const productStore = useProductStore();
 const cartStore = useCartStore();
+const alertStore = useAlertStore();
+const userStore = useAuthStore();
 
 const sizes = ref(['S', 'M', 'L']);
 const selectedSize = ref('M');
 const quantity = ref(1);
+const isSubscribed = ref(false);
 
 const fetchProductById = async (id: string) => {
-  product.value = await productStore.getProductById(id);
-  console.log(product.value);
+  try {
+    product.value = await productStore.getProductById(id);
+    console.log('Product fetched:', product.value);
+    await checkSubscription();
+  } catch (error) {
+    console.error('Error fetching product by ID:', error);
+  }
+};
+
+const checkSubscription = async () => {
+  try {
+    const userId = userStore.user?.id;
+    if (!userId || !productId) return;
+    await alertStore.fetchAlerts();
+    isSubscribed.value = alertStore.alerts.some(alert => alert.productId === productId && alert.alert_type === 'stock');
+  } catch (error) {
+    console.error('Error checking subscription:', error);
+  }
 };
 
 onMounted(async () => {
@@ -74,7 +93,11 @@ onMounted(async () => {
 });
 
 const addToCart = (product: Product) => {
-  cartStore.addToCart(product, quantity.value);
+  const productWithQuantity: ProductWithQuantity = {
+    ...product,
+    quantity: quantity.value,
+  };
+  cartStore.addToCart(productWithQuantity);
 };
 
 const getImage = (product: { images: string[] }) => {
@@ -97,10 +120,32 @@ const decreaseQuantity = () => {
   if (quantity.value > 1) quantity.value--;
 };
 
-const searchProducts = (query: string) => {
-  productStore.searchProducts(query);
+const toggleAlertSubscription = async () => {
+  try {
+    const userId = userStore.user?.id;
+    if (!userId || !productId) return;
+
+    if (isSubscribed.value) {
+      await alertStore.unsubscribeFromAlert(productId);
+      isSubscribed.value = false;
+      alert('You have successfully unsubscribed from the product alert.');
+    } else {
+      await alertStore.subscribeToAlert(productId);
+      isSubscribed.value = true;
+      alert('You have successfully subscribed to the product alert.');
+    }
+  } catch (error) {
+    console.error('Error toggling alert subscription:', error);
+    alert('There was an error toggling the alert subscription.');
+  }
 };
 </script>
+
+
+
+
+
+
 
 <style scoped>
 .product-details {
@@ -118,6 +163,7 @@ const searchProducts = (query: string) => {
   background-color: #fff;
   border-radius: 10px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  color: #000;
 }
 
 .image-section {
