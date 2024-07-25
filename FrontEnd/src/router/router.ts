@@ -19,6 +19,7 @@ import Favorites from '@/pages/Favorites.vue'
 import Payment from '@/pages/Payment.vue'
 import PaymentSuccess from '@/pages/PaymentSuccess.vue'
 import PaymentCancel from '@/pages/PaymentCancel.vue'
+import Newsletter from '@/pages/Newsletters.vue'
 import { decodeBase64 } from '@/utils/encodage'
 
 const routes = [
@@ -132,6 +133,12 @@ const routes = [
     name: 'payment',
     component: Payment
   },
+  {   
+    path: '/newsletter',
+    name: 'Newsletters',
+    component: Newsletter
+
+},
 //   {
 //     path: '/paymentCheckout',
 //     name: 'paymentCheckout',
