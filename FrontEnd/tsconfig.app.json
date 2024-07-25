@@ -1,6 +1,6 @@
 {
   "extends": "@vue/tsconfig/tsconfig.dom.json",
-  "include": ["src/**/*", "tests/**/*.ts", "tests/**/*.tsx"],
+  "include": ["src/**/*", "tests/unit/**/*.ts", "tests/unit/**/*.tsx"],
   "exclude": ["node_modules", "dist"],
   "compilerOptions": {
     "composite": true,
@@ -10,6 +10,7 @@
       "@/*": ["src/*"]
     },
     "types": ["node", "vue", "vue-router", "jest"],
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true
   }
 }

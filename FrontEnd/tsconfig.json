@@ -1,4 +1,9 @@
-{
+{  
+  "compilerOptions": {
+  "esModuleInterop": true,
+  "allowSyntheticDefaultImports": true,
+  // autres options...
+},
   "files": [],
   "references": [
     {
