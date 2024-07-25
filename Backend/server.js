@@ -22,6 +22,7 @@ const FavoriteRoutes = require('./routes/api/FavoriteRoutes');
 const AddressRoutes = require('./routes/api/adresseRoutes');
 const PaymentRoutes = require('./routes/api/PaymentRoutes');
 const ReturnRoutes = require('./routes/api/ReturnsRoutes');
+const stripeRoutes = require('./routes/api/stripeRoutes');
 
 
 const cron = require('node-cron');
@@ -58,6 +59,8 @@ app.use('/api/favorites', FavoriteRoutes);
 app.use('/api/addresses', AddressRoutes);
 app.use('/api/payments', PaymentRoutes);
 app.use('/api/returns', ReturnRoutes);
+app.use('/api/stripe', stripeRoutes);
+
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
