@@ -1,10 +1,14 @@
 <template>
-  <canvas ref="canvas"></canvas>
+  <div>
+    <canvas ref="canvas"></canvas>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { Chart } from 'chart.js';
+import { Chart, BarController, BarElement, CategoryScale, LinearScale, Title } from 'chart.js';
+
+Chart.register(BarController, BarElement, CategoryScale, LinearScale, Title);
 
 const props = defineProps({
   chartData: Object
@@ -13,17 +17,11 @@ const props = defineProps({
 const canvas = ref<HTMLCanvasElement | null>(null);
 
 onMounted(() => {
-  if (canvas.value !== null) {
+  if (canvas.value) {
     new Chart(canvas.value, {
       type: 'bar',
-      data: props.chartData,
+      data: props.chartData
     });
   }
 });
 </script>
-
-<style scoped>
-canvas {
-  max-width: 100%;
-}
-</style>
