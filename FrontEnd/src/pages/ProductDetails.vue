@@ -81,8 +81,8 @@ const checkSubscription = async () => {
   try {
     const userId = userStore.user?.id;
     if (!userId || !productId) return;
-    const alerts = await alertStore.fetchAlerts();
-    isSubscribed.value = alerts.some(alert => alert.productId === productId && alert.alert_type === 'stock');
+    await alertStore.fetchAlerts();
+    isSubscribed.value = alertStore.alerts.some(alert => alert.productId === productId && alert.alert_type === 'stock');
   } catch (error) {
     console.error('Error checking subscription:', error);
   }
@@ -124,7 +124,7 @@ const toggleAlertSubscription = async () => {
   try {
     const userId = userStore.user?.id;
     if (!userId || !productId) return;
-    
+
     if (isSubscribed.value) {
       await alertStore.unsubscribeFromAlert(productId);
       isSubscribed.value = false;
@@ -140,6 +140,7 @@ const toggleAlertSubscription = async () => {
   }
 };
 </script>
+
 
 
 

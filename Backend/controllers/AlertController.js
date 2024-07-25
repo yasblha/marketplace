@@ -5,7 +5,20 @@ const subscribeToAlert = async (req, res) => {
   try {
     const { userId, productId } = req.params;
 
-    // Create a new alert for stock
+    // Vérifiez si l'utilisateur est déjà abonné à cette alerte
+    const existingAlert = await Alert.findOne({
+      where: {
+        userId: userId,
+        productId: productId,
+        alert_type: 'stock',
+      },
+    });
+
+    if (existingAlert) {
+      return res.status(400).json({ error: 'User is already subscribed to this alert' });
+    }
+
+    // Créez une nouvelle alerte pour le stock
     const alert = await Alert.create({
       alert_type: 'stock',
       status: 'active',
@@ -13,8 +26,15 @@ const subscribeToAlert = async (req, res) => {
       userId: userId,
     });
 
+    // // Construisez le payload de l'email
+    // const payload = await PayloadBuilder.build('Product.Restock', userId, productId);
+
+    // // Envoyez l'email
+    // await brevoMailing.sendMail(payload);
+
     res.status(201).json(alert);
   } catch (error) {
+    console.error('Error in subscribeToAlert:', error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -35,6 +55,8 @@ const unsubscribeFromAlert = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
+
+
 };
 
 const subscribeToNewsletter = async (req, res) => {
