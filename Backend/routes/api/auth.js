@@ -16,7 +16,7 @@ router.get('/confirm-email/:token', authControllers.confirmEmail);
 //router.use(authenticateToken);
 
 router.post('/logout', authenticateToken, authControllers.logout);
-//router.get('/me', authControllers.user);
+router.get('/me',authenticateToken, authControllers.user);
 router.get('/users',authenticateToken, authControllers.users);
 
 router.patch('/user/:id', authenticateToken, authControllers.updateUser);

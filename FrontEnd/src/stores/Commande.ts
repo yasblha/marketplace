@@ -53,6 +53,19 @@ export const useOrderStore = defineStore('order', () => {
             isLoading.value = false;
         }
     };
+    const getOrderByUserId = async (userId: number) => {
+        isLoading.value = true;
+        error.value = null;
+        try {
+            const response = await axiosInstance.get(`/orders/user/${userId}`);
+            orders.value = response.data;
+        } catch (err) {
+            error.value = `Échec de la récupération des commandes de l'utilisateur avec l'ID ${userId}`;
+            return null;
+        } finally {
+            isLoading.value = false;
+        }
+    };
 
     const fetchOrderById = async (orderId: number) => {
         isLoading.value = true;
@@ -163,7 +176,9 @@ export const useOrderStore = defineStore('order', () => {
         }
     };
 
+
     return {
+        getOrderByUserId,
         orders,
         isLoading,
         error,

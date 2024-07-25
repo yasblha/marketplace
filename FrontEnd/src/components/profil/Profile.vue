@@ -4,16 +4,20 @@
     <form @submit.prevent="updateProfile">
       <div>
         <label for="name">Nom</label>
-        <input type="text" id="name" v-model="profile.name" />
+        <input type="text" id="name" v-model="profile.firstname" />
+      </div>
+      <div>
+        <label for="name">Nom</label>
+        <input type="text" id="name" v-model="profile.lastname" />
       </div>
       <div>
         <label for="email">Email</label>
         <input type="email" id="email" v-model="profile.email" />
       </div>
-      <div>
+      <!--<div>
         <label for="profile-picture">Photo de Profil</label>
         <input type="file" id="profile-picture" @change="handleProfilePictureChange" />
-      </div>
+      </div>-->
       <button type="submit">Mettre à jour</button>
     </form>
   </div>
@@ -26,13 +30,15 @@ import { useAuthStore } from '@/stores/user';
 const authStore = useAuthStore();
 
 const profile = ref({
-  name: authStore.user?.firstName + ' ' + authStore.user?.lastName || '',
-  email: authStore.user?.email || '',
-  profilePicture: ''
+  firstname: authStore.user?.firstname + ' ' ,
+  lastname: authStore.user?.lastname || '',
+  email: authStore.user?.email || ''
 });
+console.log(profile.value);
 
 watch(() => authStore.user, (newUser) => {
-  profile.value.name = newUser?.firstName + ' ' + newUser?.lastName || '';
+  profile.value.firstname = newUser?.firstName || '';
+  profile.value.lastname = newUser?.lastName || '';
   profile.value.email = newUser?.email || '';
 });
 

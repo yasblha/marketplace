@@ -114,7 +114,8 @@ const handleAddOrderClick = () => {
 };
 
 const viewOrder = async (order: Order) => {
-  selectedOrder.value = await orderStore.fetchOrderById(order.id);
+  selectedOrder.value =   await orderStore.fetchOrderById(order.id);
+  //selectedOrder.value = await orderStore.fetchOrderById(order.id);
   showOrderDetailsModal.value = true;
 };
 

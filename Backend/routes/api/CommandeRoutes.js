@@ -4,6 +4,7 @@ const OrderController = require('../../controllers/CommandeController');
 
 router.post('/', OrderController.createOrder);
 router.get('/', OrderController.getOrders);
+router.get('/user/:userId', OrderController.getOrdersByUserId);
 router.get('/:orderId', OrderController.getOrderById);
 router.put('/:orderId', OrderController.updateOrder);
 router.delete('/:orderId', OrderController.deleteOrder);
