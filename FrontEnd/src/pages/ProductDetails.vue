@@ -29,7 +29,9 @@
         <button @click="addToCart(product)" class="add-to-cart-button">Add to Cart</button>
         <p class="availability">Availability: {{ product.status === 'available' ? 'In Stock' : 'Out of Stock' }}</p>
         <p class="shipping">Free standard shipping | Free returns</p>
-        <button v-if="product.status === 'out_of_stock'" @click="subscribeToAlert(product._id)" class="subscribe-alert-button">Subscribe to Alert</button>
+        <button v-if="product.status === 'out_of_stock'" @click="toggleAlertSubscription" class="subscribe-alert-button">
+          {{ isSubscribed ? 'Unsubscribe from Alert' : 'Subscribe to Alert' }}
+        </button>
       </div>
     </div>
   </section>
@@ -43,6 +45,7 @@ import { useRoute } from 'vue-router';
 import { useCartStore } from '@/stores/panier';
 import { useProductStore } from '@/stores/products';
 import { useAlertStore } from '@/stores/alert';
+import { useAuthStore } from '@/stores/user';
 import type { Product } from '@/stores/products';
 import defaultImage from "@/assets/ui_assets/image1.png";
 import Footer from "@/components/UI/Footer.vue";
@@ -57,17 +60,31 @@ const product = ref<Product | null>(null);
 const productStore = useProductStore();
 const cartStore = useCartStore();
 const alertStore = useAlertStore();
+const userStore = useAuthStore();
 
 const sizes = ref(['S', 'M', 'L']);
 const selectedSize = ref('M');
 const quantity = ref(1);
+const isSubscribed = ref(false);
 
 const fetchProductById = async (id: string) => {
   try {
     product.value = await productStore.getProductById(id);
     console.log('Product fetched:', product.value);
+    await checkSubscription();
   } catch (error) {
     console.error('Error fetching product by ID:', error);
+  }
+};
+
+const checkSubscription = async () => {
+  try {
+    const userId = userStore.user?.id;
+    if (!userId || !productId) return;
+    const alerts = await alertStore.fetchAlerts();
+    isSubscribed.value = alerts.some(alert => alert.productId === productId && alert.alert_type === 'stock');
+  } catch (error) {
+    console.error('Error checking subscription:', error);
   }
 };
 
@@ -103,21 +120,27 @@ const decreaseQuantity = () => {
   if (quantity.value > 1) quantity.value--;
 };
 
-const subscribeToAlert = async (productId: string) => {
+const toggleAlertSubscription = async () => {
   try {
-    console.log('Subscribing to alert for product ID:', productId);
-    if (!productId) {
-      throw new Error('Product ID is undefined');
+    const userId = userStore.user?.id;
+    if (!userId || !productId) return;
+    
+    if (isSubscribed.value) {
+      await alertStore.unsubscribeFromAlert(productId);
+      isSubscribed.value = false;
+      alert('You have successfully unsubscribed from the product alert.');
+    } else {
+      await alertStore.subscribeToAlert(productId);
+      isSubscribed.value = true;
+      alert('You have successfully subscribed to the product alert.');
     }
-    await alertStore.subscribeToAlert(productId);
-    alert('You have successfully subscribed to the product alert.');
   } catch (error) {
-    console.error('Error subscribing to alert:', error);
-    alert('There was an error subscribing to the product alert.');
+    console.error('Error toggling alert subscription:', error);
+    alert('There was an error toggling the alert subscription.');
   }
 };
-
 </script>
+
 
 
 
