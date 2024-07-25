@@ -71,7 +71,7 @@ const BrevoMailing = require('./config/mailing');
 const brevoMailing = new BrevoMailing(process.env.BREVO_API_KEY);
 
 // const testPayload = {
-//     to: [{ email: 'iouahabi1@myges.fr' }],
+//     to: [{ email: 'leonceyopa@gmail.com' }],
 //     templateId: 13, // Using the 'Welcome.newUser' template as an example
 //     params: {
 //       subject: 'Bienvenue sur notre plateforme',

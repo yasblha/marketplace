@@ -3,13 +3,13 @@ const sequelize = require("../../config/postgres");
 const User = require("../postgres_models/UserPg");
 
 
-const Alert = sequelize.define("Alert", {
+const Alert = sequelize.define('Alert', {
   id: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
     primaryKey: true,
   },
-  alert_type: { // stock ou newsletter
+  alert_type: {
     type: DataTypes.STRING,
     allowNull: false,
   },
@@ -18,14 +18,17 @@ const Alert = sequelize.define("Alert", {
     allowNull: false,
   },
   productId: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.STRING, // Assuming productId is a string from MongoDB
     allowNull: false,
   },
   userId: {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
-  
+}, {
+  tableName: 'Alert', // Explicitly specify the table name
+  timestamps: false, // Disable automatic timestamp fields
+
 });
 
 Alert.belongsTo(User, { foreignKey: "userId" });
