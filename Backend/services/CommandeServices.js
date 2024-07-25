@@ -1,41 +1,48 @@
-//const Order = require('../models/postgres_models/Commande');
-//const User = require('../models/postgres_models/UserPg');
-//const OrderDetail = require('../models/postgres_models/DetailsCommande');
-//const Product = require('../models/mongo_models/Product');
-//const sequelize = require('../config/postgres');
+const Order = require('../models/postgres_models/Commande');
+const OrderDetails = require('../models/postgres_models/DetailsCommande');
+const User = require('../models/postgres_models/UserPg');
+const Product = require('../models/mongo_models/Product');
+const sequelize = require('../config/postgres');
+
+const padProductId = (id) => id.toString().padStart(24, '0');
+const removeLeftZeros = (str) => str.toString().replace(/^0+/, '');
 
 class OrderService {
-    static async createOrder(userId, status_order, total_amount, product_ids) {
+    static async createOrder(userId, statusOrder, totalAmount, products) {
         return sequelize.transaction(async (transaction) => {
             const order = await Order.create({
                 userId,
-                status_order,
-                total_amount,
-                product_ids
+                statusOrder,
+                totalAmount,
             }, { transaction });
 
-            for (const productId of product_ids) {
-                const product = await Product.findById(productId);
+            for (const { productId, quantity } of products) {
+                const paddedProductId = padProductId(productId);
+                const product = await Product.findById(paddedProductId);
                 if (!product) {
-                    throw new Error(`Product with ID ${productId} not found`);
+                    throw new Error(`Produit avec l'ID ${productId} non trouvé`);
                 }
 
-                const newStock = product.stock_available - 1; // Assuming each order decreases stock by 1
+                const newStock = product.stock_available - quantity;
                 if (newStock < 0) {
-                    throw new Error(`Not enough stock for product with ID ${productId}`);
+                    throw new Error(`Stock insuffisant pour le produit avec l'ID ${productId}`);
                 }
 
-                await Product.findByIdAndUpdate(productId, { stock_available: newStock }, { new: true });
+                await Product.findByIdAndUpdate(paddedProductId, { stock_available: newStock }, { new: true });
 
-                await OrderDetail.create({
-                    order_id: order.id,
-                    product_id: productId,
-                    quantity: 1, // Assuming a quantity of 1 for each product, adjust as needed
-                    unit_price: product.price
+                await OrderDetails.create({
+                    orderId: order.id,
+                    productId: paddedProductId,
+                    productName: product.name,
+                    productDescription: product.description,
+                    productCategory: product.category,
+                    productBrand: product.brand,
+                    unitPrice: product.price,
+                    quantity,
                 }, { transaction });
             }
 
-            return order;
+            return order.id;
         });
     }
 
@@ -43,18 +50,22 @@ class OrderService {
         const order = await Order.findByPk(orderId, {
             include: [
                 { model: User },
-                {
-                    model: OrderDetail,
-                    include: [Product]
-                }
+                { model: OrderDetails }
             ]
         });
+
+        if (order) {
+            order.OrderDetails.forEach(detail => {
+                detail.productId = padProductId(detail.productId);
+            });
+        }
+
         return order;
     }
 
     static async updateOrder(orderId, updates) {
         const order = await Order.findByPk(orderId);
-        if (!order) throw new Error('Order not found');
+        if (!order) throw new Error('Commande non trouvée');
 
         Object.assign(order, updates);
         await order.save();
@@ -63,27 +74,29 @@ class OrderService {
 
     static async deleteOrder(orderId) {
         const order = await Order.findByPk(orderId);
-        if (!order) throw new Error('Order not found');
+        if (!order) throw new Error('Commande non trouvée');
 
         await order.destroy();
         return order;
     }
 
-    static async addProductToOrder(orderId, productId) {
+    static async addProductToOrder(orderId, productId, quantity) {
         const order = await Order.findByPk(orderId);
-        if (!order) throw new Error('Order not found');
+        if (!order) throw new Error('Commande non trouvée');
 
-        const product = await Product.findById(productId);
-        if (!product) throw new Error('Product not found');
+        const paddedProductId = padProductId(productId);
+        const product = await Product.findById(paddedProductId);
+        if (!product) throw new Error('Produit non trouvé');
 
-        order.product_ids.push(productId);
-        await order.save();
-
-        await OrderDetail.create({
-            order_id: order.id,
-            product_id: productId,
-            quantity: 1, // Assuming a quantity of 1, adjust as needed
-            unit_price: product.price
+        await OrderDetails.create({
+            orderId: order.id,
+            productId: paddedProductId,
+            productName: product.name,
+            productDescription: product.description,
+            productCategory: product.category,
+            productBrand: product.brand,
+            unitPrice: product.price,
+            quantity,
         });
 
         return order;
@@ -91,12 +104,10 @@ class OrderService {
 
     static async removeProductFromOrder(orderId, productId) {
         const order = await Order.findByPk(orderId);
-        if (!order) throw new Error('Order not found');
+        if (!order) throw new Error('Commande non trouvée');
 
-        order.product_ids = order.product_ids.filter(id => id !== productId);
-        await order.save();
-
-        const orderDetail = await OrderDetail.findOne({ where: { order_id: orderId, product_id: productId } });
+        const paddedProductId = padProductId(productId);
+        const orderDetail = await OrderDetails.findOne({ where: { orderId, productId: paddedProductId } });
         if (orderDetail) {
             await orderDetail.destroy();
         }
@@ -106,14 +117,29 @@ class OrderService {
 
     static async getProductsFromOrder(orderId) {
         const order = await Order.findByPk(orderId, {
-            include: {
-                model: OrderDetail,
-                include: [Product]
-            }
+            include: { model: OrderDetails }
         });
-        if (!order) throw new Error('Order not found');
+        if (!order) throw new Error('Commande non trouvée');
+
+        order.OrderDetails.forEach(detail => {
+            detail.productId = removeLeftZeros(detail.productId);
+        });
 
         return order.OrderDetails;
+    }
+
+    static async getOrders() {
+        const orders = await Order.findAll({
+            include: { model: OrderDetails }
+        });
+
+        orders.forEach(order => {
+            order.OrderDetails.forEach(detail => {
+                detail.productId = padProductId(detail.productId);
+            });
+        });
+
+        return orders;
     }
 }
 

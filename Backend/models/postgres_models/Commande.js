@@ -1,7 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../../config/postgres');
-//const User = require('../mongo_models/User');
-const User = require('../postgres_models/UserPg');
+const Clients = require('../postgres_models/UserPg');
 
 const Order = sequelize.define('Order', {
     id: {
@@ -9,25 +8,32 @@ const Order = sequelize.define('Order', {
         autoIncrement: true,
         primaryKey: true,
     },
-    date_order: {
+    dateOrder: {
         type: DataTypes.DATE,
         allowNull: false,
         defaultValue: DataTypes.NOW,
     },
-    status_order: {
+    statusOrder: {
         type: DataTypes.STRING,
         allowNull: false,
     },
-    total_amount: {
+    totalAmount: {
         type: DataTypes.FLOAT,
         allowNull: false,
     },
-    product_ids: {
-        type: DataTypes.ARRAY(DataTypes.INTEGER),
+    createdAt: {
+        type: DataTypes.DATE,
         allowNull: false,
+        defaultValue: DataTypes.NOW,
     },
+    updatedAt: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW,
+    },
+}, {
+    tableName: 'Orders',
 });
 
-Order.belongsTo(User, { foreignKey: 'userId' });
-
+Order.belongsTo(Clients, { foreignKey: 'userId' });
 module.exports = Order;

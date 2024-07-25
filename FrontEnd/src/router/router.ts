@@ -16,6 +16,8 @@ import ProfilPage from "@/pages/profil/profilPage.vue";
 import SearchResult from "@/components/common/SearchResult.vue";
 import Checkout from "@/pages/Checkout.vue";
 import Favorites from "@/pages/Favorites.vue" ;
+import { decodeBase64 } from '@/utils/encodage';
+
 
 
 const routes = [
@@ -82,7 +84,8 @@ const routes = [
         path: '/product/:id',
         name: 'ProductDetails',
         component: ProductDetails,
-        meta: { requiresAuth: false }
+        meta: { requiresAuth: false },
+        props: route => ({ id: decodeBase64(route.params.id as string) }),
     },
     {
         path: '/cart',
@@ -111,6 +114,7 @@ const routes = [
         path: '/checkout',
         name: 'Checkout',
         component: Checkout,
+        props: route => ({ orderId: route.query.orderId })
     }/*{
     path: '/admin',
     name: 'AdminLayout',

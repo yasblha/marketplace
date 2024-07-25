@@ -155,7 +155,7 @@ export const useAuthStore = defineStore('auth', () => {
 
     async function resetPassword(token: string, newPassword: string, newPasswordConfirm: string) {
         try {
-            const response = await axiosInstance.post('auth/reset-password', { token, newPassword, newPasswordConfirm });
+            const response = await axiosInstance.patch('auth/reset-password', { token, newPassword, newPasswordConfirm });
             return response.data;
         } catch (error) {
             throw error;

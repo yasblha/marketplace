@@ -1,90 +1,131 @@
 <template>
-  <form @submit.prevent="handleSubmit">
-    <div>
-      <label for="status_order">Status</label>
-      <input id="status_order" v-model="form.status_order" required />
+  <form @submit.prevent="submitForm">
+    <div class="form-group">
+      <label for="status">Status</label>
+      <select id="status" v-model="formData.status_order" required>
+        <option value="Pending">Pending</option>
+        <option value="Processing">Processing</option>
+        <option value="Shipped">Shipped</option>
+        <option value="Delivered">Delivered</option>
+        <option value="Cancelled">Cancelled</option>
+      </select>
     </div>
-    <div>
-      <label for="total_amount">Total Amount</label>
-      <input id="total_amount" v-model.number="form.total_amount" type="number" required />
+    <div class="form-group">
+      <label for="totalAmount">Total Amount</label>
+      <input type="number" id="totalAmount" v-model="formData.total_amount" required />
     </div>
-    <div>
-      <label for="product_ids">Product IDs</label>
-      <input id="product_ids" v-model="form.product_ids" required />
+    <div class="form-group">
+      <label for="products">Products</label>
+      <textarea id="products" v-model="productsInput" required></textarea>
+      <small>Format: productName (quantity), productName (quantity), ...</small>
     </div>
-    <button type="submit">{{ initialData ? 'Update' : 'Add' }} Order</button>
+    <button type="submit">Submit</button>
   </form>
 </template>
 
 <script setup lang="ts">
-import { defineProps, defineEmits, ref, watch } from 'vue';
-import type { Order } from '@/stores/Commande';
+import { ref, watch } from 'vue';
+import { useOrderStore } from '@/stores/Commande';
+import { useAuthStore } from '@/stores/user';
 
-const props = defineProps<{
-  initialData?: Partial<Order> | null;
-}>();
+interface OrderForm {
+  status_order: string;
+  total_amount: number;
+  products: { productName: string; quantity: number }[];
+}
 
+interface OrderDetail {
+  productName: string;
+  quantity: number;
+}
+
+const props = defineProps<{ initialData?: Partial<OrderForm> }>();
 const emit = defineEmits(['order-added', 'order-updated']);
 
-const form = ref({
+const orderStore = useOrderStore();
+const authStore = useAuthStore();
+
+const formData = ref<OrderForm>({
   status_order: '',
   total_amount: 0,
-  product_ids: [] as number[],
-  userId: 1,
+  products: [],
 });
+
+const productsInput = ref('');
 
 watch(
     () => props.initialData,
     (newData) => {
       if (newData) {
-        form.value = {
-          status_order: newData.status_order || '',
-          total_amount: newData.total_amount || 0,
-          product_ids: newData.product_ids || [],
-          userId: newData.userId || 1,
+        formData.value = {
+          ...formData.value,
+          ...newData,
         };
+        productsInput.value = newData.products?.map(p => `${p.productName} (${p.quantity})`).join(', ') || '';
       }
     },
-    { immediate: true, deep: true }
+    { immediate: true }
 );
 
-const handleSubmit = async () => {
-  if (props.initialData) {
-    await emit('order-updated', form.value);
-  } else {
-    await emit('order-added', form.value);
+const submitForm = async () => {
+  const userId = authStore.user?.id;
+  if (!userId) {
+    console.error('User ID is missing');
+    return;
   }
+
+  formData.value.products = parseProductsInput(productsInput.value);
+
+  if (props.initialData?.id) {
+    await orderStore.updateOrder(props.initialData.id, formData.value);
+    emit('order-updated');
+  } else {
+    await orderStore.createOrder({ ...formData.value, userId });
+    emit('order-added');
+  }
+};
+
+const parseProductsInput = (input: string): OrderDetail[] => {
+  return input.split(',').map(productStr => {
+    const [name, quantityStr] = productStr.trim().split(' (');
+    const quantity = parseInt(quantityStr);
+    return { productName: name.trim(), quantity };
+  });
 };
 </script>
 
 <style scoped>
-form {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+.form-group {
+  margin-bottom: 15px;
 }
 
 label {
+  display: block;
+  margin-bottom: 5px;
   font-weight: bold;
 }
 
-input {
+input, textarea, select {
+  width: 100%;
   padding: 8px;
-  border: 1px solid #ccc;
+  border: 1px solid #ddd;
   border-radius: 4px;
+  box-sizing: border-box;
 }
 
 button {
+  display: block;
+  width: 100%;
   padding: 10px;
-  background-color: #007bff;
-  color: white;
+  background-color: #28a745;
+  color: #fff;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  font-size: 16px;
 }
 
 button:hover {
-  background-color: #0056b3;
+  background-color: #218838;
 }
 </style>

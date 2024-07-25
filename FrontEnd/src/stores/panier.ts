@@ -4,7 +4,6 @@ import { useAuthStore } from '@/stores/user';
 import { useProductStore } from '@/stores/products';
 import axiosInstance from "@/services/api";
 import type { Product } from '@/stores/products';
-import type { User } from '@/stores/user';
 
 type CartProduct = Pick<Product, '_id' | 'name' | 'price' | 'images'> & { quantity: number, reservedUntil?: Date };
 
@@ -70,7 +69,6 @@ export const useCartStore = defineStore('cart', () => {
             }
         }
     };
-
 
     const removeFromCart = async (index: number) => {
         const product = items.value[index];
@@ -167,6 +165,6 @@ export const useCartStore = defineStore('cart', () => {
         saveCart,
         loadCart,
         clearCart,
-        updateCartItemQuantity
+        updateCartItemQuantity,
     };
 });
