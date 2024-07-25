@@ -3,6 +3,7 @@ const express = require('express');
 //bases de données
 const db = require('./config/postgres');
 const mongodb = require('./config/mongodb');
+const BrevoMailing = require('./config/mailing');
 
 const cors = require('cors');
 const bodyParser = require("body-parser");
@@ -107,3 +108,24 @@ process.on("unhandledRejection", err => {
     console.error(`Unhandled Rejection: ${err.message}`);
     server.close(() => process.exit(1));
 });
+const brevoMailing = new BrevoMailing(process.env.BREVO_API_KEY);
+
+// const testPayload = {
+//     to: [{ email: 'leonceyopa@gmail.com' }],
+//     templateId: 13, // Using the 'Welcome.newUser' template as an example
+//     params: {
+//       subject: 'Bienvenue sur notre plateforme',
+//       productName: 'chocolat chaud'
+//     }
+//   };
+ 
+// // Example usage with test payload
+// brevoMailing.sendMail(testPayload)
+//   .then(response => {
+//     console.log('Test email sent successfully:', response);
+//   })
+//   .catch(error => {
+//     console.error('Error sending test email:', error);
+//   });
+
+module.exports = brevoMailing;
