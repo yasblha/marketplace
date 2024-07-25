@@ -1,3 +1,5 @@
+import { env } from 'process'
+
 /* eslint-env node */
 require('@rushstack/eslint-patch/modern-module-resolution')
 
@@ -11,5 +13,9 @@ module.exports = {
   ],
   parserOptions: {
     ecmaVersion: 'latest'
-  }
+  },
+  env: {
+    node: true,
+    'jest/global': true
+  },
 }
