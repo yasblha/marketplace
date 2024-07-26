@@ -6,20 +6,20 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { Chart, BarController, BarElement, CategoryScale, LinearScale, Title } from 'chart.js';
+import { Chart, LineController, LineElement, PointElement, LinearScale, CategoryScale, Title } from 'chart.js';
 
-Chart.register(BarController, BarElement, CategoryScale, LinearScale, Title);
+Chart.register(LineController, LineElement, PointElement, LinearScale, CategoryScale, Title);
 
-const props = defineProps({
-  chartData: Object
-});
+const props = defineProps<{
+  chartData: any;
+}>();
 
 const canvas = ref<HTMLCanvasElement | null>(null);
 
 onMounted(() => {
   if (canvas.value) {
-    new Chart(canvas.value, {
-      type: 'bar',
+    new Chart(canvas.value as HTMLCanvasElement, {
+      type: 'line',
       data: props.chartData
     });
   }

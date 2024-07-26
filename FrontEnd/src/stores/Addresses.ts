@@ -8,7 +8,7 @@ export interface Address {
     address: string;
     city: string;
     postalcode: string;
-    department?: string;
+    department: string | null;
     country: string;
     userid: number;
 }
@@ -17,15 +17,16 @@ interface AddressCreateData {
     address: string;
     city: string;
     postalcode: string;
-    department?: string;
+    department?: string | null;
     country: string;
+    userId: number;
 }
 
 interface AddressUpdateData {
     address?: string;
     city?: string;
     postalcode?: string;
-    department?: string;
+    department?: string | null;
     country?: string;
 }
 
@@ -72,10 +73,7 @@ export const useAddressStore = defineStore('address', () => {
         error.value = null;
         try {
             if (authStore.isAuthenticated) {
-                const response = await axiosInstance.post('/addresses', {
-                    ...addressData,
-                    userid: authStore.user?.id
-                });
+                const response = await axiosInstance.post('/addresses', addressData);
                 addresses.value.push(response.data);
             } else {
                 error.value = 'User not authenticated';
@@ -123,6 +121,7 @@ export const useAddressStore = defineStore('address', () => {
             if (authStore.isAuthenticated) {
                 const response = await axiosInstance.get(`/addresses/users/${authStore.user?.id}/addresses`);
                 addresses.value = response.data;
+                return addresses.value;
             } else {
                 error.value = 'User not authenticated';
             }

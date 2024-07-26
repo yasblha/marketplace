@@ -55,7 +55,7 @@ const nextStep = async () => {
         city: shippingInfo.value.city,
         postalcode: shippingInfo.value.postalCode,
         country: shippingInfo.value.country,
-        userid: userId
+        userId: userId
       });
       emit('next-step', 'ShippingOptions');
     } else {
@@ -75,8 +75,8 @@ const nextStep = async () => {
   padding: 20px;
   background-color: #f9f9f9;
   display: flex;
-  justify-content: center;
-  align-items: center;
+  justify-content: flex-start; /* Aligne les éléments en haut */
+  align-items: flex-start; /* Aligne les éléments en haut */
   min-height: 80vh;
 }
 
@@ -87,6 +87,7 @@ const nextStep = async () => {
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  margin-top: 20px; /* Ajouter un espace en haut pour éloigner du bord */
 }
 
 h2 {
@@ -104,7 +105,7 @@ h2 {
 label {
   display: block;
   margin-bottom: 5px;
-  font-weight: 600;
+  font-weight: bold;
   font-family: 'Montserrat', sans-serif;
   color: #555;
 }

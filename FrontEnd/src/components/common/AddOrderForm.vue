@@ -17,7 +17,7 @@
     <div class="form-group">
       <label for="products">Products</label>
       <textarea id="products" v-model="productsInput" required></textarea>
-      <small>Format: productName (quantity), productName (quantity), ...</small>
+      <small>Format: productId (quantity), productId (quantity), ...</small>
     </div>
     <button type="submit">Submit</button>
   </form>
@@ -31,15 +31,21 @@ import { useAuthStore } from '@/stores/user';
 interface OrderForm {
   status_order: string;
   total_amount: number;
-  products: { productName: string; quantity: number }[];
+  products: { productId: string; quantity: number }[];
 }
 
 interface OrderDetail {
-  productName: string;
+  productId: string;
   quantity: number;
 }
 
-const props = defineProps<{ initialData?: Partial<OrderForm> }>();
+interface OrderCreateData extends OrderForm {
+  userId: number;
+  statusOrder: string; // Ensure this is included
+  totalAmount: number; // Ensure this is included
+}
+
+const props = defineProps<{ initialData?: Partial<OrderForm & { id?: number }> }>();
 const emit = defineEmits(['order-added', 'order-updated']);
 
 const orderStore = useOrderStore();
@@ -61,7 +67,7 @@ watch(
           ...formData.value,
           ...newData,
         };
-        productsInput.value = newData.products?.map(p => `${p.productName} (${p.quantity})`).join(', ') || '';
+        productsInput.value = newData.products?.map(p => `${p.productId} (${p.quantity})`).join(', ') || '';
       }
     },
     { immediate: true }
@@ -80,16 +86,22 @@ const submitForm = async () => {
     await orderStore.updateOrder(props.initialData.id, formData.value);
     emit('order-updated');
   } else {
-    await orderStore.createOrder({ ...formData.value, userId });
+    const orderData: OrderCreateData = {
+      ...formData.value,
+      userId,
+      statusOrder: formData.value.status_order,
+      totalAmount: formData.value.total_amount
+    };
+    await orderStore.createOrder(orderData);
     emit('order-added');
   }
 };
 
 const parseProductsInput = (input: string): OrderDetail[] => {
   return input.split(',').map(productStr => {
-    const [name, quantityStr] = productStr.trim().split(' (');
+    const [id, quantityStr] = productStr.trim().split(' (');
     const quantity = parseInt(quantityStr);
-    return { productName: name.trim(), quantity };
+    return { productId: id.trim(), quantity };
   });
 };
 </script>

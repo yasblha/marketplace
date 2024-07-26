@@ -95,13 +95,15 @@
   <Footer />
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from 'vue';
+//import {useAuthStore} from "@/stores/user.js";
 import { useCartStore } from '@/stores/panier';
 import { useOrderStore } from '@/stores/Commande';
 import { useRouter } from 'vue-router';
 import defaultImage from "@/assets/ui_assets/image1.png";
 import Modal from '@/components/common/Modale.vue';
+import { useAuthStore } from "@/stores/user";
 
 const cartStore = useCartStore();
 const orderStore = useOrderStore();
@@ -130,20 +132,35 @@ const checkout = async () => {
     return;
   }
 
+  const authUser = useAuthStore();
+
   try {
     const { subtotal } = cartStore.calculateTotals();
-    const userId = cartStore.isAuthenticated ? cartStore.authStore.user.id : null;
+    //const userId = cartStore.isAuthenticated ? cartStore.user : null;
+    //const userId = cartStore.isAuthenticated ? cartStore.user : null;
+    const userId = ref<number | null>(authUser.user?.id || null);
+
+    console.log(userId.value);
+
+   // const userId = cartStore.user ;
     const products = cartStore.items.map(item => ({
       productId: item._id,
       quantity: item.quantity
     }));
 
     const response = await orderStore.createOrder({
-      userId,
+      userId: userId.value,
       statusOrder: 'Pending Validation',
       totalAmount: subtotal,
       products
     });
+
+    console.log(userId.value)
+
+    if (userId.value == null) {
+      console.error("User ID is missing");
+      return;
+    }
 
     const orderId = response;
     console.log(orderId);

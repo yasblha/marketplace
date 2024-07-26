@@ -29,7 +29,7 @@ const cartStore = useCartStore();
 const shippingMethod = ref('standard');
 
 const cartTotal = computed(() => {
-  return cartStore.total;
+  return cartStore.cartTotal;
 });
 
 onMounted(() => {

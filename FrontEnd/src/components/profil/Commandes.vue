@@ -95,13 +95,14 @@ const fetchUserOrders = async () => {
     return;
   }
 
-  console.log(userId);
-
   isLoading.value = true;
   error.value = null;
   try {
     await orderStore.getOrderByUserId(userId.value);
-    orders.value = orderStore.orders;
+    orders.value = orderStore.orders.map(order => ({
+      ...order,
+      dateOrder: new Date(order.dateOrder).toISOString()
+    }));
   } catch {
     error.value = 'Échec de la récupération des commandes';
   } finally {
@@ -113,10 +114,12 @@ const viewOrderDetails = async (orderId: number) => {
   try {
     isLoading.value = true;
     error.value = null;
-    console.log(orderId);
     const order = await orderStore.fetchOrderById(orderId);
     if (order) {
-      selectedOrder.value = order;
+      selectedOrder.value = {
+        ...order,
+        dateOrder: new Date(order.dateOrder).toISOString()
+      };
       showOrderDetailsModal.value = true;
     } else {
       error.value = `Commande avec l'ID ${orderId} non trouvée`;

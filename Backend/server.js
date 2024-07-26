@@ -9,6 +9,7 @@ const bodyParser = require("body-parser");
 const credentials = require('./middleware/credentials');
 const errorHandler = require('./middleware/error_handler');
 const { geocodeAddress } = require('./utils/geocodeService');
+const stripeRoutes = require('./routes/StripeController');
 
 
 //routes
@@ -58,6 +59,8 @@ app.use('/api/favorites', FavoriteRoutes);
 app.use('/api/addresses', AddressRoutes);
 app.use('/api/payments', PaymentRoutes);
 app.use('/api/returns', ReturnRoutes);
+app.use('/stripe', stripeRoutes);
+
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 

@@ -3,21 +3,23 @@
     <h2>Mon Profil</h2>
     <form @submit.prevent="updateProfile">
       <div>
-        <label for="name">Nom</label>
-        <input type="text" id="name" v-model="profile.firstname" />
+        <label for="firstName">Prénom</label>
+        <input type="text" id="firstName" v-model="profile.firstName" />
       </div>
       <div>
-        <label for="name">Nom</label>
-        <input type="text" id="name" v-model="profile.lastname" />
+        <label for="lastName">Nom</label>
+        <input type="text" id="lastName" v-model="profile.lastName" />
       </div>
       <div>
         <label for="email">Email</label>
         <input type="email" id="email" v-model="profile.email" />
       </div>
-      <!--<div>
+      <!--
+      <div>
         <label for="profile-picture">Photo de Profil</label>
         <input type="file" id="profile-picture" @change="handleProfilePictureChange" />
-      </div>-->
+      </div>
+      -->
       <button type="submit">Mettre à jour</button>
     </form>
   </div>
@@ -30,38 +32,36 @@ import { useAuthStore } from '@/stores/user';
 const authStore = useAuthStore();
 
 const profile = ref({
-  firstname: authStore.user?.firstname + ' ' ,
-  lastname: authStore.user?.lastname || '',
+  firstName: authStore.user?.firstName || '',
+  lastName: authStore.user?.lastName || '',
   email: authStore.user?.email || ''
 });
-console.log(profile.value);
 
 watch(() => authStore.user, (newUser) => {
-  profile.value.firstname = newUser?.firstName || '';
-  profile.value.lastname = newUser?.lastName || '';
+  profile.value.firstName = newUser?.firstName || '';
+  profile.value.lastName = newUser?.lastName || '';
   profile.value.email = newUser?.email || '';
 });
 
 const updateProfile = () => {
-  const [firstName, lastName] = profile.value.name.split(' ');
   authStore.updateProfile({
-    firstName,
-    lastName,
+    firstName: profile.value.firstName,
+    lastName: profile.value.lastName,
     email: profile.value.email,
-    profilePicture: profile.value.profilePicture
+    // profilePicture: profile.value.profilePicture
   });
 };
 
-const handleProfilePictureChange = (event: Event) => {
-  const file = (event.target as HTMLInputElement).files?.[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = () => {
-      profile.value.profilePicture = reader.result as string;
-    };
-    reader.readAsDataURL(file);
-  }
-};
+// const handleProfilePictureChange = (event: Event) => {
+//   const file = (event.target as HTMLInputElement).files?.[0];
+//   if (file) {
+//     const reader = new FileReader();
+//     reader.onload = () => {
+//       profile.value.profilePicture = reader.result as string;
+//     };
+//     reader.readAsDataURL(file);
+//   }
+// };
 </script>
 
 <style scoped>

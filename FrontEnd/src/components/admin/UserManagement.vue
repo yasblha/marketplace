@@ -6,23 +6,29 @@
         :items="users"
         :columns="columns"
         :itemsPerPage="10"
-        :onView="viewUser"
-        :onEdit="editUser"
-        :onDelete="deleteUser"
+        @view="viewUser"
+        @edit="editUser"
+        @delete="deleteUser"
     />
 
     <Modal v-model="showUserModal" :title="modalTitle">
       <UserForm
-          :initialData="selectedUser"
+          :initialData="selectedUser || undefined"
           @user-added="onUserAdded"
           @user-updated="onUserUpdated"
       />
     </Modal>
 
-    <Modal v-if="showUserDetailsModal" v-model="showUserDetailsModal" :title="selectedUser?.firstName + ' ' + selectedUser?.lastName">
+    <Modal
+        v-if="showUserDetailsModal"
+        v-model="showUserDetailsModal"
+        :title="selectedUser?.firstName + ' ' + selectedUser?.lastName"
+    >
       <div class="user-details-modal">
         <div class="info-section">
-          <h3 class="user-details-title">{{ selectedUser?.firstName }} {{ selectedUser?.lastName }}</h3>
+          <h3 class="user-details-title">
+            {{ selectedUser?.firstName }} {{ selectedUser?.lastName }}
+          </h3>
           <p><strong>Email:</strong> {{ selectedUser?.email }}</p>
           <p><strong>Role:</strong> {{ selectedUser?.role }}</p>
         </div>
@@ -59,13 +65,13 @@ const selectedUser = ref<Partial<User> | null>(null);
 
 const users = ref<User[]>([]);
 const columns: Column<User>[] = [
-  { key: 'firstname', label: 'First Name', searchable: true },
-  { key: 'lastname', label: 'Last Name', searchable: true },
+  { key: 'firstName', label: 'First Name', searchable: true },
+  { key: 'lastName', label: 'Last Name', searchable: true },
   { key: 'email', label: 'Email', searchable: true },
   { key: 'role', label: 'Role' }
 ];
 
-const modalTitle = computed(() => selectedUser.value ? 'Edit User' : 'Add User');
+const modalTitle = computed(() => (selectedUser.value ? 'Edit User' : 'Add User'));
 
 const fetchUsers = async () => {
   try {

@@ -13,7 +13,7 @@ export const useCartStore = defineStore('cart', () => {
     const productStore = useProductStore();
 
     const isAuthenticated = computed(() => authStore.isAuthenticated);
-
+    console.log('isAuthenticated', isAuthenticated.value);
     const addToCart = async (product: Pick<Product, '_id' | 'name' | 'price' | 'images'>, quantity: number = 1) => {
         const existingItem = items.value.find(item => item._id === product._id);
         if (existingItem) {
@@ -96,6 +96,10 @@ export const useCartStore = defineStore('cart', () => {
         );
     };
 
+    const cartTotal = computed(() => {
+        return items.value.reduce((total, item) => total + item.price * item.quantity, 0);
+    });
+
     const saveCart = () => {
         localStorage.setItem('cartItems', JSON.stringify(items.value));
     };
@@ -166,5 +170,6 @@ export const useCartStore = defineStore('cart', () => {
         loadCart,
         clearCart,
         updateCartItemQuantity,
+        cartTotal,
     };
 });

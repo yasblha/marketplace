@@ -20,6 +20,13 @@ interface RegisterData {
     password_confirm: string;
 }
 
+interface ProfileData {
+    email?: string;
+    firstName?: string;
+    lastName?: string;
+    // Ajoutez d'autres champs selon les besoins
+}
+
 export const useAuthStore = defineStore('auth', () => {
     const user = ref<User | null>(null);
     const token = ref<string | null>(null);
@@ -189,7 +196,7 @@ export const useAuthStore = defineStore('auth', () => {
         }
     }
 
-    async function updateProfile(profileData) {
+    async function updateProfile(profileData: ProfileData) {
         try {
             const response = await axiosInstance.patch(`/auth/user/${user.value?.id}`, profileData);
             user.value = response.data.user;
@@ -198,7 +205,7 @@ export const useAuthStore = defineStore('auth', () => {
         }
     }
 
-    async function updatePassword(currentPassword, newPassword) {
+    async function updatePassword(currentPassword: string, newPassword: string) {
         try {
             const response = await axiosInstance.patch(`/auth/user/${user.value?.id}`, { password: newPassword });
             return response.data;

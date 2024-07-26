@@ -13,7 +13,7 @@
 
     <Modal v-model="showOrderModal" :title="modalTitle">
       <AddOrderForm
-          :initialData="selectedOrder"
+          :initialData="selectedOrder || undefined"
           @order-added="onOrderAdded"
           @order-updated="onOrderUpdated"
       />
@@ -25,7 +25,8 @@
           <h3 class="order-details-title">Order Details</h3>
           <p><strong>Date:</strong> {{ selectedOrder?.dateOrder }}</p>
           <p><strong>Status:</strong> {{ selectedOrder?.statusOrder }}</p>
-          <p><strong>Total Amount:</strong> {{ selectedOrder?.totalAmount }}</p>
+          <p><strong>Total Amount:</strong> {{ selectedOrder?.totalAmount }} €</p>
+          <p><strong>Customer Name:</strong> {{ selectedOrder?.User.firstname }} {{ selectedOrder?.User.lastname }}</p>
           <p><strong>Products:</strong></p>
           <table class="product-table">
             <thead>
@@ -33,16 +34,19 @@
               <th>Product Name</th>
               <th>Unit Price</th>
               <th>Quantity</th>
+              <th>Total</th>
             </tr>
             </thead>
             <tbody>
             <tr v-for="product in selectedOrder?.OrderDetails" :key="product.productName">
               <td>{{ product.productName }}</td>
-              <td>{{ product.unitPrice }}</td>
+              <td>{{ product.unitPrice }} €</td>
               <td>{{ product.quantity }}</td>
+              <td>{{ (product.unitPrice * product.quantity).toFixed(2) }} €</td>
             </tr>
             </tbody>
           </table>
+          <button @click="downloadInvoice" class="download-button">Download Invoice</button>
         </div>
       </div>
     </Modal>
@@ -53,8 +57,37 @@
         <button @click="closeErrorModal">OK</button>
       </div>
     </Modal>
+
+    <!-- Hidden invoice template for printing -->
+    <div id="invoice-template" class="invoice-template" ref="invoiceTemplate" style="display: none;">
+      <h1>Invoice</h1>
+      <p><strong>Order ID:</strong> {{ selectedOrder?.id }}</p>
+      <p><strong>Date:</strong> {{ selectedOrder?.dateOrder }}</p>
+      <p><strong>Status:</strong> {{ selectedOrder?.statusOrder }}</p>
+      <p><strong>Total Amount:</strong> {{ selectedOrder?.totalAmount }} €</p>
+      <p><strong>Customer Name:</strong> {{ selectedOrder?.User.firstname }} {{ selectedOrder?.User.lastname }}</p>
+      <table class="invoice-table">
+        <thead>
+        <tr>
+          <th>Product Name</th>
+          <th>Unit Price</th>
+          <th>Quantity</th>
+          <th>Total</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="product in selectedOrder?.OrderDetails" :key="product.productName">
+          <td>{{ product.productName }}</td>
+          <td>{{ product.unitPrice }} €</td>
+          <td>{{ product.quantity }}</td>
+          <td>{{ (product.unitPrice * product.quantity).toFixed(2) }} €</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </template>
+
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
@@ -63,6 +96,7 @@ import { useCartStore } from '@/stores/panier';
 import Table from '@/components/common/Table.vue';
 import Modal from '@/components/common/Modale.vue';
 import AddOrderForm from '@/components/common/AddOrderForm.vue';
+import jsPDF from 'jspdf';
 
 interface Order {
   id: number;
@@ -74,6 +108,10 @@ interface Order {
     unitPrice: number;
     quantity: number;
   }[];
+  User: {
+    firstname: string;
+    lastname: string;
+  };
   userId: number;
 }
 
@@ -114,8 +152,7 @@ const handleAddOrderClick = () => {
 };
 
 const viewOrder = async (order: Order) => {
-  selectedOrder.value =   await orderStore.fetchOrderById(order.id);
-  //selectedOrder.value = await orderStore.fetchOrderById(order.id);
+  selectedOrder.value = await orderStore.fetchOrderById(order.id);
   showOrderDetailsModal.value = true;
 };
 
@@ -149,7 +186,40 @@ const onOrderUpdated = async () => {
 const closeErrorModal = () => {
   showErrorModal.value = false;
 };
+
+const downloadInvoice = () => {
+  const doc = new jsPDF();
+  const order = selectedOrder.value;
+  if (!order) return;
+
+  doc.setFontSize(20);
+  doc.text("Invoice", 20, 20);
+
+  doc.setFontSize(12);
+  doc.text(`Order ID: ${order.id}`, 20, 30);
+  doc.text(`Date: ${order.dateOrder}`, 20, 40);
+  doc.text(`Status: ${order.statusOrder}`, 20, 50);
+  doc.text(`Total Amount: ${order.totalAmount} €`, 20, 60);
+  doc.text(`Customer Name: ${order.User.firstname} ${order.User.lastname}`, 20, 70);
+
+  const startY = 80;
+  const lineSpacing = 10;
+
+  doc.text("Products:", 20, startY);
+  let currentY = startY + lineSpacing;
+
+  order.OrderDetails.forEach(product => {
+    doc.text(`Product Name: ${product.productName}`, 20, currentY);
+    doc.text(`Unit Price: ${product.unitPrice} €`, 20, currentY + lineSpacing);
+    doc.text(`Quantity: ${product.quantity}`, 20, currentY + 2 * lineSpacing);
+    doc.text(`Total: ${(product.unitPrice * product.quantity).toFixed(2)} €`, 20, currentY + 3 * lineSpacing);
+    currentY += 4 * lineSpacing;
+  });
+
+  doc.save(`invoice_${order.id}.pdf`);
+};
 </script>
+
 
 <style scoped>
 .add-order-button {
@@ -231,26 +301,65 @@ const closeErrorModal = () => {
   background-color: #ddd;
 }
 
-.error-modal {
-  text-align: center;
-  padding: 20px;
-}
-
-.error-modal p {
-  margin-bottom: 20px;
-}
-
-.error-modal button {
-  background-color: #007bff;
+.download-button {
+  background-color: #28a745;
   color: white;
   border: none;
   padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 10px 0;
   cursor: pointer;
   border-radius: 5px;
   transition: background-color 0.3s;
 }
 
-.error-modal button:hover {
-  background-color: #0056b3;
+.download-button:hover {
+  background-color: #218838;
+}
+
+.invoice-template {
+  width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.invoice-template h1 {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.invoice-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.invoice-table th, .invoice-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.invoice-table th {
+  background-color: #f2f2f2;
+  color: #333;
+}
+
+.invoice-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.invoice-table tr:hover {
+  background-color: #ddd;
 }
 </style>

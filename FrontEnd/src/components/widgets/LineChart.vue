@@ -10,15 +10,15 @@ import { Chart, LineController, LineElement, PointElement, LinearScale, Category
 
 Chart.register(LineController, LineElement, PointElement, LinearScale, CategoryScale, Title);
 
-const props = defineProps({
-  chartData: Object
-});
+const props = defineProps<{
+  chartData: any;
+}>();
 
 const canvas = ref<HTMLCanvasElement | null>(null);
 
 onMounted(() => {
   if (canvas.value) {
-    new Chart(canvas.value, {
+    new Chart(canvas.value as HTMLCanvasElement, {
       type: 'line',
       data: props.chartData
     });

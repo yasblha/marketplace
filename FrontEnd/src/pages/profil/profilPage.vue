@@ -50,6 +50,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
+import type { DefineComponent } from 'vue';
 import { useAuthStore } from '@/stores/user';
 import Profile from '@/components/profil/Profile.vue';
 import Orders from '@/components/profil/Commandes.vue';
@@ -58,15 +59,35 @@ import Security from '@/components/profil/Security.vue';
 import Addresses from '@/components/profil/Adresses.vue';
 import Preferences from '@/components/profil/Preferences.vue';
 
+interface User {
+  id: number;
+}
+
+interface Address {
+  id: number;
+  address: string;
+  city: string;
+  postalcode: string;
+  department: string | null;
+  country: string;
+}
+
+const ProfileComponent = Profile as DefineComponent<{ user: User | null; addresses: Address[] }>;
+const OrdersComponent = Orders as DefineComponent<{ user: User | null; addresses: Address[] }>;
+const PaymentMethodsComponent = PaymentMethods as DefineComponent<{ user: User | null; addresses: Address[] }>;
+const SecurityComponent = Security as DefineComponent<{ user: User | null; addresses: Address[] }>;
+const AddressesComponent = Addresses as DefineComponent<{ user: User | null; addresses: Address[] }>;
+const PreferencesComponent = Preferences as DefineComponent<{ user: User | null; addresses: Address[] }>;
+
 const currentTab = ref('profile');
 
-const componentsMap = {
-  profile: Profile,
-  orders: Orders,
-  'payment-methods': PaymentMethods,
-  addresses: Addresses,
-  security: Security,
-  preferences: Preferences,
+const componentsMap: Record<string, DefineComponent<{ user: User | null; addresses: Address[] }>> = {
+  profile: ProfileComponent,
+  orders: OrdersComponent,
+  'payment-methods': PaymentMethodsComponent,
+  addresses: AddressesComponent,
+  security: SecurityComponent,
+  preferences: PreferencesComponent,
 };
 
 const currentComponent = computed(() => componentsMap[currentTab.value]);
@@ -78,13 +99,8 @@ const setActiveMenu = (menu: string) => {
 const authStore = useAuthStore();
 const user = computed(() => authStore.user);
 
-const addresses = ref([]);
+const addresses = ref<Address[]>([]);
 </script>
-
-<style scoped>
-/* Your styles here */
-</style>
-
 
 <style scoped>
 .profile-page {

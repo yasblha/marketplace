@@ -81,16 +81,11 @@ export const useOrderStore = defineStore('order', () => {
         }
     };
 
-    const createOrder = async (orderData: Omit<OrderCreateData, 'userId'>) => {
+    const createOrder = async (orderData: OrderCreateData) => {
         isLoading.value = true;
         error.value = null;
         try {
-            // Ajoutez le userId à orderData
-            const data: OrderCreateData = {
-                ...orderData,
-                userId: authStore.user?.id || 0,
-            };
-            const response = await axiosInstance.post('/orders', data);
+            const response = await axiosInstance.post('/orders', orderData);
             orders.value.push(response.data);
             console.log(response.data);
             return response.data
@@ -175,7 +170,6 @@ export const useOrderStore = defineStore('order', () => {
             isLoading.value = false;
         }
     };
-
 
     return {
         getOrderByUserId,

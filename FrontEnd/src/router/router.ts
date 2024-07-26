@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
+import type { RouteRecordRaw, RouteLocationNormalized } from 'vue-router';
 import { useAuthStore } from '@/stores/user';
 
 import Register from '../pages/Register.vue';
@@ -15,12 +16,10 @@ import NotFound from "@/pages/NotFound.vue";
 import ProfilPage from "@/pages/profil/profilPage.vue";
 import SearchResult from "@/components/common/SearchResult.vue";
 import Checkout from "@/pages/Checkout.vue";
-import Favorites from "@/pages/Favorites.vue" ;
+import Favorites from "@/pages/Favorites.vue";
 import { decodeBase64 } from '@/utils/encodage';
 
-
-
-const routes = [
+const routes: Array<RouteRecordRaw> = [
     {
         path: '/register',
         name: 'Register',
@@ -85,7 +84,7 @@ const routes = [
         name: 'ProductDetails',
         component: ProductDetails,
         meta: { requiresAuth: false },
-        props: route => ({ id: decodeBase64(route.params.id as string) }),
+        props: (route: RouteLocationNormalized) => ({ id: decodeBase64(route.params.id as string) }),
     },
     {
         path: '/cart',
@@ -108,25 +107,13 @@ const routes = [
         path: '/favorites',
         name: 'Favorites',
         component: Favorites,
-
     },
     {
         path: '/checkout',
         name: 'Checkout',
         component: Checkout,
-        props: route => ({ orderId: route.query.orderId })
-    }/*{
-    path: '/admin',
-    name: 'AdminLayout',
-    component: AdminLayout,
-    children: [
-      { path: 'products', name: 'ProductManagement', component: ProductManagement },
-      { path: 'users', name: 'UserManagement', component: UserManagement },
-      { path: 'orders', name: 'OrderManagement', component: OrderManagement },
-      { path: 'list', name: 'ListItems', component: ListItems },
-    ],
-  },*/
-
+        props: (route: RouteLocationNormalized) => ({ orderId: route.query.orderId })
+    }
 ];
 
 const router = createRouter({

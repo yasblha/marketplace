@@ -65,7 +65,7 @@ const addressForm = ref({
   address: '',
   city: '',
   postalcode: '',
-  department: '',
+  department: null,
   country: ''
 });
 
@@ -76,8 +76,8 @@ const fetchAddresses = async () => {
   error.value = null;
   try {
     if (props.user) {
-      const fetchedAddresses = await addressStore.fetchAddressesByUserId(props.user.id);
-      addresses.value = fetchedAddresses;
+      const fetchedAddresses = await addressStore.fetchAddressesByUserId();
+      addresses.value = fetchedAddresses ?? [];
     }
   } catch (err) {
     error.value = 'Échec de la récupération des adresses';
@@ -102,13 +102,20 @@ const editAddress = async (addressId: number) => {
 };
 
 const saveAddress = async () => {
-  if (addressForm.value.id) {
-    await addressStore.updateAddress(addressForm.value.id, addressForm.value);
+  if (props.user) {
+    if (addressForm.value.id) {
+      await addressStore.updateAddress(addressForm.value.id, addressForm.value);
+    } else {
+      await addressStore.createAddress({
+        ...addressForm.value,
+        userId: props.user.id // Ensure userId is included
+      });
+    }
+    showAddressModal.value = false;
+    fetchAddresses();
   } else {
-    await addressStore.createAddress(addressForm.value);
+    error.value = 'User not authenticated';
   }
-  showAddressModal.value = false;
-  fetchAddresses();
 };
 
 const removeAddress = async (addressId: number) => {
@@ -124,7 +131,7 @@ const resetForm = () => {
     address: '',
     city: '',
     postalcode: '',
-    department: '',
+    department: null, // Initialize department as null
     country: ''
   };
 };
