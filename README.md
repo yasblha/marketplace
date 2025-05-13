@@ -165,5 +165,5 @@ docs/{numéroDeL'issue}
 
 ## 📃 Licence
 
-Projet réalisé dans le cadre du challenge 4J S2 — ESGI 2024.  
+Projet réalisé dans le cadre du challenge.  
 Ne pas utiliser en production sans refonte complète.
