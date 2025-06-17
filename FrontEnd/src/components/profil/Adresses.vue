@@ -39,19 +39,12 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue';
-import { useAddressStore } from '@/stores/Addresses';
+import { useAddressStore, type Address } from '@/stores/Addresses';
 import Modal from '@/components/common/Modale.vue';
 
 const props = defineProps<{
-  user: { id: number } | null,
-  addresses: Array<{
-    id: number,
-    address: string,
-    city: string,
-    postalcode: string,
-    department: string | null,
-    country: string
-  }>
+  user: { id: number } | null
+  addresses: Address[]
 }>();
 
 const addressStore = useAddressStore();
@@ -69,7 +62,7 @@ const addressForm = ref({
   country: ''
 });
 
-const addresses = ref(props.addresses ?? []);
+const addresses = ref<Address[]>(props.addresses ?? []);
 
 const fetchAddresses = async () => {
   isLoading.value = true;

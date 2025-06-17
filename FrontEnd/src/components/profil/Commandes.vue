@@ -124,7 +124,7 @@ const generateInvoice = () => {
   }
 };
 
-const formatDate = (date: string) => {
+const formatDate = (date: string | Date) => {
   const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
   return new Date(date).toLocaleDateString('fr-FR', options);
 };
