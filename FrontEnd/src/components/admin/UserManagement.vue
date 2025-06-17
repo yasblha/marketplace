@@ -12,8 +12,8 @@
     />
 
     <Modal v-model="showUserModal" :title="modalTitle">
-      <UserForm
-          :initialData="selectedUser"
+  <UserForm
+          :initialData="selectedUser || undefined"
           @user-added="onUserAdded"
           @user-updated="onUserUpdated"
       />
@@ -55,7 +55,7 @@ interface Column<T> {
 const authStore = useAuthStore();
 const showUserModal = ref(false);
 const showUserDetailsModal = ref(false);
-const selectedUser = ref<Partial<User> | null>(null);
+const selectedUser = ref<Record<string, any> | null>(null);
 
 const users = ref<User[]>([]);
 const columns: Column<User>[] = [

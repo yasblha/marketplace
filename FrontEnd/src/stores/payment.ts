@@ -19,7 +19,7 @@ const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY || '');
 
       const cartStore = useCartStore();
 
-      const cartItems = cartStore.items;
+        const cartItems = cartStore.items;
        
        const initializeStripe = async () => {
            stripe.value = await stripePromise;
@@ -41,64 +41,64 @@ const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY || '');
            }
        };
    
-       const handleCardPayment = async (cardName: string) => {
-           loading.value = true;
-           error.value = '';
+        const handleCardPayment = async (cardName: string) => {
+            loading.value = true;
+            error.value = '';
+
+        try {
+                const items = cartItems.value;
+
+                const amount = items.reduce((total: number, item) => total + item.price * item.quantity, 0) * 100;
+                const clientSecret = await createPaymentIntent(amount, cardName);
+
+                const { error: stripeError, paymentIntent } = await stripe.value!.confirmCardPayment(clientSecret, {
+                    payment_method: {
+                        card: card.value!,
+                        billing_details: { name: cardName }
+                    }
+                });
+
+                if (stripeError) {
+                    console.error(stripeError.message);
+                    error.value = stripeError.message ?? '';
+                } else {
+                    console.log('Payment successful!', paymentIntent);
+                    window.location.href = 'http://localhost:5173/paymentSuccess'; // Redirect to success page
+                }
+            } catch (err) {
+                console.error('Error during card payment:', err);
+                error.value = err instanceof Error ? err.message : String(err);
+            } finally {
+                loading.value = false;
+            }
+        };
    
-      try {
-               const items = cartItems.value;
-   
-               const amount = items.reduce((total, item) => total + item.price * item.quantity, 0) * 100;
-               const clientSecret = await createPaymentIntent(amount, cardName);
-   
-               const { error: stripeError, paymentIntent } = await stripe.value.confirmCardPayment(clientSecret, {
-                   payment_method: {
-                       card: card.value,
-                       billing_details: { name: cardName }
-                   }
-               });
-   
-               if (stripeError) {
-                   console.error(stripeError.message);
-                   error.value = stripeError.message;
-               } else {
-                   console.log('Payment successful!', paymentIntent);
-                   window.location.href = 'http://localhost:5173/paymentSuccess'; // Redirect to success page
-               }
-           } catch (err) {
-               console.error('Error during card payment:', err);
-               error.value = err.message;
-           } finally {
-               loading.value = false;
-           }
-       };
-   
-       const handlePaypalCheckout = async (customerEmail: string) => {
-           loading.value = true;
-           error.value = '';
+        const handlePaypalCheckout = async (customerEmail: string) => {
+            loading.value = true;
+            error.value = '';
    
            try {
                const items = cartItems.value;
    
-               const response = await axiosInstance.post('/stripe/create-checkout-session-paypal', {
-                   items,
-                   customer: { email: customerEmail || 'test@example.com' }
-               });
+                const response = await axiosInstance.post('/stripe/create-checkout-session-paypal', {
+                    items,
+                    customer: { email: customerEmail || 'test@example.com' }
+                });
    
-               const { sessionId } = response.data;
-               const { error } = await stripe.value.redirectToCheckout({ sessionId });
+                const { sessionId } = response.data;
+                const { error } = await stripe.value!.redirectToCheckout({ sessionId });
    
-               if (error) {
-                   console.error('Error redirecting to Stripe Checkout:', error);
-                   throw new Error('An error occurred. Please try again.');
-               }
-           } catch (err) {
-               console.error('Error creating PayPal checkout session:', err);
-               error.value = err.message;
-           } finally {
-               loading.value = false;
-           }
-       };
+                if (error) {
+                    console.error('Error redirecting to Stripe Checkout:', error);
+                    throw new Error('An error occurred. Please try again.');
+                }
+            } catch (err) {
+                console.error('Error creating PayPal checkout session:', err);
+                error.value = err instanceof Error ? err.message : String(err);
+            } finally {
+                loading.value = false;
+            }
+        };
    
        return {
            loading,

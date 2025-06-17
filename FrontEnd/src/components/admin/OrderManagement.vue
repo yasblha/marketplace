@@ -13,7 +13,7 @@
 
     <Modal v-model="showOrderModal" :title="modalTitle">
       <AddOrderForm
-          :initialData="selectedOrder"
+          :initialData="selectedOrder || undefined"
           @order-added="onOrderAdded"
           @order-updated="onOrderUpdated"
       />
@@ -89,7 +89,7 @@ const cartStore = useCartStore();
 const showOrderModal = ref(false);
 const showOrderDetailsModal = ref(false);
 const showErrorModal = ref(false);
-const selectedOrder = ref<Partial<Order> | null>(null);
+const selectedOrder = ref<Record<string, any> | null>(null);
 
 const orders = computed(() => orderStore.orders);
 const modalTitle = computed(() => (selectedOrder.value ? 'Edit Order' : 'Add Order'));
