@@ -30,11 +30,10 @@ import { useAuthStore } from '@/stores/user';
 const authStore = useAuthStore();
 
 const profile = ref({
-  firstname: authStore.user?.firstname + ' ' ,
-  lastname: authStore.user?.lastname || '',
+  firstname: authStore.user?.firstName || '',
+  lastname: authStore.user?.lastName || '',
   email: authStore.user?.email || ''
 });
-console.log(profile.value);
 
 watch(() => authStore.user, (newUser) => {
   profile.value.firstname = newUser?.firstName || '';
@@ -43,12 +42,10 @@ watch(() => authStore.user, (newUser) => {
 });
 
 const updateProfile = () => {
-  const [firstName, lastName] = profile.value.name.split(' ');
   authStore.updateProfile({
-    firstName,
-    lastName,
-    email: profile.value.email,
-    profilePicture: profile.value.profilePicture
+    firstName: profile.value.firstname,
+    lastName: profile.value.lastname,
+    email: profile.value.email
   });
 };
 
