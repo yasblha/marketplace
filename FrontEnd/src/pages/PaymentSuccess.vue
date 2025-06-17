@@ -31,13 +31,13 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { useOrderStore } from '@/stores/Commande';
+import { useOrderStore, type Order } from '@/stores/Commande';
 import { printInvoice } from '@/utils/invoice';
 import { OrderStatus } from '@/types/orderStatus'
 
 const router = useRouter();
 const orderStore = useOrderStore();
-const order = ref(null);
+const order = ref<Order | null>(null);
 
 const generateInvoice = () => {
   if (order.value) {

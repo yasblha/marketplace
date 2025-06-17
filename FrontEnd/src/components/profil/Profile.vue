@@ -29,7 +29,7 @@ import { useAuthStore } from '@/stores/user';
 
 const authStore = useAuthStore();
 
-const profile = ref({
+const profile = ref<{ firstname: string; lastname: string; email: string; profilePicture?: string }>({
   firstname: authStore.user?.firstName || '',
   lastname: authStore.user?.lastName || '',
   email: authStore.user?.email || ''

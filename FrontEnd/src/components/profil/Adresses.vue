@@ -76,8 +76,8 @@ const fetchAddresses = async () => {
   error.value = null;
   try {
     if (props.user) {
-      const fetchedAddresses = await addressStore.fetchAddressesByUserId(props.user.id);
-      addresses.value = fetchedAddresses;
+      await addressStore.fetchAddressesByUserId();
+      addresses.value = addressStore.addresses;
     }
   } catch (err) {
     error.value = 'Échec de la récupération des adresses';

@@ -57,14 +57,15 @@ export const useProductStore = defineStore('product', () => {
                 throw new Error('Token non disponible');
             }
             console.log('Creating product with user data:', authStore.user);
-            const response = await axiosInstance.post<Product>('/products', productData, {
+            const response = await axiosInstance.post('/products', productData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                     'Authorization': `Bearer ${authStore.token}`
                 }
             });
-            products.value.push(response.data.product.newSQLProduct);
-            console.log('Product created:', response.data.product.newSQLProduct);
+            const created: Product = (response.data as any).product.newSQLProduct;
+            products.value.push(created);
+            console.log('Product created:', created);
 
         } catch (error) {
             console.error('Error creating product:', error);
@@ -89,7 +90,7 @@ export const useProductStore = defineStore('product', () => {
 
     const updateProduct = async (id: string, productData: FormData): Promise<void> => {
         try {
-            const response = await axiosInstance.put<Product>(`/products/${id}`, productData, {
+            const response = await axiosInstance.put(`/products/${id}`, productData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                     'Authorization': `Bearer ${authStore.token}`
@@ -97,9 +98,9 @@ export const useProductStore = defineStore('product', () => {
             });
             const index = products.value.findIndex(p => p._id === id);
             if (index !== -1) {
-                products.value[index] = response.data.product.updatedSQLProduct;
+                products.value[index] = (response.data as any).product.updatedSQLProduct;
             }
-            console.log('Product updated:', response.data.product.updatedSQLProduct);
+            console.log('Product updated:', (response.data as any).product.updatedSQLProduct);
 
         } catch (error) {
             console.error('Error updating product:', error);
@@ -124,16 +125,16 @@ export const useProductStore = defineStore('product', () => {
 
     const updateProductStock = async (id: string, stockData: { stock_available: number }): Promise<void> => {
         try {
-            const response = await axiosInstance.patch<Product>(`/products/${id}/stock`, stockData, {
+            const response = await axiosInstance.patch(`/products/${id}/stock`, stockData, {
                 headers: {
                     'Authorization': `Bearer ${authStore.token}`
                 }
             });
             const index = products.value.findIndex(p => p._id === id);
             if (index !== -1) {
-                products.value[index] = { ...products.value[index], ...response.data.product.updatedSQLProduct };
+                products.value[index] = { ...products.value[index], ...((response.data as any).product.updatedSQLProduct) };
             }
-            console.log('Product stock updated:', response.data.product.updatedSQLProduct);
+            console.log('Product stock updated:', (response.data as any).product.updatedSQLProduct);
 
         } catch (error) {
             console.error('Error updating product stock:', error);
