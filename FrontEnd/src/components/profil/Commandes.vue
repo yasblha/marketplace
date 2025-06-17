@@ -49,23 +49,11 @@
 
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue';
-import { useOrderStore } from '@/stores/Commande';
+import { useOrderStore, type Order } from '@/stores/Commande';
 import { useAuthStore } from "@/stores/user";
 import Modal from '@/components/common/Modale.vue';
 import { printInvoice } from '@/utils/invoice';
 
-interface Order {
-  id: number;
-  dateOrder: string;
-  statusOrder: string;
-  totalAmount: number;
-  OrderDetails: {
-    productName: string;
-    unitPrice: number;
-    quantity: number;
-  }[];
-  userId: number;
-}
 
 const orders = ref<Order[]>([]);
 const isLoading = ref(false);
@@ -136,7 +124,7 @@ const generateInvoice = () => {
   }
 };
 
-const formatDate = (date: string) => {
+const formatDate = (date: string | Date) => {
   const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
   return new Date(date).toLocaleDateString('fr-FR', options);
 };

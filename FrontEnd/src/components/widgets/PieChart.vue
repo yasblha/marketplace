@@ -5,15 +5,13 @@
 </template>
 
 <script setup lang="ts">
-import type { ChartItem } from 'chart.js'
+import type { ChartItem, ChartData } from 'chart.js'
 import { ref, onMounted } from 'vue';
 import { Chart, PieController, ArcElement, CategoryScale, Title } from 'chart.js';
 
 Chart.register(PieController, ArcElement, CategoryScale, Title);
 
-const props = defineProps({
-  chartData: Object
-});
+const props = defineProps<{ chartData: ChartData<'pie', number[], unknown> }>();
 
 const canvas = ref<HTMLCanvasElement | null>(null);
 

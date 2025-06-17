@@ -58,9 +58,7 @@ import Security from '@/components/profil/Security.vue';
 import Addresses from '@/components/profil/Adresses.vue';
 import Preferences from '@/components/profil/Preferences.vue';
 
-const currentTab = ref('profile');
-
-const componentsMap = {
+const componentsMap: Record<string, any> = {
   profile: Profile,
   orders: Orders,
   'payment-methods': PaymentMethods,
@@ -68,6 +66,8 @@ const componentsMap = {
   security: Security,
   preferences: Preferences,
 };
+
+const currentTab = ref<keyof typeof componentsMap>('profile');
 
 const currentComponent = computed(() => componentsMap[currentTab.value]);
 

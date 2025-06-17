@@ -27,9 +27,11 @@
 import { ref, watch } from 'vue'
 import { useOrderStore } from '@/stores/Commande'
 import { useAuthStore } from '@/stores/user'
+import { OrderStatus } from '@/types/orderStatus'
 
 interface OrderForm {
-  statusOrder: string
+  id?: number
+  statusOrder: OrderStatus
   totalAmount: number
   products: { productId: string; quantity: number }[]
 }
@@ -39,14 +41,14 @@ interface OrderDetail {
   quantity: number
 }
 
-const props = defineProps<{ initialData?: Partial<OrderForm> }>()
+const props = defineProps<{ initialData?: Partial<OrderForm> | null }>()
 const emit = defineEmits(['order-added', 'order-updated'])
 
 const orderStore = useOrderStore()
 const authStore = useAuthStore()
 
 const formData = ref<OrderForm>({
-  statusOrder: '',
+  statusOrder: OrderStatus.Pending,
   totalAmount: 0,
   products: []
 })
@@ -81,7 +83,7 @@ const submitForm = async () => {
     await orderStore.updateOrder(props.initialData.id, formData.value)
     emit('order-updated')
   } else {
-    await orderStore.createOrder({ ...formData.value, userId })
+    await orderStore.createOrder(formData.value)
     emit('order-added')
   }
 }
