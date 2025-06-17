@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const authControllers = require('../../controllers/AuthController');
-const { authenticateToken, authenticateAdmin } = require('../../middleware/authAdmin');
+const { authenticateToken, authenticateAdmin, authenticateCompta } = require('../../middleware/authAdmin');
 
 // Routes publiques d'authentification
 router.post('/register', authControllers.register);
@@ -20,5 +20,6 @@ router.get('/me',authenticateToken, authControllers.user);
 router.get('/users',authenticateToken, authControllers.users);
 
 router.patch('/user/:id', authenticateToken, authControllers.updateUser);
+router.post('/impersonate/:id', authenticateCompta, authControllers.impersonateUser);
 
 module.exports = router;

@@ -1,6 +1,7 @@
 const ProductSQL = require('../models/postgres_models/ProductPg');
 const ProductMongo = require('../models/mongo_models/Product');
 const denormalizeProduct = require('../services/denormalizeProduct');
+const { recordStock } = require('./stockService');
 
 class ProductService {
     static async getProducts() {
@@ -89,6 +90,8 @@ class ProductService {
                 { stock_available: newStock },
                 { new: true }
             );
+
+            await recordStock(productId, newStock);
 
             return { updatedSQLProduct };
         } catch (error) {

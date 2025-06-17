@@ -8,6 +8,10 @@ require('dotenv').config();
 const JWT_SECRET = process.env.JWT_SECRET;
 const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET;
 
+function isPasswordStrong(password) {
+    return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{12,}$/.test(password);
+}
+
 function generateToken(user) {
     if (!user.role) {
         throw new Error('User role is not defined');
@@ -52,6 +56,10 @@ async function register(req, res, next) {
 
     if (password !== password_confirm) {
         return res.status(422).json({ message: 'Les mots de passe ne correspondent pas' });
+    }
+
+    if (!isPasswordStrong(password)) {
+        return res.status(422).json({ message: 'Le mot de passe doit comporter au moins 12 caracteres, avec chiffres, lettres majuscules et minuscules et symboles.' });
     }
 
     try {
@@ -233,6 +241,10 @@ async function resetPassword(req, res) {
         return res.status(422).json({ message: 'Les mots de passe ne correspondent pas' });
     }
 
+    if (!isPasswordStrong(newPassword)) {
+        return res.status(422).json({ message: 'Le mot de passe doit comporter au moins 12 caracteres, avec chiffres, lettres majuscules et minuscules et symboles.' });
+    }
+
     try {
         const result = await User.updateUserByToken(token, {
             password: await bcrypt.hash(newPassword, 10),
@@ -310,4 +322,21 @@ async function updateUser(req, res) {
     }
 }
 
-module.exports = { user, register, login, logout, users, confirmEmail, resetPassword, requestPasswordReset, refreshToken, updateUser };
+async function impersonateUser(req, res) {
+    const { id } = req.params;
+
+    try {
+        const user = await User.findByPk(id);
+        if (!user) {
+            return res.status(404).json({ message: 'Utilisateur non trouvé' });
+        }
+        const accessToken = generateToken(user);
+        const refreshToken = generateRefreshToken(user);
+        res.status(200).json({ accessToken, refreshToken, user });
+    } catch (error) {
+        console.error('Erreur impersonate user:', error);
+        res.status(500).json({ message: 'Erreur interne du serveur' });
+    }
+}
+
+module.exports = { user, register, login, logout, users, confirmEmail, resetPassword, requestPasswordReset, refreshToken, updateUser, impersonateUser };
