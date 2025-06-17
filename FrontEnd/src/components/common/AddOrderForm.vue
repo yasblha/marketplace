@@ -2,7 +2,7 @@
   <form @submit.prevent="submitForm">
     <div class="form-group">
       <label for="status">Status</label>
-      <select id="status" v-model="formData.status_order" required>
+      <select id="status" v-model="formData.statusOrder" required>
         <option value="Pending">Pending</option>
         <option value="Processing">Processing</option>
         <option value="Shipped">Shipped</option>
@@ -12,86 +12,87 @@
     </div>
     <div class="form-group">
       <label for="totalAmount">Total Amount</label>
-      <input type="number" id="totalAmount" v-model="formData.total_amount" required />
+      <input type="number" id="totalAmount" v-model="formData.totalAmount" required />
     </div>
     <div class="form-group">
       <label for="products">Products</label>
       <textarea id="products" v-model="productsInput" required></textarea>
-      <small>Format: productName (quantity), productName (quantity), ...</small>
+      <small>Format: productId (quantity), productId (quantity), ...</small>
     </div>
     <button type="submit">Submit</button>
   </form>
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
-import { useOrderStore } from '@/stores/Commande';
-import { useAuthStore } from '@/stores/user';
+import { ref, watch } from 'vue'
+import { useOrderStore } from '@/stores/Commande'
+import { useAuthStore } from '@/stores/user'
 
 interface OrderForm {
-  status_order: string;
-  total_amount: number;
-  products: { productName: string; quantity: number }[];
+  statusOrder: string
+  totalAmount: number
+  products: { productId: string; quantity: number }[]
 }
 
 interface OrderDetail {
-  productName: string;
-  quantity: number;
+  productId: string
+  quantity: number
 }
 
-const props = defineProps<{ initialData?: Partial<OrderForm> }>();
-const emit = defineEmits(['order-added', 'order-updated']);
+const props = defineProps<{ initialData?: Partial<OrderForm> }>()
+const emit = defineEmits(['order-added', 'order-updated'])
 
-const orderStore = useOrderStore();
-const authStore = useAuthStore();
+const orderStore = useOrderStore()
+const authStore = useAuthStore()
 
 const formData = ref<OrderForm>({
-  status_order: '',
-  total_amount: 0,
-  products: [],
-});
+  statusOrder: '',
+  totalAmount: 0,
+  products: []
+})
 
-const productsInput = ref('');
+const productsInput = ref('')
 
 watch(
-    () => props.initialData,
-    (newData) => {
-      if (newData) {
-        formData.value = {
-          ...formData.value,
-          ...newData,
-        };
-        productsInput.value = newData.products?.map(p => `${p.productName} (${p.quantity})`).join(', ') || '';
+  () => props.initialData,
+  (newData) => {
+    if (newData) {
+      formData.value = {
+        ...formData.value,
+        ...newData
       }
-    },
-    { immediate: true }
-);
+      productsInput.value =
+        newData.products?.map((p) => `${p.productId} (${p.quantity})`).join(', ') || ''
+    }
+  },
+  { immediate: true }
+)
 
 const submitForm = async () => {
-  const userId = authStore.user?.id;
+  const userId = authStore.user?.id
   if (!userId) {
-    console.error('User ID is missing');
-    return;
+    console.error('User ID is missing')
+    return
   }
 
-  formData.value.products = parseProductsInput(productsInput.value);
+  formData.value.products = parseProductsInput(productsInput.value)
 
   if (props.initialData?.id) {
-    await orderStore.updateOrder(props.initialData.id, formData.value);
-    emit('order-updated');
+    await orderStore.updateOrder(props.initialData.id, formData.value)
+    emit('order-updated')
   } else {
-    await orderStore.createOrder({ ...formData.value, userId });
-    emit('order-added');
+    await orderStore.createOrder({ ...formData.value, userId })
+    emit('order-added')
   }
-};
+}
 
 const parseProductsInput = (input: string): OrderDetail[] => {
-  return input.split(',').map(productStr => {
-    const [name, quantityStr] = productStr.trim().split(' (');
-    const quantity = parseInt(quantityStr);
-    return { productName: name.trim(), quantity };
-  });
-};
+  return input.split(',').map((productStr) => {
+    const [id, quantityStr] = productStr.trim().split(' (')
+    const quantity = parseInt(quantityStr)
+    return { productId: id.trim(), quantity }
+  })
+}
 </script>
 
 <style scoped>
@@ -105,7 +106,9 @@ label {
   font-weight: bold;
 }
 
-input, textarea, select {
+input,
+textarea,
+select {
   width: 100%;
   padding: 8px;
   border: 1px solid #ddd;
