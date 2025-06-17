@@ -82,10 +82,11 @@ const filterByCategory = (category: string) => {
   filteredProducts.value = products.value.filter(product => product.category === category);
 };
 
+import { backendUrl } from '@/utils/backend';
+
 const getImage = (product: Product) => {
   if (product.images && product.images.length > 0) {
-    const baseUrl = 'http://localhost:3000';
-    const imageUrl = `${baseUrl}/${product.images[0]}`;
+    const imageUrl = `${backendUrl}/${product.images[0]}`;
     console.log('Image URL:', imageUrl);
     return imageUrl;
   }

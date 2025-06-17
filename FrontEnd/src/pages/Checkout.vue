@@ -59,10 +59,11 @@ const closeErrorModal = () => {
   showErrorModal.value = false;
 };
 
+import { backendUrl } from '@/utils/backend';
+
 const getImage = (product) => {
   if (product.images && product.images.length > 0) {
-    const baseUrl = 'http://localhost:3000';
-    return `${baseUrl}/${product.images[0]}`;
+    return `${backendUrl}/${product.images[0]}`;
   }
   return defaultImage;
 };
