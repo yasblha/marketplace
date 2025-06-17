@@ -1,7 +1,4 @@
-
-
-   // stores/payment.ts
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { defineStore } from 'pinia';
 import type { Stripe, StripeElements, StripeCardElement } from '@stripe/stripe-js'
 import axiosInstance from "@/services/api";
@@ -19,7 +16,7 @@ const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY || '');
 
       const cartStore = useCartStore();
 
-        const cartItems = cartStore.items;
+       const cartItems = computed(() => cartStore.items);
        
        const initializeStripe = async () => {
            stripe.value = await stripePromise;
@@ -46,10 +43,10 @@ const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY || '');
             error.value = '';
 
         try {
-                const items = cartItems.value;
+            const items = cartItems.value;
 
 
-                const amount = items.reduce((total: number, item: typeof cartItems.value[number]) => total + item.price * item.quantity, 0) * 100;
+            const amount = items.reduce((total, item) => total + item.price * item.quantity, 0) * 100;
 
                 const clientSecret = await createPaymentIntent(amount, cardName);
 
@@ -81,8 +78,8 @@ const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY || '');
    
            try {
                const items = cartItems.value;
-   
-                const response = await axiosInstance.post('/stripe/create-checkout-session-paypal', {
+
+               const response = await axiosInstance.post('/stripe/create-checkout-session-paypal', {
                     items,
                     customer: { email: customerEmail || 'test@example.com' }
                 });

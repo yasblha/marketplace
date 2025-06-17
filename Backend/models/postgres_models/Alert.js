@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../../config/postgres');
-const User = require('../mongo_models/User');
-const Product = require('../mongo_models/Product');
+const User = require('../postgres_models/UserPg');
+const Product = require('../postgres_models/ProductPg');
 
 const Alert = sequelize.define('Alert', {
     id: {
