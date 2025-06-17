@@ -58,7 +58,7 @@ export const useCartStore = defineStore('cart', () => {
 
         if (isAuthenticated.value) {
             try {
-                await axiosInstance.put(`/cart/update`, {
+                await axiosInstance.put(`/cart/${product._id}`, {
                     userid: authStore.user?.id,
                     productid: product._id,
                     quantity

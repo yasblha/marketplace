@@ -1,28 +1,24 @@
 
 
    // stores/payment.ts
-   import { ref } from 'vue';
-   import { defineStore } from 'pinia';
-   import axiosInstance from "@/services/api";
-   import { loadStripe } from '@stripe/stripe-js';
-   
-   const stripePromise = loadStripe('pk_test_51MzKwrI4CWQS7W9jUqGbkjMfywCGLlu3ssgCbslIKp31FYWHiOrDnZmuUK1QNOMZ35v1QgR3dB1FkoRhWjwbprii00vdSRgTX6'); // Replace with your public key
+import { ref } from 'vue';
+import { defineStore } from 'pinia';
+import axiosInstance from "@/services/api";
+import { loadStripe } from '@stripe/stripe-js';
+import { useCartStore } from '@/stores/panier';
+
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY || '');
    
    export const usePaymentStore = defineStore('payment', () => {
        const loading = ref(false);
        const error = ref('');
-       const stripe = ref(null);
-       const elements = ref(null);
-       const card = ref(null);
-   
-       // Mock cart items
-       const cartItems = ref([
-           { _id: 'mock1', name: 'Test Product 1', quantity: 1, price: 10 },
-           { _id: 'mock2', name: 'Test Product 2', quantity: 2, price: 20 }
-       ]);
-   
-         // const cartStore = useCartStore(); // Comment this out for now
-       // const cartItems = cartStore.cartItems; // Comment this out for now
+      const stripe = ref(null);
+      const elements = ref(null);
+      const card = ref(null);
+
+      const cartStore = useCartStore();
+
+      const cartItems = cartStore.items;
        
        const initializeStripe = async () => {
            stripe.value = await stripePromise;
@@ -48,10 +44,8 @@
            loading.value = true;
            error.value = '';
    
-           try {
-               const items = cartItems.value.length > 0 ? cartItems.value : [
-                   { _id: 'mock1', name: 'Test Product', quantity: 1, price: 10 }
-               ];
+      try {
+               const items = cartItems.value;
    
                const amount = items.reduce((total, item) => total + item.price * item.quantity, 0) * 100;
                const clientSecret = await createPaymentIntent(amount, cardName);
@@ -83,9 +77,7 @@
            error.value = '';
    
            try {
-               const items = cartItems.value.length > 0 ? cartItems.value : [
-                   { _id: 'mock1', name: 'Test Product', quantity: 1, price: 10 }
-               ];
+               const items = cartItems.value;
    
                const response = await axiosInstance.post('/stripe/create-paypal-checkout-session', {
                    items,

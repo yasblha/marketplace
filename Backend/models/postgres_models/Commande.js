@@ -1,6 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../../config/postgres');
 const Clients = require('../postgres_models/UserPg');
+const ORDER_STATUS = require('../../constants/orderStatus');
 
 const Order = sequelize.define('Order', {
     id: {
@@ -14,8 +15,9 @@ const Order = sequelize.define('Order', {
         defaultValue: DataTypes.NOW,
     },
     statusOrder: {
-        type: DataTypes.STRING,
+        type: DataTypes.ENUM(...Object.values(ORDER_STATUS)),
         allowNull: false,
+        defaultValue: ORDER_STATUS.PENDING,
     },
     totalAmount: {
         type: DataTypes.FLOAT,

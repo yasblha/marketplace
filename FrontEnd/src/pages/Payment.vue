@@ -59,18 +59,12 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
-// import { useCartStore } from '@/stores/cart'; // Comment this out for now
+import { useCartStore } from '@/stores/panier';
 import { usePaymentStore } from '@/stores/payment';
 import Footer from "../components/UI/Footer.vue";
 
-// const cartStore = useCartStore(); // Comment this out for now
-// const cartItems = computed(() => cartStore.cartItems); // Comment this out for now
-
-// Mock cart items for display purposes
-const cartItems = ref([
-  { _id: 'mock1', name: 'Test Product 1', quantity: 1, price: 10 },
-  { _id: 'mock2', name: 'Test Product 2', quantity: 2, price: 20 }
-]);
+const cartStore = useCartStore();
+const cartItems = computed(() => cartStore.items);
 
 const paymentStore = usePaymentStore();
 const selectedPaymentMethod = ref('card');
@@ -93,8 +87,7 @@ const handlePaypalCheckout = async () => {
 };
 
 const removeItem = (itemId: string) => {
-  cartItems.value = cartItems.value.filter(item => item._id !== itemId);
-  // cartStore.removeFromCart(itemId); // Comment this out for now
+  cartStore.removeFromCart(cartStore.items.findIndex(i => i._id === itemId));
 };
 
 onMounted(async () => {
