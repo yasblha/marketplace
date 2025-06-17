@@ -63,8 +63,8 @@ export const useProductStore = defineStore('product', () => {
                     'Authorization': `Bearer ${authStore.token}`
                 }
             });
-            products.value.push(response.data);
-            console.log('Product created:', response.data);
+            products.value.push(response.data.product.newSQLProduct);
+            console.log('Product created:', response.data.product.newSQLProduct);
         } catch (error) {
             console.error('Error creating product:', error);
             throw new Error('Failed to create product');
@@ -73,7 +73,7 @@ export const useProductStore = defineStore('product', () => {
 
     const uploadProductImages = async (formData: FormData): Promise<void> => {
         try {
-            await axiosInstance.post('/upload', formData, {
+            await axiosInstance.post('/upload/upload', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                     'Authorization': `Bearer ${authStore.token}`
@@ -96,9 +96,9 @@ export const useProductStore = defineStore('product', () => {
             });
             const index = products.value.findIndex(p => p._id === id);
             if (index !== -1) {
-                products.value[index] = response.data;
+                products.value[index] = response.data.product.updatedSQLProduct;
             }
-            console.log('Product updated:', response.data);
+            console.log('Product updated:', response.data.product.updatedSQLProduct);
         } catch (error) {
             console.error('Error updating product:', error);
             throw new Error('Failed to update product');
@@ -129,9 +129,9 @@ export const useProductStore = defineStore('product', () => {
             });
             const index = products.value.findIndex(p => p._id === id);
             if (index !== -1) {
-                products.value[index] = { ...products.value[index], ...response.data };
+                products.value[index] = { ...products.value[index], ...response.data.product.updatedSQLProduct };
             }
-            console.log('Product stock updated:', response.data);
+            console.log('Product stock updated:', response.data.product.updatedSQLProduct);
         } catch (error) {
             console.error('Error updating product stock:', error);
             throw new Error('Failed to update product stock');

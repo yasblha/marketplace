@@ -27,6 +27,16 @@ export const useAuthStore = defineStore('auth', () => {
 
     const isAuthenticated = computed(() => !!user.value);
 
+    function mapUserResponse(u: any): User {
+        return {
+            id: u.id,
+            email: u.email,
+            firstName: u.firstName ?? u.firstname,
+            lastName: u.lastName ?? u.lastname,
+            role: u.role
+        };
+    }
+
     const persistState = () => {
         localStorage.setItem('auth', JSON.stringify({
             user: user.value,
@@ -78,7 +88,7 @@ export const useAuthStore = defineStore('auth', () => {
             if (response.data.message.includes('Veuillez confirmer votre email')) {
                 throw new Error(response.data.message);
             }
-            user.value = response.data.user;
+            user.value = mapUserResponse(response.data.user);
             token.value = response.data.accessToken;
             refreshToken.value = response.data.refreshToken;
             if (token.value) {
@@ -165,7 +175,7 @@ export const useAuthStore = defineStore('auth', () => {
     async function fetchUser() {
         try {
             const response = await axiosInstance.get('auth/me');
-            user.value = response.data;
+            user.value = mapUserResponse(response.data.user);
         } catch (error) {
             throw error;
         }
@@ -192,7 +202,7 @@ export const useAuthStore = defineStore('auth', () => {
     async function updateProfile(profileData) {
         try {
             const response = await axiosInstance.patch(`/auth/user/${user.value?.id}`, profileData);
-            user.value = response.data.user;
+            user.value = mapUserResponse(response.data.user);
         } catch (error) {
             console.error('Error updating profile:', error);
         }

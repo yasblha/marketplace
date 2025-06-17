@@ -79,7 +79,7 @@ const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY || '');
            try {
                const items = cartItems.value;
    
-               const response = await axiosInstance.post('/stripe/create-paypal-checkout-session', {
+               const response = await axiosInstance.post('/stripe/create-checkout-session-paypal', {
                    items,
                    customer: { email: customerEmail || 'test@example.com' }
                });
