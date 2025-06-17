@@ -1,8 +1,9 @@
 // services/api.ts
 import axios from 'axios';
+import { apiUrl } from '@/utils/backend';
 
 const axiosInstance = axios.create({
-    baseURL: 'http://localhost:3000/api',
+    baseURL: apiUrl,
     headers: {
         'Content-Type': 'application/json',
     },

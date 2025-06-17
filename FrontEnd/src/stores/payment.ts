@@ -4,6 +4,7 @@ import type { Stripe, StripeElements, StripeCardElement } from '@stripe/stripe-j
 import axiosInstance from "@/services/api";
 import { loadStripe } from '@stripe/stripe-js';
 import { useCartStore } from '@/stores/panier';
+import router from '@/router/router';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY || '');
    
@@ -62,7 +63,7 @@ const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY || '');
                     error.value = stripeError.message ?? '';
                 } else {
                     console.log('Payment successful!', paymentIntent);
-                    window.location.href = 'http://localhost:5173/paymentSuccess'; // Redirect to success page
+                    router.push('/paymentSuccess');
                 }
             } catch (err) {
                 console.error('Error during card payment:', err);

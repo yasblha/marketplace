@@ -50,6 +50,7 @@ import { useCartStore } from '@/stores/panier';
 import defaultImage from '@/assets/ui_assets/image1.png';
 import type { Product } from "@/stores/products";
 import { encodeBase64 } from '@/utils/encodage';
+import { backendUrl } from '@/utils/backend';
 
 
 const props = defineProps<{
@@ -59,8 +60,7 @@ const props = defineProps<{
 
 const getImage = (product: Product) => {
   if (product.images && product.images.length > 0) {
-    const baseUrl = 'http://localhost:3000';
-    return `${baseUrl}/${product.images[0]}`;
+    return `${backendUrl}/${product.images[0]}`;
   }
   return defaultImage;
 };
