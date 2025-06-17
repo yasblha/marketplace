@@ -48,7 +48,9 @@ const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY || '');
         try {
                 const items = cartItems.value;
 
+
                 const amount = items.reduce((total: number, item: typeof cartItems.value[number]) => total + item.price * item.quantity, 0) * 100;
+
                 const clientSecret = await createPaymentIntent(amount, cardName);
 
                 const { error: stripeError, paymentIntent } = await stripe.value!.confirmCardPayment(clientSecret, {
