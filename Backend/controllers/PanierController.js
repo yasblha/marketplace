@@ -96,13 +96,15 @@ exports.getCartItems = async (req, res) => {
 
 exports.updateCartItem = async (req, res) => {
     try {
-        const { userid, productid, quantity } = req.body;
+        const { userid, quantity, productid } = req.body;
+        const { id } = req.params;
 
-        const cartItem = await Cart.findOne({ where: { userid, productid: padProductId(productid) } });
+        const prodId = removeLeftZeros(id || productid);
+
+        const cartItem = await Cart.findOne({ where: { userid, productid: prodId } });
         if (!cartItem) {
             return res.status(404).json({ message: 'Cart item not found' });
         }
-
         const product = await ProductService.getProductById(padProductId(cartItem.productid));
         const quantityNumber = parseInt(quantity, 10);
         if (isNaN(quantityNumber)) {
