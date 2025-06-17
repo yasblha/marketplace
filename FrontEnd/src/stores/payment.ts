@@ -3,6 +3,7 @@
    // stores/payment.ts
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
+import type { Stripe, StripeElements, StripeCardElement } from '@stripe/stripe-js'
 import axiosInstance from "@/services/api";
 import { loadStripe } from '@stripe/stripe-js';
 import { useCartStore } from '@/stores/panier';
@@ -12,9 +13,9 @@ const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY || '');
    export const usePaymentStore = defineStore('payment', () => {
        const loading = ref(false);
        const error = ref('');
-      const stripe = ref(null);
-      const elements = ref(null);
-      const card = ref(null);
+      const stripe = ref<Stripe | null>(null);
+      const elements = ref<StripeElements | null>(null);
+      const card = ref<StripeCardElement | null>(null);
 
       const cartStore = useCartStore();
 
@@ -22,9 +23,9 @@ const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY || '');
        
        const initializeStripe = async () => {
            stripe.value = await stripePromise;
-           elements.value = stripe.value.elements();
-           card.value = elements.value.create('card');
-           card.value.mount('#card-element');
+           elements.value = stripe.value!.elements();
+            card.value = elements.value!.create('card');
+           card.value!.mount('#card-element');
        };
    
        const createPaymentIntent = async (amount: number, customerEmail: string) => {

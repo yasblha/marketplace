@@ -5,6 +5,7 @@
 </template>
 
 <script setup lang="ts">
+import type { ChartItem } from 'chart.js'
 import { ref, onMounted } from 'vue';
 import { Chart, PieController, ArcElement, CategoryScale, Title } from 'chart.js';
 
@@ -18,7 +19,7 @@ const canvas = ref<HTMLCanvasElement | null>(null);
 
 onMounted(() => {
   if (canvas.value) {
-    new Chart(canvas.value, {
+    new Chart(canvas.value as ChartItem, {
       type: 'pie',
       data: props.chartData
     });

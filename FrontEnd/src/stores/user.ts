@@ -199,7 +199,7 @@ export const useAuthStore = defineStore('auth', () => {
         }
     }
 
-    async function updateProfile(profileData) {
+    async function updateProfile(profileData: any) {
         try {
             const response = await axiosInstance.patch(`/auth/user/${user.value?.id}`, profileData);
             user.value = mapUserResponse(response.data.user);
@@ -208,7 +208,7 @@ export const useAuthStore = defineStore('auth', () => {
         }
     }
 
-    async function updatePassword(currentPassword, newPassword) {
+    async function updatePassword(currentPassword: string, newPassword: string) {
         try {
             const response = await axiosInstance.patch(`/auth/user/${user.value?.id}`, { password: newPassword });
             return response.data;
