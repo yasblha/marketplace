@@ -59,8 +59,8 @@ const selectedUser = ref<Partial<User> | null>(null);
 
 const users = ref<User[]>([]);
 const columns: Column<User>[] = [
-  { key: 'firstname', label: 'First Name', searchable: true },
-  { key: 'lastname', label: 'Last Name', searchable: true },
+  { key: 'firstName', label: 'First Name', searchable: true },
+  { key: 'lastName', label: 'Last Name', searchable: true },
   { key: 'email', label: 'Email', searchable: true },
   { key: 'role', label: 'Role' }
 ];
