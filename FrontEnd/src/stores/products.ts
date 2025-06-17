@@ -65,6 +65,7 @@ export const useProductStore = defineStore('product', () => {
             });
             products.value.push(response.data.product.newSQLProduct);
             console.log('Product created:', response.data.product.newSQLProduct);
+
         } catch (error) {
             console.error('Error creating product:', error);
             throw new Error('Failed to create product');
@@ -99,6 +100,7 @@ export const useProductStore = defineStore('product', () => {
                 products.value[index] = response.data.product.updatedSQLProduct;
             }
             console.log('Product updated:', response.data.product.updatedSQLProduct);
+
         } catch (error) {
             console.error('Error updating product:', error);
             throw new Error('Failed to update product');
@@ -132,6 +134,7 @@ export const useProductStore = defineStore('product', () => {
                 products.value[index] = { ...products.value[index], ...response.data.product.updatedSQLProduct };
             }
             console.log('Product stock updated:', response.data.product.updatedSQLProduct);
+
         } catch (error) {
             console.error('Error updating product stock:', error);
             throw new Error('Failed to update product stock');
