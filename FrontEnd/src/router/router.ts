@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import type { RouteLocationNormalized } from 'vue-router'
 import { useAuthStore } from '@/stores/user'
 
 import Register from '../pages/Register.vue'
@@ -86,7 +87,7 @@ const routes = [
     name: 'ProductDetails',
     component: ProductDetails,
     meta: { requiresAuth: false },
-    props: (route) => ({ id: decodeBase64(route.params.id as string) })
+    props: (route: RouteLocationNormalized) => ({ id: decodeBase64(route.params.id as string) })
   },
   {
     path: '/cart',

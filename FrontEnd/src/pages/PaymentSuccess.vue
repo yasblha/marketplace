@@ -33,6 +33,7 @@ import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useOrderStore } from '@/stores/Commande';
 import { printInvoice } from '@/utils/invoice';
+import { OrderStatus } from '@/types/orderStatus'
 
 const router = useRouter();
 const orderStore = useOrderStore();
@@ -52,7 +53,7 @@ onMounted(async () => {
     const fetched = await orderStore.fetchOrderById(Number(id));
     if (fetched) {
       order.value = fetched;
-      await orderStore.updateOrder(fetched.id, { statusOrder: 'Paid' });
+      await orderStore.updateOrder(fetched.id, { statusOrder: OrderStatus.Paid });
       localStorage.removeItem('currentOrderId');
     }
   }

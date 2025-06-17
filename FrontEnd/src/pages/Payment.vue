@@ -45,7 +45,6 @@
               <div v-for="item in cartItems" :key="item._id" class="cart-item">
                   <div class="item-details">
                       <h4>{{ item.name }}</h4>
-                      <p>Size: {{ item.size }}</p>
                       <p>Quantity: {{ item.quantity }}</p>
                       <p>${{ item.price }}</p>
                       <button @click="removeItem(item._id)">Remove</button>
