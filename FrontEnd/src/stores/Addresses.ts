@@ -74,7 +74,7 @@ export const useAddressStore = defineStore('address', () => {
             if (authStore.isAuthenticated) {
                 const response = await axiosInstance.post('/addresses', {
                     ...addressData,
-                    userid: authStore.user?.id
+                    userId: authStore.user?.id
                 });
                 addresses.value.push(response.data);
             } else {
