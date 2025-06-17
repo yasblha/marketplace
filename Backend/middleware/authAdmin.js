@@ -40,6 +40,31 @@ function authenticateAdmin(req, res, next) {
     }
 }
 
+function authenticateCompta(req, res, next) {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+        return res.status(401).json({ message: 'Non autorisé' });
+    }
+
+    const token = authHeader.split(' ')[1];
+    if (!token) {
+        return res.status(401).json({ message: 'Non autorisé' });
+    }
+
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        if (decoded.role !== 'ROLE_COMPTA' && decoded.role !== 'admin') {
+            return res.status(403).json({ message: 'Accès refusé.' });
+        }
+        req.userId = decoded.userId;
+        req.userRole = decoded.role;
+        req.user = decoded;
+        next();
+    } catch (error) {
+        return res.status(401).json({ message: 'Token invalide' });
+    }
+}
+
 function authenticateToken(req, res, next) {
     const authHeader = req.header('Authorization');
     const token = authHeader ? authHeader.split(' ')[1] : req.cookies.token;
@@ -52,4 +77,4 @@ function authenticateToken(req, res, next) {
     });
 }
 
-module.exports = { authenticateAdmin, authenticateToken };
+module.exports = { authenticateAdmin, authenticateToken, authenticateCompta };

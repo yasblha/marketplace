@@ -24,6 +24,7 @@ const PaymentRoutes = require('./routes/api/PaymentRoutes');
 const ReturnRoutes = require('./routes/api/ReturnsRoutes');
 const stripeRoutes = require('./routes/api/stripeRoutes');
 const analyticsRoutes = require('./routes/api/analyticsRoutes');
+const alertRoutes = require('./routes/api/alertRoutes');
 
 
 const cron = require('node-cron');
@@ -62,6 +63,7 @@ app.use('/api/payments', PaymentRoutes);
 app.use('/api/returns', ReturnRoutes);
 app.use('/api/stripe', stripeRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/alerts', alertRoutes);
 
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
