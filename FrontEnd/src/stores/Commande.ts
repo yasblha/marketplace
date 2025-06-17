@@ -92,8 +92,23 @@ export const useOrderStore = defineStore('order', () => {
                 userId: authStore.user?.id || 0,
             };
             const response = await axiosInstance.post('/orders', data);
-            orders.value.push(response.data);
-            console.log(response.data);
+            const newOrder: Order = {
+                id: response.data,
+                dateOrder: new Date(),
+                statusOrder: data.statusOrder,
+                totalAmount: data.totalAmount,
+                userId: data.userId,
+                OrderDetails: data.products.map(p => ({
+                    productId: p.productId,
+                    productName: '',
+                    productDescription: '',
+                    productCategory: '',
+                    productBrand: '',
+                    unitPrice: 0,
+                    quantity: p.quantity
+                }))
+            };
+            orders.value.push(newOrder);
             return response.data
         } catch (err) {
             error.value = 'Échec de la création de la commande';

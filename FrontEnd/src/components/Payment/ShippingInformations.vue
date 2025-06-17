@@ -54,8 +54,7 @@ const nextStep = async () => {
         address: shippingInfo.value.address,
         city: shippingInfo.value.city,
         postalcode: shippingInfo.value.postalCode,
-        country: shippingInfo.value.country,
-        userid: userId
+        country: shippingInfo.value.country
       });
       emit('next-step', 'ShippingOptions');
     } else {
