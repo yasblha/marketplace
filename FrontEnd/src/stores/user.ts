@@ -184,7 +184,7 @@ export const useAuthStore = defineStore('auth', () => {
     async function fetchUsers() {
         try {
             const response = await axiosInstance.get('auth/users');
-            return response.data.users;
+            return response.data.users.map((u: any) => mapUserResponse(u));
         } catch (error) {
             throw error;
         }
