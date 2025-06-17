@@ -19,38 +19,45 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, onMounted } from 'vue';
 import BarChart from '@/components/widgets/BarChart.vue';
 import PieChart from '@/components/widgets/PieChart.vue';
 import LineChart from '@/components/widgets/LineChart.vue';
+import { useAnalyticsStore } from '@/stores/analytics';
 
-const userChartData = ref({
-  labels: ['Active Users', 'Inactive Users'],
+const analyticsStore = useAnalyticsStore();
+
+onMounted(() => {
+  analyticsStore.fetchOverview();
+});
+
+const userChartData = computed(() => ({
+  labels: ['Utilisateurs'],
   datasets: [{
     label: 'Users',
-    backgroundColor: ['#42A5F5', '#66BB6A'],
-    data: [30, 10],
+    backgroundColor: ['#42A5F5'],
+    data: [analyticsStore.overview?.userCount || 0],
   }]
-});
+}));
 
-const orderChartData = ref({
-  labels: ['Completed', 'Pending', 'Cancelled'],
+const orderChartData = computed(() => ({
+  labels: analyticsStore.overview?.orders.map(o => o.status) || [],
   datasets: [{
     label: 'Orders',
-    backgroundColor: ['#FF6384', '#FFCD56', '#36A2EB'],
-    data: [50, 20, 10],
+    backgroundColor: ['#FF6384', '#FFCD56', '#36A2EB', '#4BC0C0', '#9966FF', '#FF9F40'],
+    data: analyticsStore.overview?.orders.map(o => o.count) || [],
   }]
-});
+}));
 
-const productChartData = ref({
-  labels: ['Electronics', 'Fashion', 'Home'],
+const productChartData = computed(() => ({
+  labels: ['Produits'],
   datasets: [{
     label: 'Products',
     borderColor: '#42A5F5',
-    data: [40, 20, 30],
+    data: [analyticsStore.overview?.productCount || 0],
     fill: false,
   }]
-});
+}));
 </script>
 
 <style scoped>
