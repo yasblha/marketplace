@@ -40,6 +40,7 @@
             </tr>
             </tbody>
           </table>
+          <button class="print-btn" @click="generateInvoice">Print Invoice</button>
         </div>
       </div>
     </Modal>
@@ -51,6 +52,7 @@ import { ref, watch, computed } from 'vue';
 import { useOrderStore } from '@/stores/Commande';
 import { useAuthStore } from "@/stores/user";
 import Modal from '@/components/common/Modale.vue';
+import { printInvoice } from '@/utils/invoice';
 
 interface Order {
   id: number;
@@ -125,6 +127,12 @@ const viewOrderDetails = async (orderId: number) => {
     error.value = `Échec de la récupération des détails de la commande ${orderId}`;
   } finally {
     isLoading.value = false;
+  }
+};
+
+const generateInvoice = () => {
+  if (selectedOrder.value) {
+    printInvoice(selectedOrder.value as any);
   }
 };
 
@@ -307,5 +315,19 @@ watch(() => authStore.user, (newUser) => {
 
 .product-table tr:hover {
   background-color: #ddd;
+}
+
+.print-btn {
+  margin-top: 10px;
+  padding: 8px 16px;
+  background-color: #28a745;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.print-btn:hover {
+  background-color: #218838;
 }
 </style>

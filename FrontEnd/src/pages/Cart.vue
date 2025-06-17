@@ -149,6 +149,7 @@ const checkout = async () => {
     console.log(orderId);
     console.log(response);
 
+    localStorage.setItem('currentOrderId', orderId);
     cartStore.clearCart();
     router.push({ path: '/checkout', query: { orderId } });
   } catch (error) {
