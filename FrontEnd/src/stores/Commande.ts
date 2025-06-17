@@ -2,11 +2,12 @@ import { defineStore } from 'pinia';
 import axiosInstance from "@/services/api";
 import { ref } from 'vue';
 import { useAuthStore } from "@/stores/user";
+import { OrderStatus } from '@/types/orderStatus';
 
 export interface Order {
     id: number;
     dateOrder: Date;
-    statusOrder: string;
+    statusOrder: OrderStatus;
     totalAmount: number;
     userId: number;
     OrderDetails: OrderDetail[];
@@ -24,13 +25,13 @@ export interface OrderDetail {
 
 interface OrderCreateData {
     userId: number;
-    statusOrder: string;
+    statusOrder: OrderStatus;
     totalAmount: number;
     products: { productId: string; quantity: number }[];
 }
 
 interface OrderUpdateData {
-    statusOrder?: string;
+    statusOrder?: OrderStatus;
     totalAmount?: number;
     products?: { productId: string; quantity: number }[];
 }

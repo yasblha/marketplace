@@ -3,6 +3,7 @@ const OrderDetails = require('../models/postgres_models/DetailsCommande');
 const User = require('../models/postgres_models/UserPg');
 const Product = require('../models/mongo_models/Product');
 const sequelize = require('../config/postgres');
+const ORDER_STATUS = require('../constants/orderStatus');
 
 const padProductId = (id) => id.toString().padStart(24, '0');
 const removeLeftZeros = (str) => str.toString().replace(/^0+/, '');
@@ -10,9 +11,13 @@ const removeLeftZeros = (str) => str.toString().replace(/^0+/, '');
 class OrderService {
     static async createOrder(userId, statusOrder, totalAmount, products) {
         return sequelize.transaction(async (transaction) => {
+            const validStatus = Object.values(ORDER_STATUS).includes(statusOrder)
+                ? statusOrder
+                : ORDER_STATUS.PENDING;
+
             const order = await Order.create({
                 userId,
-                statusOrder,
+                statusOrder: validStatus,
                 totalAmount,
             }, { transaction });
 
@@ -66,6 +71,10 @@ class OrderService {
     static async updateOrder(orderId, updates) {
         const order = await Order.findByPk(orderId);
         if (!order) throw new Error('Commande non trouvée');
+
+        if (updates.statusOrder && !Object.values(ORDER_STATUS).includes(updates.statusOrder)) {
+            throw new Error('Statut de commande invalide');
+        }
 
         Object.assign(order, updates);
         await order.save();
