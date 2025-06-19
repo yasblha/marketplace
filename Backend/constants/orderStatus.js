@@ -7,4 +7,4 @@ const ORDER_STATUS = {
     CANCELED: 'canceled'
 };
 
-module.exports = ORDER_STATUS;
+export default ORDER_STATUS;

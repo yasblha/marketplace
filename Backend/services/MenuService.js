@@ -1,4 +1,4 @@
-const Section = require('../models/postgres_models/Menu');
+import Section from '../models/postgres_models/Menu.js';
 
 class SectionService {
     static async getSections() {
@@ -38,4 +38,4 @@ class SectionService {
     }
 }
 
-module.exports = SectionService;
+export default SectionService;

@@ -1,7 +1,7 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../../config/postgres');
-const Product = require('./ProductPg');
-const User = require('./UserPg');
+import { DataTypes } from 'sequelize';
+import sequelize from '../../config/postgres.js';
+import Product from './ProductPg.js';
+import User from './UserPg.js';
 
 const StockAlert = sequelize.define('StockAlert', {
   id: {
@@ -22,4 +22,4 @@ const StockAlert = sequelize.define('StockAlert', {
 StockAlert.belongsTo(Product, { foreignKey: 'productId' });
 StockAlert.belongsTo(User, { foreignKey: 'userId' });
 
-module.exports = StockAlert;
+export default StockAlert;

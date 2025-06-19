@@ -142,4 +142,14 @@ CREATE TABLE IF NOT EXISTS "StockHistory" (
     "createdAt" timestamp DEFAULT now()
 );
 
+-- Renommer les colonnes pour correspondre au code
+ALTER TABLE "Orders"
+    RENAME COLUMN "date_order" TO "dateOrder";
+
+ALTER TABLE "Orders"
+    RENAME COLUMN "status_order" TO "statusOrder";
+
+ALTER TABLE "Orders"
+    RENAME COLUMN "total_amount" TO "totalAmount";
+
 END;

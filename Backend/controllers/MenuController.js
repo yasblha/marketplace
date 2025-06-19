@@ -1,6 +1,6 @@
-const SectionService = require('../services/MenuService');
+import SectionService from '../services/MenuService.js';
 
-const getSections = async (req, res) => {
+async function getSections(req, res) {
     try {
         const sections = await SectionService.getSections();
         res.json(sections);
@@ -9,7 +9,7 @@ const getSections = async (req, res) => {
     }
 };
 
-const createSection = async (req, res) => {
+async function createSection(req, res) {
     try {
         const newSection = await SectionService.createSection(req.body);
         res.json(newSection);
@@ -18,7 +18,7 @@ const createSection = async (req, res) => {
     }
 };
 
-const updateSection = async (req, res) => {
+async function updateSection(req, res) {
     try {
         const updatedSection = await SectionService.updateSection(req.params.id, req.body);
         res.json(updatedSection);
@@ -27,7 +27,7 @@ const updateSection = async (req, res) => {
     }
 };
 
-const deleteSection = async (req, res) => {
+async function deleteSection(req, res) {
     try {
         const success = await SectionService.deleteSection(req.params.id);
         res.json({ success: !!success });
@@ -36,9 +36,9 @@ const deleteSection = async (req, res) => {
     }
 };
 
-module.exports = {
-    getSections,
-    createSection,
-    updateSection,
-    deleteSection,
+export { 
+  getSections,
+  createSection,
+  updateSection,
+  deleteSection
 };

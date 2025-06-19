@@ -1,4 +1,4 @@
-const { spawn } = require('child_process');
+import { spawn } from 'child_process';
 
 const geocodeAddress = (query) => {
     return new Promise((resolve, reject) => {
@@ -26,6 +26,4 @@ const geocodeAddress = (query) => {
     });
 };
 
-module.exports = {
-    geocodeAddress
-};
+export { geocodeAddress };

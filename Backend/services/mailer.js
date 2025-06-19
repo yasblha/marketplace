@@ -1,10 +1,10 @@
-const nodemailer = require('nodemailer');
+import nodemailer from 'nodemailer';
 
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: 'ecom@mail.com',
-        pass: 'pass',
+        user: 'contactprojectys@gmail.com',
+        pass: 'mvuogahxlrxrlpwi',
     },
 });
 
@@ -24,4 +24,4 @@ async function sendEmail(to, subject, htmlContent) {
     }
 }
 
-module.exports = { sendEmail };
+export { sendEmail };

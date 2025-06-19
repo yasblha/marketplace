@@ -1,8 +1,8 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const productControllers = require('../../controllers/ProductController');
-const { authenticateAdmin, authenticateToken } = require('../../middleware/authAdmin');
-const upload = require('../../middleware/upload');
+import * as productControllers from '../../controllers/productController.js';
+import { authenticateAdmin, authenticateToken } from '../../middleware/authAdmin.js';
+import upload from '../../middleware/upload.js';
 
 // Routes publiques
 router.get('/', productControllers.getAllProducts);
@@ -19,4 +19,4 @@ router.patch('/:id/stock', authenticateAdmin, productControllers.updateProductSt
 router.post('/inject-products', productControllers.injectProducts);
 
 
-module.exports = router;
+export default router;

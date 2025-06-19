@@ -1,5 +1,5 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../../config/postgres');
+import { DataTypes } from 'sequelize';
+import sequelize from '../../config/postgres.js';
 
 const Section = sequelize.define('Section', {
     id: {
@@ -18,4 +18,4 @@ const Section = sequelize.define('Section', {
 
 
 
-module.exports = Section;
+export default Section;

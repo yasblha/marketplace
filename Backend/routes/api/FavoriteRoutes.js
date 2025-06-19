@@ -1,9 +1,9 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const tokenJWT = require('../../middleware/tockenJWT');
-//const { getFavorites } = require('../../controllers/FavoritesController');
-const FavoriteController = require('../../controllers/FavoritesController');
+import tokenJWT from '../../middleware/tockenJWT.js';
+//import { getFavorites } from '../../controllers/FavoritesController.js';
+import * as FavoriteController from '../../controllers/FavoritesController.js';
 
 router.get('/favorites/:id', tokenJWT, FavoriteController.getFavorites);
 
-module.exports = router;
+export default router;

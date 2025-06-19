@@ -1,6 +1,10 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const productSchema = new mongoose.Schema({
+    _id: {
+        type: String,
+        required: true
+    },
     name: {
         type: String,
         required: true,
@@ -32,6 +36,11 @@ const productSchema = new mongoose.Schema({
     },
     images: {
         type: [String],
+    },
+    postgres_id: {
+        type: Number,
+        required: true,
+        unique: true
     }
 }, {
     timestamps: false
@@ -98,4 +107,4 @@ productSchema.statics.updateProductStock = async function(id, newStock) {
 
 const Product = mongoose.model('Product', productSchema);
 
-module.exports = Product;
+export default Product;

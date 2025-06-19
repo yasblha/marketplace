@@ -1,7 +1,7 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const DeliveryAddressController = require('../../controllers/AdresseController');
-const { authenticateToken, authenticateAdmin } = require('../../middleware/authAdmin');
+import * as DeliveryAddressController from '../../controllers/AdresseController.js';
+import { authenticateToken, authenticateAdmin } from '../../middleware/authAdmin.js';
 
 router.post('/', authenticateToken,DeliveryAddressController.createAddress);
 router.get('/:addressId',authenticateToken, DeliveryAddressController.getAddressById);
@@ -9,4 +9,4 @@ router.put('/:addressId', authenticateToken,DeliveryAddressController.updateAddr
 router.delete('/:addressId', authenticateToken,DeliveryAddressController.deleteAddress);
 router.get('/users/:userId/addresses', authenticateToken,DeliveryAddressController.getAddressesByUserId);
 
-module.exports = router;
+export default router;

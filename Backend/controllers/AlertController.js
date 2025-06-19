@@ -1,5 +1,5 @@
-const Alert = require('../models/postgres_models/Alert');
-const StockAlert = require('../models/postgres_models/StockAlert');
+import Alert from '../models/postgres_models/Alert.js';
+import StockAlert from '../models/postgres_models/StockAlert.js';
 
 async function createAlert(req, res) {
   try {
@@ -51,4 +51,9 @@ async function createStockAlert(req, res) {
   }
 }
 
-module.exports = { createAlert, getAlerts, deleteAlert, createStockAlert };
+export default {
+  createAlert,
+  getAlerts,
+  deleteAlert,
+  createStockAlert
+};

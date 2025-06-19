@@ -1,9 +1,9 @@
-const Favorite = require('../models/postgres_models/Favorite');
-const Client = require('../models/postgres_models/UserPg');
-const Product = require('../models/postgres_models/ProductPg');
+import Favorite from '../models/postgres_models/Favorite.js';
+import Client from '../models/postgres_models/UserPg.js';
+import Product from '../models/postgres_models/ProductPg.js';
 
 
-exports.addFavorite = async (req, res) => {
+export async function addFavorite(req, res) {
 
     try {
         const { userid, productids } = req.body;
@@ -34,7 +34,7 @@ exports.addFavorite = async (req, res) => {
 // controllers/favoriteController.js
 
 
-exports.getFavorites = async (req, res) => {
+export async function getFavorites(req, res) {
     try {
         const { userid } = req.params;
         const favorite = await Favorite.findOne({ where: { userid } });
@@ -52,7 +52,7 @@ exports.getFavorites = async (req, res) => {
 };
 
 
-exports.removeFavorite = async (req, res) => {
+export async function removeFavorite(req, res) {
     try {
         const { userid, productid } = req.body;
 

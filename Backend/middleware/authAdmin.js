@@ -1,5 +1,7 @@
-const jwt = require('jsonwebtoken');
-require('dotenv').config();
+import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const JWT_SECRET = process.env.JWT_SECRET;
 const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET;
@@ -77,4 +79,4 @@ function authenticateToken(req, res, next) {
     });
 }
 
-module.exports = { authenticateAdmin, authenticateToken, authenticateCompta };
+export { authenticateAdmin, authenticateToken, authenticateCompta };

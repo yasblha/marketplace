@@ -1,7 +1,7 @@
-const ProductSQL = require('../models/postgres_models/ProductPg');
-const ProductMongo = require('../models/mongo_models/Product');
-const denormalizeProduct = require('../services/denormalizeProduct');
-const { recordStock } = require('./stockService');
+import ProductSQL from '../models/postgres_models/ProductPg.js';
+import ProductMongo from '../models/mongo_models/Product.js';
+import denormalizeProduct from '../services/denormalizeProduct.js';
+import { recordStock } from './stockService.js';
 
 class ProductService {
     static async getProducts() {
@@ -100,4 +100,4 @@ class ProductService {
     }
 }
 
-module.exports = ProductService;
+export default ProductService;

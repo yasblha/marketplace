@@ -1,47 +1,57 @@
-const express = require('express');
+import 'dotenv/config';
 
-//bases de données
-const db = require('./config/postgres');
-const mongodb = require('./config/mongodb');
+import express        from 'express';
+import cors           from 'cors';
+import bodyParser     from 'body-parser';
+import cookieParser   from 'cookie-parser';
+import cron           from 'node-cron';
+import path, { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
 
-const cors = require('cors');
-const bodyParser = require("body-parser");
-const credentials = require('./middleware/credentials');
-const errorHandler = require('./middleware/error_handler');
-const { geocodeAddress } = require('./utils/geocodeService');
-
-
-//routes
-const authRoutes = require('./routes/api/auth');
-const products = require('./routes/api/products')
-const uploadRoutes = require('./routes/api/uploadRoute')
-const sectionRoutes = require('./routes/api/MenuRoute');
-const cartRoutes = require('./routes/api/PanierRoute');
-const orderRoutes = require('./routes/api/CommandeRoutes');
-const FavoriteRoutes = require('./routes/api/FavoriteRoutes');
-const AddressRoutes = require('./routes/api/adresseRoutes');
-const PaymentRoutes = require('./routes/api/PaymentRoutes');
-const ReturnRoutes = require('./routes/api/ReturnsRoutes');
-const stripeRoutes = require('./routes/api/stripeRoutes');
-const analyticsRoutes = require('./routes/api/analyticsRoutes');
-const alertRoutes = require('./routes/api/alertRoutes');
+//import './config/postgres.js';
+import './config/mongodb.js';
 
 
-const cron = require('node-cron');
-const upload = require('./middleware/upload');
-const cookieParser = require('cookie-parser');
-const { checkPasswordRenewal } = require('./services/reset_mail');
-//import injectProducts from './utils/faker';
-const path = require('path');
+import credentials       from './middleware/credentials.js';
+import errorHandler      from './middleware/error_handler.js';
+import { geocodeAddress } from './utils/geocodeService.js';
+import upload            from './middleware/upload.js';
 
+/*───────────────────────────────────
+  Routes API
+─────────────────────────────────────*/
+import authRoutes      from './routes/api/auth.js';
+import products        from './routes/api/products.js';
+import uploadRoutes    from './routes/api/uploadRoute.js';
+import sectionRoutes   from './routes/api/MenuRoute.js';
+import cartRoutes      from './routes/api/PanierRoute.js';
+import orderRoutes     from './routes/api/CommandeRoutes.js';
+import FavoriteRoutes  from './routes/api/FavoriteRoutes.js';
+import AddressRoutes   from './routes/api/adresseRoutes.js';
+import PaymentRoutes   from './routes/api/PaymentRoutes.js';
+import ReturnRoutes    from './routes/api/ReturnsRoutes.js';
+import stripeRoutes    from './routes/api/stripeRoutes.js';
+import analyticsRoutes from './routes/api/analyticsRoutes.js';
+import alertRoutes     from './routes/api/alertRoutes.js';
 
-require('dotenv').config();
+/*  Services */
+import { checkPasswordRenewal } from './services/reset_mail.js';
+// import injectProducts          from './utils/faker.js';
+import { syncDatabase }         from './synchronize.js';
 
-async function init() {
-    await checkPasswordRenewal();
-}
+/*───────────────────────────────────
+  Variables d'environnement (debug)
+─────────────────────────────────────*/
+console.log('JWT_SECRET :', process.env.JWT_SECRET);
+console.log('NODE_ENV   :', process.env.NODE_ENV);
 
-const app = express();
+/*───────────────────────────────────
+  Préparation Express
+─────────────────────────────────────*/
+const __filename = fileURLToPath(import.meta.url);
+const __dirname  = dirname(__filename);
+
+const app  = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
@@ -51,59 +61,68 @@ app.use(cors());
 app.use(credentials);
 app.use(cookieParser());
 
-app.use('/api/auth', authRoutes);
-app.use('/api/products', products);
-app.use('/api/upload', uploadRoutes);
-app.use('/api/sections', sectionRoutes);
-app.use('/api/cart', cartRoutes);
-app.use('/api/orders', orderRoutes);
-app.use('/api/favorites', FavoriteRoutes);
-app.use('/api/addresses', AddressRoutes);
-app.use('/api/payments', PaymentRoutes);
-app.use('/api/returns', ReturnRoutes);
-app.use('/api/stripe', stripeRoutes);
-app.use('/api/analytics', analyticsRoutes);
-app.use('/api/alerts', alertRoutes);
+/*───────────────────────────────────
+  Montage des routes
+─────────────────────────────────────*/
+app.use('/api/auth',       authRoutes);
+app.use('/api/products',   products);
+app.use('/api/upload',     uploadRoutes);
+app.use('/api/sections',   sectionRoutes);
+app.use('/api/cart',       cartRoutes);
+app.use('/api/orders',     orderRoutes);
+app.use('/api/favorites',  FavoriteRoutes);
+app.use('/api/addresses',  AddressRoutes);
+app.use('/api/payments',   PaymentRoutes);
+app.use('/api/returns',    ReturnRoutes);
+app.use('/api/stripe',     stripeRoutes);
+app.use('/api/analytics',  analyticsRoutes);
+app.use('/api/alerts',     alertRoutes);
 
+/*───────────────────────────────────
+  Fichiers statiques
+─────────────────────────────────────*/
+app.use('/uploads', express.static(join(__dirname, 'uploads')));
 
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
-
-
+/*───────────────────────────────────
+  Cron – réinitialisation de mot de passe
+─────────────────────────────────────*/
 cron.schedule('0 0 * * *', checkPasswordRenewal);
 
+/*───────────────────────────────────
+  Endpoints utilitaires
+─────────────────────────────────────*/
 app.get('/geocode', async (req, res) => {
     const address = req.query.q;
-
-    if (!address) {
-        return res.status(400).json({ error: 'Address query parameter is required' });
-    }
+    if (!address) return res.status(400).json({ error: 'Address query parameter is required' });
 
     try {
         const results = await geocodeAddress(address);
         res.json(results);
-    } catch (error) {
-        res.status(500).json({ error });
+    } catch (err) {
+        res.status(500).json({ error: err.message || err });
     }
 });
 
+app.get('/', (_req, res) => res.send('Welcome to my server!'));
 
-app.get('/', (req, res) => {
-    res.send('Welcome to my server!');
-});
-
+/*───────────────────────────────────
+  Sync BDD puis lancement serveur
+─────────────────────────────────────*/
+await syncDatabase();
 
 app.use(errorHandler);
 
-const server = app.listen(PORT, () => {
-    console.log(`App is listening at http://localhost:${PORT}`);
-    //init();
-});
+const server = app.listen(PORT, () =>
+    console.log(`App is listening at http://localhost:${PORT}`)
+);
 
+// await checkPasswordRenewal();
+// injectProducts();
 
-//injectProducts();
-
-process.on("unhandledRejection", err => {
-    console.error(`Unhandled Rejection: ${err.message}`);
+/*───────────────────────────────────
+  Gestion des promesses non gérées
+─────────────────────────────────────*/
+process.on('unhandledRejection', err => {
+    console.error('Unhandled Rejection:', err);
     server.close(() => process.exit(1));
 });

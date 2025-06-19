@@ -1,7 +1,7 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../../config/postgres');
-const Client = require('./UserPg');
-const Product = require('./ProductPg');
+import { DataTypes } from 'sequelize';
+import sequelize from '../../config/postgres.js';
+import Client from './UserPg.js';
+import Product from './ProductPg.js';
 
 const Favorite = sequelize.define('Favorite', {
     id: {
@@ -34,4 +34,4 @@ Favorite.belongsTo(Client, { foreignKey: 'userid' });
 // Product n'est pas directement associé ici car productids est une liste d'IDs, pas des objets Product
 // Les produits doivent être récupérés séparément lors de l'affichage des favoris
 
-module.exports = Favorite;
+export default Favorite;

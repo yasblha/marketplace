@@ -1,6 +1,6 @@
-function errorHandler(err, res, res, next){
+function errorHandler(err, res, next){
     console.error(err.stack);
     res.status(500).send(err.message)
 }
 
-module.exports = errorHandler;
+export default errorHandler;

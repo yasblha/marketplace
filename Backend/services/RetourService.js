@@ -1,9 +1,9 @@
-const Return = require('../models/postgres_models/Returns');
-const Order = require('../models/postgres_models/Commande');
-const Product = require('../models/postgres_models/ProductPg');
-const Client = require('../models/postgres_models/UserPg');
+import Return from '../models/postgres_models/Returns.js';
+import Order from '../models/postgres_models/Commande.js';
+import Product from '../models/postgres_models/ProductPg.js';
+import Client from '../models/postgres_models/UserPg.js';
 
-const createReturn = async (returnData) => {
+export async function createReturn(returnData) {
     try {
         const returnRecord = await Return.create(returnData);
         return returnRecord;
@@ -13,7 +13,7 @@ const createReturn = async (returnData) => {
     }
 };
 
-const getReturnById = async (id) => {
+export async function getReturnById(id) {
     try {
         const returnRecord = await Return.findByPk(id, {
             include: [Order, Product, Client]
@@ -28,7 +28,7 @@ const getReturnById = async (id) => {
     }
 };
 
-const updateReturnStatus = async (id, status) => {
+export async function updateReturnStatus(id, status) {
     try {
         const returnRecord = await Return.findByPk(id);
         if (!returnRecord) {
@@ -43,7 +43,7 @@ const updateReturnStatus = async (id, status) => {
     }
 };
 
-const listReturnsByUserId = async (userId) => {
+export async function listReturnsByUserId(userId) {
     try {
         const returns = await Return.findAll({
             where: { userId },
@@ -56,9 +56,9 @@ const listReturnsByUserId = async (userId) => {
     }
 };
 
-module.exports = {
-    createReturn,
-    getReturnById,
-    updateReturnStatus,
-    listReturnsByUserId
+export default {
+  createReturn,
+  getReturnById,
+  updateReturnStatus,
+  listReturnsByUserId
 };

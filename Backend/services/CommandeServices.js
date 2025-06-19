@@ -1,9 +1,9 @@
-const Order = require('../models/postgres_models/Commande');
-const OrderDetails = require('../models/postgres_models/DetailsCommande');
-const User = require('../models/postgres_models/UserPg');
-const Product = require('../models/mongo_models/Product');
-const sequelize = require('../config/postgres');
-const ORDER_STATUS = require('../constants/orderStatus');
+import Order from '../models/postgres_models/Commande.js';
+import OrderDetails from '../models/postgres_models/DetailsCommande.js';
+import User from '../models/postgres_models/UserPg.js';
+import Product from '../models/mongo_models/Product.js';
+import sequelize from '../config/postgres.js';
+import ORDER_STATUS from '../constants/orderStatus.js';
 
 const padProductId = (id) => id.toString().padStart(24, '0');
 const removeLeftZeros = (str) => str.toString().replace(/^0+/, '');
@@ -55,7 +55,10 @@ class OrderService {
         const order = await Order.findByPk(orderId, {
             include: [
                 { model: User },
-                { model: OrderDetails }
+                { 
+                    model: OrderDetails,
+                    as: 'details'
+                }
             ]
         });
 
@@ -130,41 +133,67 @@ class OrderService {
         });
         if (!order) throw new Error('Commande non trouvée');
 
-        order.OrderDetails.forEach(detail => {
+        order.details.forEach(detail => {
             detail.productId = removeLeftZeros(detail.productId);
         });
 
-        return order.OrderDetails;
+        return order.details;
     }
 
     static async getOrders() {
         const orders = await Order.findAll({
-            include: { model: OrderDetails }
+            include: [{
+                model: OrderDetails,
+                as: 'details'  // Corrigé pour correspondre à l'alias défini dans l'association
+            }],
+            order: [['dateOrder', 'DESC']]  // Corrigé pour utiliser le nom du champ JavaScript
         });
 
-        orders.forEach(order => {
-            order.OrderDetails.forEach(detail => {
-                detail.productId = padProductId(detail.productId);
-            });
-        });
+        // Formater les données pour le frontend
+        const formattedOrders = orders.map(order => ({
+            id: order.id,
+            dateOrder: order.dateOrder,
+            statusOrder: order.statusOrder,
+            totalAmount: order.totalAmount,
+            userId: order.userId,
+            createdAt: order.createdAt,
+            updatedAt: order.updatedAt,
+            OrderDetails: order.OrderDetails ? order.OrderDetails.map(detail => ({
+                ...detail.toJSON(),
+                productId: padProductId(detail.productId)
+            })) : []
+        }));
 
-        return orders;
+        return formattedOrders;
     }
 
     static async getOrdersByUserId(userId) {
         const orders = await Order.findAll({
             where: { userId },
-            include: { model: OrderDetails }
+            include: [{
+                model: OrderDetails,
+                as: 'details'
+            }],
+            order: [['date_order', 'DESC']]
         });
 
-        orders.forEach(order => {
-            order.OrderDetails.forEach(detail => {
-                detail.productId = padProductId(detail.productId);
-            });
-        });
+        // Formater les données pour le frontend
+        const formattedOrders = orders.map(order => ({
+            id: order.id,
+            dateOrder: order.dateOrder,
+            statusOrder: order.statusOrder,
+            totalAmount: order.totalAmount,
+            userId: order.userId,
+            createdAt: order.createdAt,
+            updatedAt: order.updatedAt,
+            OrderDetails: order.OrderDetails ? order.OrderDetails.map(detail => ({
+                ...detail.toJSON(),
+                productId: padProductId(detail.productId)
+            })) : []
+        }));
 
-        return orders;
+        return formattedOrders;
     }
 }
 
-module.exports = OrderService;
+export default OrderService;

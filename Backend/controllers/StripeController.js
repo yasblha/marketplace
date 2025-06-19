@@ -1,5 +1,6 @@
-require('dotenv').config();
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+import 'dotenv/config';
+import Stripe from 'stripe';
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 /**
  * Creates a Stripe Checkout Session to handle the payment process.
@@ -13,7 +14,7 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
  * 
  * @returns {void}
  */
-exports.createCheckoutSession = async (req, res) => {
+export async function createCheckoutSession(req, res) {
   const { items, customer } = req.body;
 
   console.log('Received items:', items);
@@ -57,7 +58,7 @@ exports.createCheckoutSession = async (req, res) => {
  * 
  * @returns {void}
  */
-exports.createCheckoutSessionPaypal = async (req, res) => {
+export async function createCheckoutSessionPaypal(req, res) {
     const { items, customer } = req.body;
     try {
       const session = await stripe.checkout.sessions.create({
@@ -97,7 +98,7 @@ exports.createCheckoutSessionPaypal = async (req, res) => {
  * 
  * @returns {void}
  */
-exports.createPaymentIntent = async (req, res) => {
+export async function createPaymentIntent(req, res) {
   const { amount, customer } = req.body;
 
   console.log('Request body:', req.body); // Log the request body

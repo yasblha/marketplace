@@ -1,7 +1,6 @@
 // services/passwordRenewalService.js
-
-const User = require('../models/postgres_models/UserPg');
-const {sendEmail} = require('./mailer');
+import User from '../models/postgres_models/UserPg.js';
+import { sendEmail } from './mailer.js';
 
 async function checkPasswordRenewal() {
     try {
@@ -159,4 +158,4 @@ async function checkPasswordRenewal() {
     }
 }
 
-module.exports = { checkPasswordRenewal };
+export { checkPasswordRenewal };

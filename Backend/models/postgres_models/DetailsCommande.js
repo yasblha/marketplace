@@ -1,15 +1,17 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../../config/postgres');
-const Order = require('./Commande');
-const Product = require('./ProductPg');
+import { DataTypes } from 'sequelize';
+import sequelize from '../../config/postgres.js';
+import Order from './Commande.js';
+import Product from './ProductPg.js';
 
 const OrderDetails = sequelize.define('OrderDetails', {
     id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
         primaryKey: true,
-    },orderId: {
+    },
+    orderId: {
         type: DataTypes.INTEGER,
+        field: 'orderId',
         references: {
             model: 'Orders',
             key: 'id',
@@ -18,6 +20,7 @@ const OrderDetails = sequelize.define('OrderDetails', {
     },
     productId: {
         type: DataTypes.INTEGER,
+        field: 'productId',
         references: {
             model: 'Product',
             key: 'id',
@@ -26,47 +29,66 @@ const OrderDetails = sequelize.define('OrderDetails', {
     },
     productName: {
         type: DataTypes.STRING,
+        field: 'productName',
         allowNull: false,
     },
     productDescription: {
         type: DataTypes.STRING,
+        field: 'productDescription',
         allowNull: false,
     },
     productCategory: {
         type: DataTypes.STRING,
+        field: 'productCategory',
         allowNull: false,
     },
     productBrand: {
         type: DataTypes.STRING,
+        field: 'productBrand',
         allowNull: false,
     },
     unitPrice: {
         type: DataTypes.FLOAT,
+        field: 'unitPrice',
         allowNull: false,
     },
     quantity: {
         type: DataTypes.INTEGER,
+        field: 'quantity',
         allowNull: false,
     },
     createdAt: {
         type: DataTypes.DATE,
+        field: 'createdAt',
         allowNull: false,
         defaultValue: DataTypes.NOW,
     },
     updatedAt: {
         type: DataTypes.DATE,
+        field: 'updatedAt',
         allowNull: false,
         defaultValue: DataTypes.NOW,
     },
 }, {
     tableName: 'OrderDetails',
     timestamps: true,
+    freezeTableName: true,
+    underscored: true,
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
 });
 
-OrderDetails.belongsTo(Order, { foreignKey: 'orderId' });
-OrderDetails.belongsTo(Product, { foreignKey: 'productId' });
+// Relations
+OrderDetails.associate = (models) => {
+    OrderDetails.belongsTo(models.Order, {
+        foreignKey: 'orderId',
+        as: 'order'
+    });
+    
+    OrderDetails.belongsTo(models.Product, {
+        foreignKey: 'productId',
+        as: 'product'
+    });
+};
 
-Order.hasMany(OrderDetails, { foreignKey: 'orderId' });
-Product.hasMany(OrderDetails, { foreignKey: 'productId' });
-
-module.exports = OrderDetails;
+export default OrderDetails;

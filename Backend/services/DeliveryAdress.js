@@ -1,4 +1,4 @@
-const DeliveryAddress = require('../models/postgres_models/AdresseLivraison');
+import DeliveryAddress from '../models/postgres_models/AdresseLivraison.js';
 
 class DeliveryAddressService {
     static async createAddress(userId, addressData) {
@@ -31,4 +31,4 @@ class DeliveryAddressService {
     }
 }
 
-module.exports = DeliveryAddressService;
+export default DeliveryAddressService;

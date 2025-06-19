@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "marketplace backend",
   "main": "server.js",
+  "type": "module",
   "scripts": {
     "start:server": "nodemon server.js --ignore '../FrontEnd'",
     "start:client": "npm run serve --prefix '../FrontEnd'",

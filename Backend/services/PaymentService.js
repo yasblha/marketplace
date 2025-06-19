@@ -1,8 +1,8 @@
-const Payment = require('../models/postgres_models/Payments');
-const Order = require('../models/postgres_models/Commande');
-const Client = require('../models/postgres_models/UserPg');
+import Payment from '../models/postgres_models/Payments.js';
+import Order from '../models/postgres_models/Commande.js';
+import Client from '../models/postgres_models/UserPg.js';
 
-const createPayment = async (paymentData) => {
+export async function createPayment(paymentData) {
     try {
         const payment = await Payment.create(paymentData);
         return payment;
@@ -12,7 +12,7 @@ const createPayment = async (paymentData) => {
     }
 };
 
-const getPaymentById = async (id) => {
+export async function getPaymentById(id) {
     try {
         const payment = await Payment.findByPk(id, {
             include: [Order, Client]
@@ -27,7 +27,7 @@ const getPaymentById = async (id) => {
     }
 };
 
-const updatePaymentStatus = async (id, status) => {
+export async function updatePaymentStatus(id, status) {
     try {
         const payment = await Payment.findByPk(id);
         if (!payment) {
@@ -42,7 +42,7 @@ const updatePaymentStatus = async (id, status) => {
     }
 };
 
-const listPaymentsByUserId = async (userId) => {
+export async function listPaymentsByUserId(userId) {
     try {
         const payments = await Payment.findAll({
             where: { userId },
@@ -55,9 +55,9 @@ const listPaymentsByUserId = async (userId) => {
     }
 };
 
-module.exports = {
-    createPayment,
-    getPaymentById,
-    updatePaymentStatus,
-    listPaymentsByUserId
+export default {
+  createPayment,
+  getPaymentById,
+  updatePaymentStatus,
+  listPaymentsByUserId
 };

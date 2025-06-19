@@ -111,28 +111,64 @@ export const useCartStore = defineStore('cart', () => {
         try {
             items.value = []; // Clear existing cart items to avoid duplicates
             const userid = authStore.user?.id;
+            
+            if (!userid) {
+                console.warn('No user ID available to load cart');
+                return;
+            }
+            
             const response = await axiosInstance.get(`/cart/${userid}`);
-            const cartItems = response.data;
+            const cartItems = response.data || [];
+            
+            // Si le panier est vide, on le sauvegarde et on sort
+            if (!Array.isArray(cartItems) || cartItems.length === 0) {
+                saveCart();
+                return;
+            }
 
+            const newItems: CartProduct[] = [];
+            
             for (const item of cartItems) {
-                const product = await productStore.getProductById(item.product._id);
-                const existingItem = items.value.find(cartItem => cartItem._id === product._id);
-                if (existingItem) {
-                    existingItem.quantity += item.quantity;
-                } else {
-                    items.value.push({
-                        _id: product._id,
-                        name: product.name,
-                        price: product.price,
-                        images: product.images,
-                        quantity: item.quantity,
-                        reservedUntil: new Date(item.reservedUntil),
-                    });
+                try {
+                    const productId = item.product?._id || item.productid;
+                    if (!productId) continue;
+                    
+                    const product = await productStore.getProductById(productId.toString());
+                    if (!product) {
+                        console.warn(`Product not found: ${productId}`);
+                        continue;
+                    }
+                    
+                    const existingItem = newItems.find(cartItem => cartItem._id === product._id);
+                    const quantity = item.quantity || 1;
+                    
+                    if (existingItem) {
+                        existingItem.quantity += quantity;
+                    } else {
+                        newItems.push({
+                            _id: product._id,
+                            name: product.name,
+                            price: product.price,
+                            images: product.images,
+                            quantity: quantity,
+                            reservedUntil: item.reserved_until ? new Date(item.reserved_until) : undefined,
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error processing cart item:', item, error);
                 }
             }
+            
+            items.value = newItems;
             saveCart();
-        } catch (error) {
-            console.error('Error loading cart from backend:', error);
+        } catch (error: any) {
+            if (error.response?.status === 404) {
+                // L'utilisateur n'a pas encore de panier, on le crée vide
+                items.value = [];
+                saveCart();
+            } else {
+                console.error('Error loading cart from backend:', error);
+            }
         }
     };
 
@@ -160,11 +196,12 @@ export const useCartStore = defineStore('cart', () => {
     return {
         items,
         addToCart,
+        updateCartItemQuantity,
         removeFromCart,
         calculateTotals,
-        saveCart,
         loadCart,
+        loadCartFromBackend,
         clearCart,
-        updateCartItemQuantity,
+        checkReservations,
     };
 });

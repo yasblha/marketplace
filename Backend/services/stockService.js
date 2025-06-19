@@ -1,8 +1,8 @@
-const { Op } = require('sequelize');
-const StockHistory = require('../models/postgres_models/StockHistory');
-const StockAlert = require('../models/postgres_models/StockAlert');
-const User = require('../models/postgres_models/UserPg');
-const { sendEmail } = require('./mailer');
+import { Op } from 'sequelize';
+import StockHistory from '../models/postgres_models/StockHistory.js';
+import StockAlert from '../models/postgres_models/StockAlert.js';
+import User from '../models/postgres_models/UserPg.js';
+import { sendEmail } from './mailer.js';
 
 async function recordStock(productId, quantity) {
   await StockHistory.create({ productId, quantity });
@@ -20,4 +20,4 @@ async function recordStock(productId, quantity) {
   }
 }
 
-module.exports = { recordStock };
+export { recordStock };

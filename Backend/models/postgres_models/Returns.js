@@ -1,5 +1,5 @@
-const { Model, DataTypes } = require('sequelize');
-const sequelize = require('../../config/postgres');
+import { Model, DataTypes } from 'sequelize';
+import sequelize from '../../config/postgres.js';
 
 class Return extends Model {}
 
@@ -44,4 +44,4 @@ Return.init({
     updatedAt: 'updated_at'
 });
 
-module.exports = Return;
+export default Return;

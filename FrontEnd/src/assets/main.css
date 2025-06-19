@@ -1,9 +1,69 @@
+@import './base.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@import './base.css';
-/* 
+/* Custom styles for navigation */
+.nav-link {
+  @apply px-3 py-2 text-sm font-medium text-gray-700 hover:text-primary-600 transition-colors duration-200;
+}
+
+.nav-link.router-link-active {
+  @apply text-primary-600 border-b-2 border-primary-600;
+}
+
+/* Dropdown menu animations */
+.dropdown-enter-active,
+.dropdown-leave-active {
+  transition: all 0.2s ease;
+}
+
+.dropdown-enter-from,
+.dropdown-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+/* Mobile menu animation */
+.mobile-menu-enter-active,
+.mobile-menu-leave-active {
+  transition: all 0.3s ease;
+}
+
+.mobile-menu-enter-from,
+.mobile-menu-leave-to {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
+/* Search bar transition */
+.search-bar-enter-active,
+.search-bar-leave-active {
+  transition: all 0.3s ease;
+}
+
+.search-bar-enter-from,
+.search-bar-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-100;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-400 rounded-full hover:bg-gray-500;
+}
+
+/*
 #app {
   max-width: 1280px;
   margin: 0 auto;

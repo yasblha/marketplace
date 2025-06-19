@@ -1,15 +1,14 @@
-const Cart = require('../models/postgres_models/Panier');
-const Client = require('../models/postgres_models/Userpg');
-//const Product = require('../models/postgres_models/ProductPg');
-//const Product = require('../models/mongo_models/Product');
-const ProductService = require('../services/productService');
-//const {authenticateAdmin, authenticateToken} = require('')
+import Cart from '../models/postgres_models/Panier.js';
+import Client from '../models/postgres_models/UserPg.js';
+import Product from '../models/postgres_models/ProductPg.js';
+import ProductService from '../services/productService.js';
+//import { authenticateAdmin, authenticateToken } from '';
 
 
 const padProductId = (id) => id.toString().padStart(24, '0');
 const removeLeftZeros = (str) => str.replace(/^0+/, '');
 
-exports.createCartItem = async (req, res) => {
+export async function createCartItem(req, res) {
     try {
         const { userid, productid, quantity } = req.body;
 
@@ -71,30 +70,78 @@ exports.createCartItem = async (req, res) => {
     }
 };
 
-exports.getCartItems = async (req, res) => {
+export async function getCartItems(req, res) {
     try {
         const { userid } = req.params;
-        const whereClause = { userid };
-        const cartItems = await Cart.findAll({ where: whereClause, include: [{ model: Client }] });
+        
+        // Vérifier d'abord si l'utilisateur existe
+        const user = await Client.findByPk(userid);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
 
-        const productIds = cartItems.map(item => padProductId(item.productid));
-        const products = await ProductService.getProductsByIds(productIds);
+        // Récupérer les articles du panier
+        const cartItems = await Cart.findAll({ 
+            where: { userid },
+            include: [
+                { 
+                    model: Client, 
+                    attributes: ['id', 'firstname', 'lastname', 'email'],
+                    as: 'UserPg'
+                },
+                { 
+                    model: Product, 
+                    as: 'ProductPg',
+                    attributes: ['id', 'name', 'price', 'image']
+                }
+            ]
+        });
 
+        // Si l'utilisateur n'a pas de panier, retourner un tableau vide
+        if (!cartItems || cartItems.length === 0) {
+            return res.status(200).json([]);
+        }
+
+        // Mapper les articles du panier avec les produits correspondants
         const cartItemsWithProducts = cartItems.map(cartItem => {
-            const product = products.find(p => p._id.toString() === padProductId(cartItem.productid));
+            // Utiliser le produit inclus dans la requête ou un objet vide
+            const product = cartItem.ProductPg || {};
+            
             return {
-                ...cartItem.toJSON(),
-                product,
+                id: cartItem.id,
+                userid: cartItem.userid,
+                productid: cartItem.productid,
+                quantity: cartItem.quantity,
+                session_id: cartItem.sessionId,
+                reserved_until: cartItem.reservedUntil,
+                created_at: cartItem.createdAt,
+                updated_at: cartItem.updatedAt,
+                product: product ? {
+                    _id: product.id.toString(),
+                    name: product.name,
+                    price: product.price,
+                    image: product.image || null
+                } : null,
+                user: cartItem.UserPg ? {
+                    id: cartItem.UserPg.id,
+                    firstname: cartItem.UserPg.firstname,
+                    lastname: cartItem.UserPg.lastname,
+                    email: cartItem.UserPg.email
+                } : null
             };
         });
 
         res.status(200).json(cartItemsWithProducts);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error('Error in getCartItems:', error);
+        res.status(500).json({ 
+            message: 'Error retrieving cart items',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
     }
 };
 
-exports.updateCartItem = async (req, res) => {
+export async function updateCartItem(req, res) {
     try {
         const { userid, quantity, productid } = req.body;
         const { id } = req.params;
@@ -134,7 +181,7 @@ exports.updateCartItem = async (req, res) => {
 
 
 
-exports.deleteCartItem = async (req, res) => {
+export async function deleteCartItem(req, res) {
     try {
         const { id } = req.params;
         console.log(id);

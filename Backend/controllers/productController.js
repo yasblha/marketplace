@@ -1,10 +1,10 @@
-const Product = require('../services/productService');
-const denormalizeProduct = require('../services/denormalizeProduct');
-const Media = require('../models/postgres_models/Media');
-const multer = require('multer');
-const upload = require('../middleware/upload');
-const { faker } = require ('@faker-js/faker');
-//const ProductPg = require('../models/postgres_models/ProductPg');
+import Product from '../services/productService.js';
+import denormalizeProduct from '../services/denormalizeProduct.js';
+import Media from '../models/postgres_models/Media.js';
+import multer from 'multer';
+import upload from '../middleware/upload.js';
+import { faker } from '@faker-js/faker';
+//import ProductPg from '../models/postgres_models/ProductPg.js';
 
 
 async function getAllProducts(req, res) {
@@ -239,15 +239,15 @@ async function injectProducts(req, res) {
     }
 }
 
-module.exports = {
+export {
     updateProductStock,
     getAllProducts,
     getProductById,
     createProduct,
+    uploadProductImages,
     updateProduct,
     deleteProduct,
     searchProducts,
     getProductsByCategory,
-    uploadProductImages,
     injectProducts
 };

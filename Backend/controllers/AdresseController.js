@@ -1,6 +1,6 @@
-const DeliveryAddressService = require('../services/DeliveryAdress');
+import DeliveryAddressService from '../services/DeliveryAdress.js';
 
-exports.createAddress = async (req, res) => {
+export async function createAddress(req, res) {
     try {
         const { userId } = req.body;
         const addressData = req.body;
@@ -11,7 +11,7 @@ exports.createAddress = async (req, res) => {
     }
 };
 
-exports.getAddressById = async (req, res) => {
+export async function getAddressById(req, res) {
     try {
         const { addressId } = req.params;
         const address = await DeliveryAddressService.getAddressById(addressId);
@@ -22,7 +22,7 @@ exports.getAddressById = async (req, res) => {
     }
 };
 
-exports.updateAddress = async (req, res) => {
+export async function updateAddress(req, res) {
     try {
         const { addressId } = req.params;
         const updateData = req.body;
@@ -33,7 +33,7 @@ exports.updateAddress = async (req, res) => {
     }
 };
 
-exports.deleteAddress = async (req, res) => {
+export async function deleteAddress(req, res) {
     try {
         const { addressId } = req.params;
         await DeliveryAddressService.deleteAddress(addressId);
@@ -43,7 +43,7 @@ exports.deleteAddress = async (req, res) => {
     }
 };
 
-exports.getAddressesByUserId = async (req, res) => {
+export async function getAddressesByUserId(req, res) {
     try {
         const { userId } = req.params;
         const addresses = await DeliveryAddressService.getAddressesByUserId(userId);

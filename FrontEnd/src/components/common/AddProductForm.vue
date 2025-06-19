@@ -1,51 +1,156 @@
 <template>
-  <form @submit.prevent="handleSubmit">
-    <div v-for="field in formFields" :key="field.name" class="form-group">
-      <label :for="field.name">{{ field.label }}</label>
-      <input
-          v-if="field.type === 'text'"
-          :id="field.name"
-          v-model="productData[field.name]"
-          :type="field.type"
-          class="form-control"
-      />
-      <textarea
-          v-else-if="field.type === 'textarea'"
-          :id="field.name"
-          v-model="productData[field.name]"
-          class="form-control"
-      ></textarea>
-      <select
-          v-else-if="field.type === 'select'"
-          :id="field.name"
-          v-model="productData[field.name]"
-          class="form-control"
-      >
-        <option v-for="option in field.options" :key="option" :value="option">{{ option }}</option>
-      </select>
-      <input
-          v-else-if="field.type === 'number'"
-          :id="field.name"
-          v-model="productData[field.name]"
-          :type="field.type"
-          @input="validateNumberInput(field.name)"
-          step="0.01"
-          class="form-control"
-      />
-      <span v-if="errors[field.name]" class="error">{{ errors[field.name] }}</span>
+  <form @submit.prevent="handleSubmit" class="max-w-4xl mx-auto my-8 p-8 bg-white rounded-lg shadow-sm border border-gray-100">
+    <div class="text-center mb-8">
+      <h2 class="text-2xl font-semibold text-gray-900 mb-2">
+        {{ isEditing ? 'Modifier le produit' : 'Ajouter un nouveau produit' }}
+      </h2>
+      <p class="text-gray-600 max-w-2xl mx-auto">
+        Remplissez les détails du produit ci-dessous
+      </p>
     </div>
-    <div class="form-group">
-      <label for="images">Images</label>
-      <input type="file" id="images" multiple @change="handleFileChange" class="form-control-file" />
-      <div class="image-previews">
-        <div v-for="(image, index) in images" :key="index" class="image-preview">
-          <img :src="image.url" :alt="`Image ${index + 1}`" />
-          <button @click.prevent="removeImage(index)" class="remove-button">X</button>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+      <div v-for="field in formFields" :key="field.name" :class="{ 'md:col-span-2': field.fullWidth }">
+        <div class="space-y-2">
+          <label :for="field.name" class="block text-sm font-medium text-gray-700">
+            {{ field.label }}
+            <span v-if="field.required" class="text-red-500">*</span>
+          </label>
+          
+          <!-- Input Text/Number -->
+          <template v-if="field.type === 'text' || field.type === 'number'">
+            <input
+              :id="field.name"
+              v-model="productData[field.name]"
+              :type="field.type"
+              :placeholder="field.placeholder"
+              :step="field.step"
+              :min="field.min"
+              class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-colors"
+              :class="{ 'border-red-300': errors[field.name], 'border-gray-200': !errors[field.name] }"
+              @input="field.type === 'number' ? validateNumberInput(field.name) : null"
+            >
+          </template>
+          
+          <!-- Textarea -->
+          <template v-else-if="field.type === 'textarea'">
+            <textarea
+              :id="field.name"
+              v-model="productData[field.name]"
+              :placeholder="field.placeholder"
+              rows="4"
+              class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-colors"
+              :class="{ 'border-red-300': errors[field.name], 'border-gray-200': !errors[field.name] }"
+            ></textarea>
+          </template>
+          
+          <!-- Select -->
+          <template v-else-if="field.type === 'select'">
+            <div class="relative">
+              <select
+                :id="field.name"
+                v-model="productData[field.name]"
+                class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-colors appearance-none bg-white pr-10"
+                :class="{ 'border-red-300': errors[field.name], 'border-gray-200': !errors[field.name] }"
+              >
+                <option value="" disabled selected>{{ field.placeholder || 'Sélectionnez une option' }}</option>
+                <option v-for="option in field.options" :key="option" :value="option">
+                  {{ option }}
+                </option>
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                  <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+                </svg>
+              </div>
+            </div>
+          </template>
+          
+          <!-- Error Message -->
+          <p v-if="errors[field.name]" class="mt-1 text-sm text-red-500">
+            {{ errors[field.name] }}
+          </p>
         </div>
       </div>
     </div>
-    <button type="submit" :disabled="isSubmitting" class="submit-button">Submit</button>
-    <div v-if="serverError" class="error">{{ serverError }}</div>
+
+    <div class="mb-8">
+      <label class="flex flex-col items-center justify-center w-full p-12 border-2 border-dashed border-gray-200 rounded-lg cursor-pointer hover:border-blue-300 hover:bg-blue-50 transition-colors">
+        <input
+          type="file"
+          ref="fileInput"
+          class="hidden"
+          multiple
+          accept="image/*"
+          @change="handleFileChange"
+        >
+        <div class="flex flex-col items-center justify-center text-center">
+          <div class="w-14 h-14 flex items-center justify-center bg-blue-50 text-blue-500 rounded-full mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+          </div>
+          <h4 class="text-lg font-medium text-gray-900 mb-1">Glissez-déposez vos images ici</h4>
+          <p class="text-sm text-gray-500">ou cliquez pour sélectionner des fichiers</p>
+        </div>
+      </label>
+      
+      <div v-if="images.length > 0" class="mt-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        <div v-for="(image, index) in images" :key="index" class="relative aspect-square rounded-lg overflow-hidden border border-gray-100">
+          <img :src="image.preview" :alt="'Preview ' + (index + 1)" class="w-full h-full object-cover" />
+          <button 
+            type="button" 
+            @click="removeImage(index)"
+            class="absolute top-2 right-2 w-7 h-7 flex items-center justify-center bg-white/90 text-red-500 rounded-full hover:bg-red-50 transition-colors shadow-sm"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div v-if="serverError" class="p-4 mb-6 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-r">
+      <div class="flex items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+        </svg>
+        <span>{{ serverError }}</span>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-end space-x-4 pt-4 border-t border-gray-100">
+      <button 
+        type="button" 
+        class="px-6 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+        @click="$emit('cancel')"
+        :disabled="isSubmitting"
+      >
+        Annuler
+      </button>
+      <button 
+        type="submit" 
+        class="px-6 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors flex items-center"
+        :disabled="isSubmitting"
+        :class="{ 'opacity-70 cursor-not-allowed': isSubmitting }"
+      >
+        <svg v-if="isSubmitting" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        {{ isEditing ? 'Mettre à jour' : 'Ajouter le produit' }}
+      </button>
+    </div>
+
+    <transition name="fade">
+      <div v-if="serverError" class="server-error">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M10 14L12 12M12 12L14 10M12 12L10 10M12 12L14 14M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        {{ serverError }}
+      </div>
+    </transition>
   </form>
 </template>
 
@@ -63,6 +168,7 @@ interface ProductData {
   price: number;
   stock_available: number;
   status: string;
+  images?: File[];
 }
 
 interface FormField {
@@ -84,13 +190,58 @@ const emit = defineEmits<{
 const productStore = useProductStore();
 
 const formFields: FormField[] = [
-  { name: 'name', type: 'text', label: 'Product Name' },
-  { name: 'description', type: 'textarea', label: 'Description' },
-  { name: 'category', type: 'text', label: 'Category' },
-  { name: 'brand', type: 'text', label: 'Brand' },
-  { name: 'price', type: 'number', label: 'Price' },
-  { name: 'stock_available', type: 'number', label: 'Stock Available' },
-  { name: 'status', type: 'select', label: 'Status', options: ['available', 'out_of_stock', 'discontinued'] },
+  { 
+    name: 'name', 
+    label: 'Nom du produit', 
+    type: 'text',
+    placeholder: 'Ex: T-shirt en coton bio',
+    fullWidth: true,
+    required: true
+  },
+  { 
+    name: 'description',
+    label: 'Description détaillée',
+    type: 'textarea',
+    placeholder: 'Décrivez votre produit en détail...',
+    fullWidth: true,
+    required: true
+  },
+  {
+    name: 'category',
+    label: 'Catégorie',
+    type: 'select',
+    options: ['Vêtements', 'Électronique', 'Maison', 'Autre'],
+    required: true
+  },
+  {
+    name: 'brand',
+    label: 'Marque',
+    type: 'text',
+    placeholder: 'Ex: Nike, Apple, IKEA',
+    required: true
+  },
+  {
+    name: 'price',
+    label: 'Prix (€)',
+    type: 'number',
+    step: '0.01',
+    min: '0',
+    required: true
+  },
+  {
+    name: 'stock_available',
+    label: 'Quantité disponible',
+    type: 'number',
+    min: '0',
+    required: true
+  },
+  {
+    name: 'status',
+    label: 'Statut',
+    type: 'select',
+    options: ['available', 'unavailable', 'draft'],
+    required: true
+  }
 ];
 
 const productData = ref<ProductData>({
@@ -101,6 +252,7 @@ const productData = ref<ProductData>({
   price: 0,
   stock_available: 0,
   status: 'available',
+  images: []
 });
 
 const isEditing = computed(() => !!props.initialData?._id);
@@ -115,16 +267,17 @@ const errors = ref<Record<string, string>>({});
 const isSubmitting = ref(false);
 const serverError = ref<string | null>(null);
 
-const images = ref<{ file: File; url: string }[]>([]);
+const images = ref<{ file: File; preview: string }[]>([]);
 
 const validationSchema = z.object({
-  name: z.string().nonempty('Product Name is required'),
-  description: z.string().nonempty('Description is required'),
-  category: z.string().nonempty('Category is required'),
-  brand: z.string().nonempty('Brand is required'),
-  price: z.number().positive('Price must be a positive number'),
-  stock_available: z.number().nonnegative('Stock Available must be a non-negative number'),
-  status: z.enum(['available', 'out_of_stock', 'discontinued']),
+  name: z.string().min(1, 'Le nom du produit est requis'),
+  description: z.string().min(1, 'La description est requise'),
+  category: z.string().min(1, 'La catégorie est requise'),
+  brand: z.string().min(1, 'La marque est requise'),
+  price: z.number().min(0, 'Le prix doit être un nombre positif'),
+  stock_available: z.number().int().min(0, 'La quantité disponible doit être un nombre entier positif'),
+  status: z.enum(['available', 'unavailable', 'draft']),
+  images: z.array(z.any()).optional()
 });
 
 const validate = () => {
@@ -154,8 +307,8 @@ const handleFileChange = (event: Event) => {
   const files = (event.target as HTMLInputElement).files;
   if (files) {
     for (const file of files) {
-      const url = URL.createObjectURL(file);
-      images.value.push({ file, url });
+      const preview = URL.createObjectURL(file);
+      images.value.push({ file, preview });
     }
   }
 };
@@ -166,161 +319,68 @@ const removeImage = (index: number) => {
 
 const handleSubmit = async () => {
   if (isSubmitting.value) {
-    return; // Prevent multiple submissions
+    return;
   }
 
-  if (validate()) {
-    isSubmitting.value = true;
-    serverError.value = null;
+  isSubmitting.value = true;
+  serverError.value = '';
 
-    try {
-      const formData = new FormData();
-      Object.entries(productData.value).forEach(([key, value]) => {
-        formData.append(key, value as string | Blob);
-      });
-      images.value.forEach((image) => {
-        formData.append('images', image.file); // Ajout des fichiers sous le champ 'images'
-      });
-
-      if (isEditing.value && productData.value._id) {
-        await productStore.updateProduct(productData.value._id, formData);
-        emit('product-updated');
-      } else {
-        await productStore.createProduct(formData);
-        emit('product-added');
-      }
-
-      if (!isEditing.value) {
-        productData.value = {
-          name: '',
-          description: '',
-          category: '',
-          brand: '',
-          price: 0,
-          stock_available: 0,
-          status: 'available',
-        };
-        images.value = [];
-      }
-    } catch (err) {
-      serverError.value = 'An error occurred while submitting the form.';
-    } finally {
+  try {
+    // Validation
+    if (!validate()) {
       isSubmitting.value = false;
+      return;
     }
+
+    // Création du FormData
+    const formData = new FormData();
+    
+    // Ajout des champs du formulaire
+    Object.entries(productData.value).forEach(([key, value]) => {
+      if (key === 'images') return;
+      if (value !== null && value !== undefined) {
+        formData.append(key, value.toString());
+      }
+    });
+
+    // Ajout des images
+    images.value.forEach((image) => {
+      formData.append('images', image.file);
+    });
+
+    // Envoi des données
+    if (isEditing.value && productData.value._id) {
+      await productStore.updateProduct(productData.value._id, formData);
+      emit('product-updated');
+      emit('success', 'Produit mis à jour avec succès');
+    } else {
+      await productStore.createProduct(formData);
+      emit('product-added');
+      emit('success', 'Produit créé avec succès');
+    }
+    
+    // Réinitialiser le formulaire si création
+    if (!isEditing.value) {
+      productData.value = {
+        name: '',
+        description: '',
+        category: '',
+        brand: '',
+        price: 0,
+        stock_available: 0,
+        status: 'available'
+      };
+      images.value = [];
+    }
+    
+    emit('saved');
+  } catch (error: any) {
+    console.error('Erreur lors de la sauvegarde du produit :', error);
+    serverError.value = error.response?.data?.message || 'Une erreur est survenue lors de la sauvegarde du produit';
+  } finally {
+    isSubmitting.value = false;
   }
 };
 </script>
 
-<style scoped>
-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  background-color: #f7f7f7;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.form-title {
-  font-size: 24px;
-  font-weight: bold;
-  color: #444;
-  text-align: center;
-  margin-bottom: 1.5rem;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-}
-
-.form-label {
-  font-weight: bold;
-  color: #666;
-  margin-bottom: 0.5rem;
-}
-
-.form-control, .form-control-file {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-sizing: border-box;
-  transition: border-color 0.3s, box-shadow 0.3s;
-}
-
-.form-control:focus, .form-control-file:focus {
-  border-color: #999;
-  box-shadow: 0 0 8px rgba(153, 153, 153, 0.1);
-}
-
-textarea.form-control {
-  resize: vertical;
-  min-height: 120px;
-}
-
-.error {
-  color: #e74c3c;
-  font-size: 0.875rem;
-  margin-top: 0.25rem;
-}
-
-.image-previews {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-}
-
-.image-preview {
-  position: relative;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  overflow: hidden;
-  width: 100px;
-  height: 100px;
-}
-
-.image-preview img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.remove-button {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  background: #e74c3c;
-  color: white;
-  border: none;
-  border-radius: 50%;
-  cursor: pointer;
-  font-size: 0.75rem;
-  width: 20px;
-  height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.submit-button {
-  padding: 0.75rem 1.5rem;
-  background-color: #333;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: background-color 0.3s;
-}
-
-.submit-button:hover {
-  background-color: #555;
-}
-
-.submit-button:disabled {
-  background-color: #aaa;
-  cursor: not-allowed;
-}
-</style>
+<!-- Tous les styles sont gérés par Tailwind CSS -->

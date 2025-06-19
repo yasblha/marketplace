@@ -1,7 +1,7 @@
-const User = require('../models/postgres_models/UserPg');
-const Order = require('../models/postgres_models/Commande');
-const Product = require('../models/mongo_models/Product');
-const ORDER_STATUS = require('../constants/orderStatus');
+import User from '../models/postgres_models/UserPg.js';
+import Order from '../models/postgres_models/Commande.js';
+import Product from '../models/mongo_models/Product.js';
+import ORDER_STATUS from '../constants/orderStatus.js';
 
 class AnalyticsService {
   static async getOverview() {
@@ -11,17 +11,36 @@ class AnalyticsService {
       Order.count()
     ]);
 
+    // Utiliser les bons noms de colonnes avec la syntaxe Sequelize
     const orders = await Promise.all(
       Object.values(ORDER_STATUS).map(async (status) => ({
         status,
-        count: await Order.count({ where: { statusOrder: status } })
+        count: await Order.count({ 
+          where: { 
+            status_order: status 
+          } 
+        })
       }))
     );
 
-    const totalRevenue = await Order.sum('totalAmount', { where: { statusOrder: ORDER_STATUS.PAID } }) || 0;
+    // Utiliser le bon nom de colonne pour le calcul du chiffre d'affaires
+    const totalRevenue = await Order.sum('total_amount', { 
+      where: { 
+        status_order: ORDER_STATUS.PAID 
+      } 
+    }) || 0;
 
-    return { userCount, productCount, totalOrders, orders, totalRevenue };
+    return { 
+      userCount, 
+      productCount, 
+      totalOrders, 
+      orders, 
+      totalRevenue,
+      // Ajout d'informations supplémentaires utiles pour le tableau de bord
+      orderStatus: ORDER_STATUS,
+      lastUpdated: new Date().toISOString()
+    };
   }
 }
 
-module.exports = AnalyticsService;
+export default AnalyticsService;

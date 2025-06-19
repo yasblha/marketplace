@@ -1,6 +1,6 @@
-const { DataTypes } = require('sequelize');
-//const Section = require('./Menu');
-const sequelize = require('../../config/postgres');
+import { DataTypes, Op } from 'sequelize';
+//import Section from './Menu.js';
+import sequelize from '../../config/postgres.js';
 
 const Product = sequelize.define('Product', {
     id: {
@@ -20,6 +20,10 @@ const Product = sequelize.define('Product', {
         type: DataTypes.STRING,
         allowNull: true,
     },
+    category_id: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+    },
     brand: {
         type: DataTypes.STRING,
         allowNull: true,
@@ -27,6 +31,15 @@ const Product = sequelize.define('Product', {
     price: {
         type: DataTypes.DECIMAL,
         allowNull: true,
+    },
+    sale_price: {
+        type: DataTypes.DECIMAL,
+        allowNull: true,
+    },
+    is_on_sale: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+        allowNull: false,
     },
     stock_available: {
         type: DataTypes.INTEGER,
@@ -51,7 +64,9 @@ const Product = sequelize.define('Product', {
     }*/
 }, {
     tableName: 'Product',
-    timestamps: false,
+    timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
 });
 
 //Section.hasMany(Product, { foreignKey: 'sectionId' });
@@ -68,9 +83,20 @@ Product.getProductById = async (id) => {
 
 Product.createProduct = async (productData) => {
     try {
-        const newProduct = await Product.create(productData);
+        const newProduct = await Product.create({
+            name: productData.name,
+            description: productData.description,
+            category: productData.category,
+            category_id: productData.category_id,
+            brand: productData.brand,
+            price: parseFloat(productData.price),
+            stock_available: parseInt(productData.stock_available),
+            status: productData.status,
+            image: productData.images || []
+        });
         return newProduct;
     } catch (error) {
+        console.error('Erreur détaillée lors de la création du produit:', error);
         throw error;
     }
 };
@@ -101,10 +127,18 @@ Product.deleteProduct = async (id) => {
 Product.searchProducts = async (criteria) => {
     const whereClause = {};
     if (criteria.name) whereClause.name = { [Op.iLike]: `%${criteria.name}%` };
+    if (criteria.description) whereClause.description = { [Op.iLike]: `%${criteria.description}%` };
     if (criteria.category) whereClause.category = criteria.category;
+    if (criteria.category_id) whereClause.category_id = criteria.category_id;
     if (criteria.brand) whereClause.brand = criteria.brand;
     if (criteria.minPrice) whereClause.price = { ...whereClause.price, [Op.gte]: criteria.minPrice };
     if (criteria.maxPrice) whereClause.price = { ...whereClause.price, [Op.lte]: criteria.maxPrice };
+    if (criteria.minSalePrice) whereClause.sale_price = { ...whereClause.sale_price, [Op.gte]: criteria.minSalePrice };
+    if (criteria.maxSalePrice) whereClause.sale_price = { ...whereClause.sale_price, [Op.lte]: criteria.maxSalePrice };
+    if (criteria.is_on_sale !== undefined) whereClause.is_on_sale = criteria.is_on_sale;
+    if (criteria.in_stock !== undefined) {
+        whereClause.stock_available = criteria.in_stock ? { [Op.gt]: 0 } : { [Op.lte]: 0 };
+    }
 
     return Product.findAll({ where: whereClause });
 };
@@ -130,4 +164,4 @@ Product.updateProductStock = async (id, newStock) => {
     }
 };
 
-module.exports = Product;
+export default Product;

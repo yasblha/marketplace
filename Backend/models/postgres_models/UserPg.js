@@ -1,7 +1,6 @@
-const { DataTypes, Op } = require('sequelize');
-const sequelize = require('../../config/postgres');
-const bcrypt = require('bcryptjs');
-const Product = require('./ProductPg');
+import { DataTypes, Op } from 'sequelize';
+import sequelize from '../../config/postgres.js';
+import Product from '../postgres_models/ProductPg.js';
 
 const User = sequelize.define('User', {
     id: {
@@ -58,6 +57,9 @@ const User = sequelize.define('User', {
 }, {
     tableName: 'Clients',
     timestamps: false,
+    createdAt: false,
+    updatedAt: false,
+    underscored: true
 });
 
 User.belongsToMany(Product, { through: 'Client_Product', foreignKey: 'userId' });
@@ -170,4 +172,4 @@ User.updateUserByToken = async (token, updates) => {
     });
 };
 
-module.exports = User;
+export default User;

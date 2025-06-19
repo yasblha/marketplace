@@ -1,10 +1,10 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const { authenticateAdmin } = require('../../middleware/authAdmin');
-const upload = require('../../middleware/upload');
-const productControllers = require('../../controllers/ProductController');
+import { authenticateAdmin } from '../../middleware/authAdmin.js';
+import upload from '../../middleware/upload.js';
+import * as productControllers from '../../controllers/productController.js';
 
 // Route protégée (authentification admin requise) pour l'upload des images
 router.post('/upload', authenticateAdmin, productControllers.uploadProductImages);
 
-module.exports = router;
+export default router;

@@ -1,17 +1,19 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../../config/postgres');
-const Client = require('./UserPg');
-const Product = require('./ProductPg');
+import { DataTypes } from 'sequelize';
+import sequelize from '../../config/postgres.js';
+import Client from './UserPg.js';
+import Product from './ProductPg.js';
 
 const Cart = sequelize.define('Cart', {
     id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
         primaryKey: true,
+        field: 'id'
     },
     userid: {
         type: DataTypes.INTEGER,
         allowNull: false,
+        field: 'userid',
         references: {
             model: 'Clients',
             key: 'id'
@@ -20,6 +22,7 @@ const Cart = sequelize.define('Cart', {
     productid: {
         type: DataTypes.INTEGER,
         allowNull: true,
+        field: 'productid',
         references: {
             model: 'Product',
             key: 'id'
@@ -29,18 +32,30 @@ const Cart = sequelize.define('Cart', {
         type: DataTypes.INTEGER,
         allowNull: false,
         defaultValue: 1,
+        field: 'quantity'
     },
     sessionId: {
-    type: DataTypes.STRING,
+        type: DataTypes.STRING,
         allowNull: true,
-},
+        field: 'session_id'
+    },
     reservedUntil: {
-    type: DataTypes.DATE,
-        allowNull: false,
-},
+        type: DataTypes.DATE,
+        allowNull: true,
+        field: 'reserved_until'
+    },
+    createdAt: {
+        type: DataTypes.DATE,
+        field: 'created_at'
+    },
+    updatedAt: {
+        type: DataTypes.DATE,
+        field: 'updated_at'
+    }
 }, {
     tableName: 'Cart',
-    timestamps: false,
+    timestamps: true,
+    underscored: true
 });
 
 // Définition des associations
@@ -50,4 +65,4 @@ Cart.belongsTo(Product, { foreignKey: 'productid' });
 Client.hasMany(Cart, { foreignKey: 'userid' });
 Cart.belongsTo(Client, { foreignKey: 'userid' });
 
-module.exports = Cart;
+export default Cart;

@@ -1,9 +1,9 @@
-const mongoose = require('mongoose');
-const ProductMongo = require("../models/mongo_models/Product");
-const ProductSQL = require("../models/postgres_models/ProductPg");
-const Media = require("../models/postgres_models/Media");
+import mongoose from 'mongoose';
+import ProductMongo from '../models/mongo_models/Product.js';
+import ProductSQL from '../models/postgres_models/ProductPg.js';
+import Media from '../models/postgres_models/Media.js';
 
-module.exports = async function denormalizeProduct(productId) {
+export default async function denormalizeProduct(productId) {
     try {
         // Récupération du produit depuis PostgreSQL
         const productDenormalized = await ProductSQL.findByPk(productId, {
@@ -24,9 +24,12 @@ module.exports = async function denormalizeProduct(productId) {
         console.log('images paths',imagePaths);
         console.log('tpoutes les images',images);
 
+        // Vérifier d'abord si le produit existe déjà
+        const existingProduct = await ProductMongo.findOne({ postgres_id: productDenormalized.id });
+        
         // Préparation des données pour MongoDB
-        const productForMongo = {
-            _id: new mongoose.Types.ObjectId(productDenormalized.id.toString().padStart(24, '0')),
+        const productData = {
+            postgres_id: productDenormalized.id,
             name: productDenormalized.name,
             description: productDenormalized.description,
             category: productDenormalized.category,
@@ -34,18 +37,25 @@ module.exports = async function denormalizeProduct(productId) {
             price: productDenormalized.price,
             stock_available: productDenormalized.stock_available,
             status: productDenormalized.status,
-            images: imagePaths
+            images: imagePaths || []
         };
 
-        // Mise à jour ou insertion du produit dans MongoDB
-        const productMongo = await ProductMongo.findByIdAndUpdate(
-            productForMongo._id,
-            productForMongo,
-            {
-                upsert: true,
-                new: true,
-            }
-        );
+        let productMongo;
+
+        if (existingProduct) {
+            // Mise à jour du produit existant
+            productMongo = await ProductMongo.findOneAndUpdate(
+                { _id: existingProduct._id },
+                { $set: productData },
+                { new: true }
+            );
+        } else {
+            // Création d'un nouveau produit avec un _id basé sur l'ID PostgreSQL
+            productMongo = await ProductMongo.create({
+                _id: `pg_${productDenormalized.id}`,
+                ...productData
+            });
+        }
 
         // Affichage des produits pour vérification
         console.log('Product in PostgreSQL:', productDenormalized.toJSON());

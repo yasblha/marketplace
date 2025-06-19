@@ -1,6 +1,6 @@
-const paymentService = require('../services/paymentService');
+import paymentService from '../services/paymentService.js';
 
-const createPayment = async (req, res, next) => {
+export async function createPayment(req, res, next) {
     try {
         const payment = await paymentService.createPayment(req.body);
         res.status(201).json(payment);
@@ -9,7 +9,7 @@ const createPayment = async (req, res, next) => {
     }
 };
 
-const getPayment = async (req, res, next) => {
+export async function getPayment(req, res, next) {
     try {
         const payment = await paymentService.getPaymentById(req.params.id);
         res.status(200).json(payment);
@@ -18,7 +18,7 @@ const getPayment = async (req, res, next) => {
     }
 };
 
-const updatePaymentStatus = async (req, res, next) => {
+export async function updatePaymentStatus(req, res, next) {
     try {
         const payment = await paymentService.updatePaymentStatus(req.params.id, req.body.status);
         res.status(200).json(payment);
@@ -27,7 +27,7 @@ const updatePaymentStatus = async (req, res, next) => {
     }
 };
 
-const listPaymentsByUser = async (req, res, next) => {
+export async function listPaymentsByUser(req, res, next) {
     try {
         const payments = await paymentService.listPaymentsByUserId(req.params.userId);
         res.status(200).json(payments);
@@ -36,9 +36,19 @@ const listPaymentsByUser = async (req, res, next) => {
     }
 };
 
-module.exports = {
+export async function processWebhook(req, res, next) {
+    try {
+        const payment = await paymentService.createPayment(req.body);
+        res.status(201).json(payment);
+    } catch (error) {
+        next(error);
+    }
+};
+
+export default {
     createPayment,
     getPayment,
     updatePaymentStatus,
-    listPaymentsByUser
+    listPaymentsByUser,
+    processWebhook
 };

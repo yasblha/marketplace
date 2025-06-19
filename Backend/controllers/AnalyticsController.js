@@ -1,6 +1,6 @@
-const AnalyticsService = require('../services/AnalyticsService');
+import AnalyticsService from '../services/AnalyticsService.js';
 
-exports.getOverview = async (req, res, next) => {
+export async function getOverview(req, res, next) {
   try {
     const data = await AnalyticsService.getOverview();
     res.status(200).json(data);

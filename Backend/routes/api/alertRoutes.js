@@ -1,11 +1,11 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const { authenticateToken } = require('../../middleware/authAdmin');
-const AlertController = require('../../controllers/AlertController');
+import { authenticateToken } from '../../middleware/authAdmin.js';
+import AlertController from '../../controllers/AlertController.js';
 
 router.post('/', authenticateToken, AlertController.createAlert);
 router.get('/', authenticateToken, AlertController.getAlerts);
 router.delete('/:id', authenticateToken, AlertController.deleteAlert);
 router.post('/stock', authenticateToken, AlertController.createStockAlert);
 
-module.exports = router;
+export default router;

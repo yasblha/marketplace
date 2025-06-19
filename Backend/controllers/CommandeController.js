@@ -1,8 +1,8 @@
-const OrderService = require('../services/CommandeServices');
-const Cart = require('../models/postgres_models/Panier');
-const ProductService = require('../services/productService');
+import OrderService from '../services/CommandeServices.js';
+import Cart from '../models/postgres_models/Panier.js';
+import ProductService from '../services/productService.js';
 
-exports.createOrder = async (req, res, next) => {
+export async function createOrder(req, res, next) {
     try {
         const { userId, statusOrder, totalAmount, products } = req.body;
 
@@ -18,13 +18,13 @@ exports.createOrder = async (req, res, next) => {
     }
 };
 
-exports.getOrderById = async (req, res, next) => {
+export async function getOrderById(req, res, next) {
     try {
         const { orderId } = req.params;
         const order = await OrderService.getOrderById(orderId);
         if (!order) return res.status(404).json({ message: 'Commande non trouvée' });
 
-        const detailedProducts = await Promise.all(order.OrderDetails.map(async product => {
+        const detailedProducts = await Promise.all(order.details.map(async product => {
             const productDetails = await ProductService.getProductById(product.productId);
             return {
                 ...product.toJSON(),
@@ -38,12 +38,12 @@ exports.getOrderById = async (req, res, next) => {
     }
 };
 
-exports.getOrders = async (req, res, next) => {
+export async function getOrders(req, res, next) {
     try {
         const orders = await OrderService.getOrders();
 
         const detailedOrders = await Promise.all(orders.map(async order => {
-            const detailedProducts = await Promise.all(order.OrderDetails.map(async product => {
+            const detailedProducts = await Promise.all(order.details.map(async product => {
                 const productDetails = await ProductService.getProductById(product.productId);
                 return {
                     productName: product.productName,
@@ -51,7 +51,7 @@ exports.getOrders = async (req, res, next) => {
                     quantity: product.quantity,
                 };
             }));
-            return { ...order.toJSON(), OrderDetails: detailedProducts };
+            return { ...order.toJSON(), details: detailedProducts };
         }));
 
         res.status(200).json(detailedOrders);
@@ -61,7 +61,7 @@ exports.getOrders = async (req, res, next) => {
 };
 
 
-exports.updateOrder = async (req, res, next) => {
+export async function updateOrder(req, res, next) {
     try {
         const { orderId } = req.params;
         const updates = req.body;
@@ -72,7 +72,7 @@ exports.updateOrder = async (req, res, next) => {
     }
 };
 
-exports.deleteOrder = async (req, res, next) => {
+export async function deleteOrder(req, res, next) {
     try {
         const { orderId } = req.params;
         await OrderService.deleteOrder(orderId);
@@ -82,7 +82,7 @@ exports.deleteOrder = async (req, res, next) => {
     }
 };
 
-exports.addProductToOrder = async (req, res, next) => {
+export async function addProductToOrder(req, res, next) {
     try {
         const { orderId, productId } = req.params;
         const { quantity } = req.body;
@@ -93,7 +93,7 @@ exports.addProductToOrder = async (req, res, next) => {
     }
 };
 
-exports.removeProductFromOrder = async (req, res, next) => {
+export async function removeProductFromOrder(req, res, next) {
     try {
         const { orderId, productId } = req.params;
         const order = await OrderService.removeProductFromOrder(orderId, productId);
@@ -103,7 +103,7 @@ exports.removeProductFromOrder = async (req, res, next) => {
     }
 };
 
-exports.getProductsFromOrder = async (req, res, next) => {
+export async function getProductsFromOrder(req, res, next) {
     try {
         const { orderId } = req.params;
         const products = await OrderService.getProductsFromOrder(orderId);
@@ -122,13 +122,13 @@ exports.getProductsFromOrder = async (req, res, next) => {
     }
 };
 
-exports.getOrdersByUserId = async (req, res, next) => {
+export async function getOrdersByUserId(req, res, next) {
     try {
         const { userId } = req.params;
         const orders = await OrderService.getOrdersByUserId(userId);
 
         const detailedOrders = await Promise.all(orders.map(async order => {
-            const detailedProducts = await Promise.all(order.OrderDetails.map(async product => {
+            const detailedProducts = await Promise.all(order.details.map(async product => {
                 const productDetails = await ProductService.getProductById(product.productId);
                 return {
                     productName: product.productName,
@@ -136,7 +136,7 @@ exports.getOrdersByUserId = async (req, res, next) => {
                     quantity: product.quantity,
                 };
             }));
-            return { ...order.toJSON(), OrderDetails: detailedProducts };
+            return { ...order.toJSON(), details: detailedProducts };
         }));
 
         res.status(200).json(detailedOrders);

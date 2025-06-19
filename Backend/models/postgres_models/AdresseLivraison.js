@@ -1,6 +1,6 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../../config/postgres');
-const User = require('../postgres_models/UserPg');
+import { DataTypes } from 'sequelize';
+import sequelize from '../../config/postgres.js';
+import User from '../postgres_models/UserPg.js';
 
 const DeliveryAddress = sequelize.define('DeliveryAddress', {
     id: {
@@ -40,4 +40,4 @@ const DeliveryAddress = sequelize.define('DeliveryAddress', {
 
 DeliveryAddress.belongsTo(User, { foreignKey: 'userid' });
 
-module.exports = DeliveryAddress;
+export default DeliveryAddress;
