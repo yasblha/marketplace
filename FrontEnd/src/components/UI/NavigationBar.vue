@@ -1,789 +1,618 @@
 <template>
   <header class="sticky top-0 z-50 bg-white shadow-sm">
-    <!-- Top Bar -->
+    <!-- ░░░ Barre info ░░░ -->
     <div class="bg-gradient-to-r from-primary-800 to-primary-600 text-white text-sm">
-      <div class="container mx-auto px-4 py-2 flex justify-between items-center">
-        <div class="flex items-center space-x-4">
-          <span><i class="fas fa-phone-alt mr-1"></i> +33 1 23 45 67 89</span>
-          <span><i class="fas fa-envelope mr-1"></i> contact@mambafit.com</span>
-        </div>
-        <div class="flex items-center space-x-4">
-          <a href="#" class="hover:text-primary-200 transition-colors transform hover:scale-110"><i class="fab fa-facebook-f"></i></a>
-          <a href="#" class="hover:text-primary-200 transition-colors transform hover:scale-110"><i class="fab fa-twitter"></i></a>
-          <a href="#" class="hover:text-primary-200 transition-colors transform hover:scale-110"><i class="fab fa-instagram"></i></a>
-        </div>
+      <div class="container mx-auto flex items-center justify-between px-4 py-2">
+        <p class="flex items-center gap-6">
+          <span><i class="fas fa-phone-alt mr-1" /> +33 1 23 45 67 89</span>
+          <span><i class="fas fa-envelope mr-1" /> contact@mambafit.com</span>
+        </p>
+
+        <nav class="flex items-center gap-4">
+          <a
+              v-for="s in soc"
+              :key="s"
+              href="#"
+              class="hover:text-primary-200 transform hover:scale-110"
+          >
+            <i :class="`fab fa-${s}`" />
+          </a>
+          <button
+              class="ml-4 p-1 rounded-full hover:bg-white/10"
+              :title="isDark ? 'Mode clair' : 'Mode sombre'"
+              @click="emit('toggle-dark-mode')"
+          >
+            <i :class="isDark ? 'fas fa-sun text-yellow-300' : 'fas fa-moon text-gray-300'" />
+          </button>
+        </nav>
       </div>
     </div>
 
-    <!-- Main Navigation -->
+    <!-- ░░░ Navigation ░░░ -->
     <nav class="bg-white">
-      <div class="container mx-auto px-4">
-        <div class="flex justify-between items-center h-20">
-          <!-- Logo -->
-          <router-link to="/" class="flex-shrink-0 flex items-center group">
-            <span class="text-2xl font-bold bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent transform transition-transform duration-300 group-hover:scale-105">MAMBAFIT</span>
-          </router-link>
+      <div class="container mx-auto flex h-20 items-center justify-between px-4">
+        <!-- Logo + burger -->
+        <div class="flex items-center gap-2">
+          <button
+              class="md:hidden p-2 text-gray-600 hover:text-primary-600"
+              @click="isMobile ? closeMenus() : openMobileMenu()"
+              :aria-expanded="isMobile"
+              aria-label="Menu"
+          >
+            <i class="fas fa-bars text-2xl" />
+          </button>
 
-          <!-- Desktop Navigation -->
-          <div class="hidden md:flex items-center space-x-2">
-            <router-link 
+          <RouterLink
               to="/"
-              class="px-4 py-2 text-gray-700 hover:text-primary-600 font-medium transition-all duration-300 hover:bg-gray-50 rounded-lg"
-              active-class="text-primary-600 font-semibold"
-              exact
-            >
-              Accueil
-            </router-link>
-            <router-link 
-              to="/products"
-              class="px-4 py-2 text-gray-700 hover:text-primary-600 font-medium transition-all duration-300 hover:bg-gray-50 rounded-lg"
-              active-class="text-primary-600 font-semibold"
-            >
-              Tous les produits
-            </router-link>
-          </div>
-
-          <!-- Right Side Icons -->
-          <div class="flex items-center space-x-4">
-            <!-- Search -->
-            <button 
-              @click="toggleSearch" 
-              class="p-2 text-gray-600 hover:text-primary-600 transition-all duration-300 hover:bg-gray-100 rounded-full"
-              :class="{ 'text-primary-600 bg-gray-100': showSearch }"
-              aria-label="Rechercher"
-            >
-              <i class="fas fa-search text-xl"></i>
-            </button>
-
-            <!-- User Menu -->
-            <div class="relative">
-              <button 
-                ref="userMenuButtonRef"
-                @click="toggleUserMenu" 
-                class="flex items-center space-x-2 p-2 text-gray-700 hover:text-primary-600 transition-all duration-300 hover:bg-gray-100 rounded-full"
-                :class="{ 'text-primary-600 bg-gray-100': showUserMenu }"
-                aria-label="Menu utilisateur"
-                aria-haspopup="true"
-                :aria-expanded="showUserMenu"
-              >
-                <i class="fas fa-user-circle text-2xl"></i>
-                <span class="hidden md:inline-block text-sm font-medium">{{ userInitials }}</span>
-              </button>
-              <!-- User Dropdown -->
-              <transition
-                enter-active-class="transition ease-out duration-100 transform"
-                enter-from-class="opacity-0 scale-95"
-                enter-to-class="opacity-100 scale-100"
-                leave-active-class="transition ease-in duration-75 transform"
-                leave-from-class="opacity-100 scale-100"
-                leave-to-class="opacity-0 scale-95"
-              >
-                <div 
-                  v-if="showUserMenu" 
-                  ref="userMenuRef"
-                  class="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl py-2 z-50 border border-gray-100"
-                >
-                  <div v-if="isAuthenticated" class="py-1">
-                    <!-- User Info -->
-                    <div class="px-4 py-3 border-b border-gray-100">
-                      <p class="text-sm font-medium text-gray-900 truncate">{{ user?.firstname }} {{ user?.lastname }}</p>
-                      <p class="text-xs text-gray-500 truncate">{{ user?.email }}</p>
-                    </div>
-                    
-                    <!-- Menu Items -->
-                    <router-link 
-                      to="/profile" 
-                      class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 group transition-colors duration-150"
-                      @click="showUserMenu = false"
-                    >
-                      <i class="fas fa-user-circle mr-3 text-gray-400 group-hover:text-primary-500 w-5 text-center"></i>
-                      <span>Mon Profil</span>
-                    </router-link>
-                    
-                    <router-link 
-                      v-if="isAdmin"
-                      to="/admin/dashboard" 
-                      class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 group transition-colors duration-150"
-                      @click="showUserMenu = false"
-                    >
-                      <i class="fas fa-tachometer-alt mr-3 text-gray-400 group-hover:text-primary-500 w-5 text-center"></i>
-                      <span>Tableau de bord</span>
-                    </router-link>
-                    
-                    <div class="border-t border-gray-100 my-1"></div>
-                    
-                    <button 
-                      @click="logout"
-                      class="w-full text-left flex items-center px-4 py-3 text-sm text-red-600 hover:bg-red-50 group transition-colors duration-150"
-                    >
-                      <i class="fas fa-sign-out-alt mr-3 text-red-400 group-hover:text-red-600 w-5 text-center"></i>
-                      <span>Déconnexion</span>
-                    </button>
-                  </div>
-                  
-                  <div v-else class="py-1">
-                    <button 
-                      @click="handleAuthClick('login')"
-                      class="w-full text-left flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 group transition-colors duration-150"
-                    >
-                      <i class="fas fa-sign-in-alt mr-3 text-gray-400 group-hover:text-primary-500 w-5 text-center"></i>
-                      <span>Connexion</span>
-                    </button>
-                    
-                    <button
-                      @click="handleAuthClick('register')"
-                      class="w-full text-left flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 group transition-colors duration-150"
-                    >
-                      <i class="fas fa-user-plus mr-3 text-gray-400 group-hover:text-primary-500 w-5 text-center"></i>
-                      <span>Créer un compte</span>
-                    </button>
-                  </div>
-                </div>
-              </transition>
-            </div>
-
-            <!-- Wishlist -->
-            <router-link 
-              to="/wishlist" 
-              class="p-2 text-gray-600 hover:text-primary-600 transition-colors relative"
-              :class="{ 'text-primary-600': $route.path === '/wishlist' }"
-            >
-              <i class="far fa-heart text-xl"></i>
-              <span v-if="wishlistCount > 0" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
-                {{ wishlistCount }}
-              </span>
-            </router-link>
-
-            <!-- Cart -->
-            <router-link 
-              to="/cart" 
-              class="p-2 text-gray-600 hover:text-primary-600 transition-colors relative"
-              :class="{ 'text-primary-600': $route.path === '/cart' }"
-            >
-              <i class="fas fa-shopping-cart text-xl"></i>
-              <span v-if="cartCount > 0" class="absolute -top-1 -right-1 bg-primary-600 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
-                {{ cartCount }}
-              </span>
-            </router-link>
-
-            <!-- Mobile Menu Button -->
-            <button 
-              @click="toggleMobileMenu"
-              class="mobile-menu-button md:hidden text-gray-600 hover:text-primary-600 transition-colors"
-              aria-label="Menu mobile"
-              type="button"
-            >
-              <i class="fas fa-bars text-2xl"></i>
-            </button>
-          </div>
+              class="font-bold text-2xl bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent"
+          >
+            MAMBAFIT
+          </RouterLink>
         </div>
 
-        <!-- Mobile Menu -->
-        <transition
-          enter-active-class="transition ease-out duration-100 transform"
+        <!-- Liens desktop -->
+        <nav class="hidden md:flex gap-1">
+          <RouterLink
+              v-for="l in main"
+              :key="l.path"
+              :to="l.path"
+              exact-active-class="text-primary-600 font-semibold"
+              class="px-4 py-2 font-medium text-gray-700 hover:text-primary-600 rounded-lg hover:bg-gray-50"
+          >
+            {{ l.title }}
+          </RouterLink>
+        </nav>
+
+        <!-- Actions -->
+        <div class="flex items-center gap-4">
+          <!-- Recherche -->
+          <button
+              class="search-btn p-2 rounded-full text-gray-600 hover:text-primary-600"
+              @click="toggleSearch"
+              aria-label="Recherche"
+          >
+            <i class="fas fa-search text-xl" />
+          </button>
+
+          <!-- Wishlist -->
+          <RouterLink to="/wishlist" class="relative p-2 text-gray-600 hover:text-primary-600">
+            <i class="far fa-heart text-xl" />
+            <span
+                v-if="wCount"
+                class="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white"
+            >
+              {{ wCount }}
+            </span>
+          </RouterLink>
+
+          <!-- Panier -->
+          <RouterLink to="/cart" class="relative p-2 text-gray-600 hover:text-primary-600">
+            <i class="fas fa-shopping-cart text-xl" />
+            <span
+                v-if="cCount"
+                class="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary-600 text-xs text-white"
+            >
+              {{ cCount }}
+            </span>
+          </RouterLink>
+
+          <!-- Utilisateur -->
+          <div class="relative">
+            <button
+                ref="btn"
+                class="user-btn flex items-center gap-2 p-2 rounded-full text-gray-700 hover:text-primary-600"
+                @click.stop="uMenu = !uMenu"
+                :aria-expanded="uMenu"
+                aria-haspopup="true"
+                :aria-controls="'user-menu'"
+            >
+              <i class="fas fa-user-circle text-2xl" />
+              <span class="hidden md:inline text-sm font-medium">{{ uInitials }}</span>
+            </button>
+
+            <Transition
+                enter-active-class="transition duration-150"
+                enter-from-class="opacity-0 scale-95"
+                enter-to-class="opacity-100 scale-100"
+                leave-active-class="transition duration-100"
+                leave-from-class="opacity-100 scale-100"
+                leave-to-class="opacity-0 scale-95"
+            >
+              <div
+                  v-if="uMenu"
+                  ref="menu"
+                  id="user-menu"
+                  class="absolute right-0 mt-2 w-52 rounded-md border bg-white shadow-lg z-50"
+                  role="menu"
+                  aria-orientation="vertical"
+                  aria-labelledby="user-menu-button"
+                  tabindex="-1"
+              >
+                <template v-if="isAuth">
+                  <RouterLink
+                      to="/profile"
+                      class="block px-4 py-2 text-sm hover:bg-gray-50"
+                      @click="closeMenus"
+                  >
+                    Profil
+                  </RouterLink>
+                  <RouterLink
+                      v-if="isAdmin"
+                      to="/admin/dashboard"
+                      class="block px-4 py-2 text-sm hover:bg-gray-50"
+                      @click="closeMenus"
+                  >
+                    Admin
+                  </RouterLink>
+                  <button
+                      class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-50"
+                      @click="logout"
+                  >
+                    Déconnexion
+                  </button>
+                </template>
+                <template v-else>
+                  <button
+                      class="block w-full text-left px-4 py-2 text-sm hover:bg-gray-50"
+                      @click="openAuth('login')"
+                  >
+                    Connexion
+                  </button>
+                  <button
+                      class="block w-full text-left px-4 py-2 text-sm hover:bg-gray-50"
+                      @click="openAuth('register')"
+                  >
+                    Créer un compte
+                  </button>
+                </template>
+              </div>
+            </Transition>
+          </div>
+        </div>
+      </div>
+
+      <!-- Menu mobile -->
+      <Transition
+          enter-active-class="transition duration-150"
           enter-from-class="opacity-0 scale-95"
           enter-to-class="opacity-100 scale-100"
-          leave-active-class="transition ease-in duration-75 transform"
+          leave-active-class="transition duration-100"
           leave-from-class="opacity-100 scale-100"
           leave-to-class="opacity-0 scale-95"
-        >
-          <div 
-            v-if="isMobileMenuOpen" 
-            class="md:hidden bg-white border-t border-gray-100 shadow-lg py-4 animate-fade-in"
-            ref="mobileMenuRef"
+      >
+        <nav v-if="isMobile" ref="mob" class="md:hidden border-t bg-white py-4 shadow">
+          <RouterLink
+              v-for="l in mobLinks"
+              :key="l.path"
+              :to="l.path"
+              class="block px-4 py-3 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-primary-600"
+              @click="closeMenus"
           >
-            <div class="px-2 space-y-1">
-              <router-link 
-                v-for="link in mobileNav" 
-                :key="link.path" 
-                :to="link.path" 
-                class="flex items-center px-4 py-3 text-base font-medium text-gray-700 hover:bg-gray-50 rounded-lg mx-2 group transition-colors duration-150"
-                @click="isMobileMenuOpen = false"
-                active-class="text-primary-600 bg-primary-50"
-              >
-                <i :class="`fas fa-${link.icon} mr-3 text-gray-400 group-hover:text-primary-500 w-5 text-center`"></i>
-                <span>{{ link.title }}</span>
-              </router-link>
-              
-              <!-- Mobile Auth Links -->
-              <template v-if="!isAuthenticated">
-                <button 
-                  @click="[openAuthModal('login'), isMobileMenuOpen = false]"
-                  class="w-full text-left flex items-center px-4 py-3 text-base font-medium text-gray-700 hover:bg-gray-50 rounded-lg mx-2 group transition-colors duration-150"
-                >
-                  <i class="fas fa-sign-in-alt mr-3 text-gray-400 group-hover:text-primary-500 w-5 text-center"></i>
-                  <span>Connexion</span>
-                </button>
-                
-                <button
-                  @click="[openAuthModal('register'), isMobileMenuOpen = false]"
-                  class="w-full text-left flex items-center px-4 py-3 text-base font-medium text-gray-700 hover:bg-gray-50 rounded-lg mx-2 group transition-colors duration-150"
-                >
-                  <i class="fas fa-user-plus mr-3 text-gray-400 group-hover:text-primary-500 w-5 text-center"></i>
-                  <span>Créer un compte</span>
-                </button>
-              </template>
-              
-              <template v-else>
-                <router-link 
-                  to="/profile"
-                  class="flex items-center px-4 py-3 text-base font-medium text-gray-700 hover:bg-gray-50 rounded-lg mx-2 group transition-colors duration-150"
-                  @click="isMobileMenuOpen = false"
-                >
-                  <i class="fas fa-user-circle mr-3 text-gray-400 group-hover:text-primary-500 w-5 text-center"></i>
-                  <span>Mon Profil</span>
-                </router-link>
-                
-                <router-link 
-                  v-if="isAdmin"
-                  to="/admin/dashboard"
-                  class="flex items-center px-4 py-3 text-base font-medium text-gray-700 hover:bg-gray-50 rounded-lg mx-2 group transition-colors duration-150"
-                  @click="isMobileMenuOpen = false"
-                >
-                  <i class="fas fa-tachometer-alt mr-3 text-gray-400 group-hover:text-primary-500 w-5 text-center"></i>
-                  <span>Tableau de bord</span>
-                </router-link>
-                
-                <button 
-                  @click="[logout(), isMobileMenuOpen = false]"
-                  class="w-full text-left flex items-center px-4 py-3 text-base font-medium text-red-600 hover:bg-red-50 rounded-lg mx-2 group transition-colors duration-150"
-                >
-                  <i class="fas fa-sign-out-alt mr-3 text-red-400 group-hover:text-red-600 w-5 text-center"></i>
-                  <span>Déconnexion</span>
-                </button>
-              </template>
-            </div>
-          </div>
-        </transition>
+            {{ l.title }}
+          </RouterLink>
 
-        <!-- Search Bar Overlay -->
-        <transition
-          enter-active-class="transition ease-out duration-200"
-          enter-from-class="opacity-0"
-          enter-to-class="opacity-100"
-          leave-active-class="transition ease-in duration-150"
-          leave-from-class="opacity-100"
-          leave-to-class="opacity-0"
-        >
-          <div 
-            v-if="showSearch"
-            class="fixed inset-0 z-50 bg-black bg-opacity-50 backdrop-blur-sm"
-            @click="toggleSearch"
-          >
-            <div 
-              class="absolute top-1/4 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-11/12 max-w-2xl"
-              @click.stop
-              ref="searchRef"
+          <template v-if="!isAuth">
+            <button
+                class="block w-full text-left px-4 py-3 text-base font-medium hover:bg-gray-50"
+                @click="openAuth('login')"
             >
-              <div class="relative">
-                <input 
-                  ref="searchInputRef"
-                  type="text" 
-                  v-model="searchQuery" 
-                  placeholder="Rechercher des produits..." 
-                  class="search-input w-full px-6 py-4 pr-16 text-lg rounded-xl shadow-xl border-0 focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 focus:outline-none transition-all duration-200"
-                  @keyup.enter="performSearch"
-                  autofocus
-                >
-                <button 
-                  @click="performSearch"
-                  class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-primary-600 text-white p-3 rounded-xl hover:bg-primary-700 transition-colors"
-                  aria-label="Rechercher"
-                >
-                  <i class="fas fa-search text-xl"></i>
+              Connexion
+            </button>
+            <button
+                class="block w-full text-left px-4 py-3 text-base font-medium hover:bg-gray-50"
+                @click="openAuth('register')"
+            >
+              Créer un compte
+            </button>
+          </template>
+
+          <template v-else>
+            <RouterLink
+                to="/profile"
+                class="block px-4 py-3 text-base font-medium hover:bg-gray-50"
+                @click="closeMenus"
+            >
+              Profil
+            </RouterLink>
+            <RouterLink
+                v-if="isAdmin"
+                to="/admin/dashboard"
+                class="block px-4 py-3 text-base font-medium hover:bg-gray-50"
+                @click="closeMenus"
+            >
+              Admin
+            </RouterLink>
+            <button
+                class="block w-full text-left px-4 py-3 text-base font-medium text-red-600 hover:bg-gray-50"
+                @click="logout"
+            >
+              Déconnexion
+            </button>
+          </template>
+        </nav>
+      </Transition>
+    </nav>
+
+    <!-- Overlay recherche -->
+    <Transition
+        enter-active-class="transition duration-200"
+        enter-from-class="opacity-0"
+        enter-to-class="opacity-100"
+        leave-active-class="transition duration-150"
+        leave-from-class="opacity-100"
+        leave-to-class="opacity-0"
+    >
+      <div
+          v-if="showSearch"
+          class="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
+          @click.self="toggleSearch"
+      >
+        <div
+            ref="sWrap"
+            class="absolute left-1/2 top-24 w-[95%] max-w-2xl -translate-x-1/2 rounded-xl bg-white shadow-xl"
+        >
+          <div class="relative p-6">
+            <input
+                ref="sInput"
+                v-model="sQuery"
+                type="text"
+                placeholder="Rechercher un produit…"
+                class="w-full rounded-lg border px-4 py-3 pr-12 focus:ring-2 focus:ring-primary-500"
+                @keyup.enter="goSearch"
+            />
+            <i class="fas fa-search absolute right-10 top-1/2 -translate-y-1/2 text-gray-400" />
+            <button
+                v-if="sQuery"
+                class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"
+                @click="sQuery = ''"
+            >
+              <i class="fas fa-times" />
+            </button>
+          </div>
+
+          <!-- Résultats -->
+          <div v-if="sQuery">
+            <!-- Chargement -->
+            <div v-if="loading" class="flex justify-center py-6">
+              <div class="h-6 w-6 animate-spin rounded-full border-b-2 border-primary-600" />
+            </div>
+
+            <!-- Suggestions -->
+            <div v-else-if="results.length" class="max-h-80 divide-y overflow-y-auto">
+              <button
+                  v-for="p in results"
+                  :key="p._id"
+                  class="flex w-full items-center gap-3 px-6 py-3 hover:bg-gray-50"
+                  @click="selectProduct(p)"
+              >
+                <img
+                    :src="p.images?.[0] || fallback"
+                    class="h-12 w-12 rounded-md object-cover"
+                />
+                <div class="flex-1 truncate text-left">
+                  <p class="truncate font-medium">{{ p.name }}</p>
+                  <p class="text-sm text-primary-600">{{ price(p.price) }}</p>
+                </div>
+              </button>
+              <div class="px-6 py-3 text-right">
+                <button class="text-primary-600 hover:underline" @click="goSearch">
+                  Voir tous les résultats »
                 </button>
               </div>
-              <div v-if="searchSuggestions.length > 0" class="mt-2 bg-white rounded-xl shadow-lg overflow-hidden">
-                <div 
-                  v-for="suggestion in searchSuggestions" 
-                  :key="suggestion.id"
-                  class="px-6 py-3 hover:bg-gray-50 cursor-pointer flex items-center"
-                  @click="goToProduct(suggestion)"
-                >
-                  <img :src="suggestion.image" :alt="suggestion.name" class="w-10 h-10 object-cover rounded-md mr-3">
-                  <div>
-                    <div class="font-medium text-gray-900">{{ suggestion.name }}</div>
-                    <div class="text-sm text-gray-500">{{ formatPrice(suggestion.price) }}</div>
-                  </div>
-                </div>
-              </div>
             </div>
+
+            <!-- Aucun résultat -->
+            <p v-else class="px-6 py-6 text-center text-gray-500">Aucun résultat.</p>
           </div>
-        </transition>
+        </div>
       </div>
-    </nav>
+    </Transition>
   </header>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue';
+import { ref, computed, nextTick, onMounted, onUnmounted, defineProps, withDefaults } from 'vue';
 import { watchDebounced } from '@vueuse/core';
-import { useRoute, useRouter, type RouteLocationRaw } from 'vue-router';
-import { useAuthStore } from '@/stores/user';
-import { useAuthModalStore } from '@/stores/authModale';
-import { useCartStore } from '@/stores/panier';
-import { useWishlistStore } from '@/stores/wishlist';
+import { useRouter, useRoute } from 'vue-router';
+import { useAuthStore }       from '@/stores/user';
+import { useAuthModalStore }  from '@/stores/authModale';
+import { useCartStore }       from '@/stores/panier';
+import { useWishlistStore }   from '@/stores/wishlist';
+import { useProductStore }    from '@/stores/products';
+import type { Product }       from '@/stores/products';
+import axiosInstance from '@/services/api';
 
-// Types
-interface SearchSuggestion {
-  id: number;
-  name: string;
-  price: number;
-  image: string;
-}
+/* ---------- props / emit ---------- */
+const props = withDefaults(defineProps<{
+  isDark?: boolean;
+}>(), {
+  isDark: false
+});
+const emit = defineEmits<{ (e: 'toggle-dark-mode'): void }>();
 
-interface NavItem {
-  title: string;
-  path: string;
-  icon?: string;
-}
+/* ---------- stores ---------- */
+const auth  = useAuthStore();
+const modal = useAuthModalStore();
+const cart  = useCartStore();
+const wish  = useWishlistStore();
+const prod  = useProductStore();
 
-// Router and stores
-const route = useRoute();
+/* ---------- router ---------- */
 const router = useRouter();
-const authModalStore = useAuthModalStore();
-const authStore = useAuthStore();
-const cartStore = useCartStore();
-const wishlistStore = useWishlistStore();
+const route  = useRoute();
 
-// UI state
-const isMobileMenuOpen = ref<boolean>(false);
-const showUserMenu = ref<boolean>(false);
-const showSearch = ref<boolean>(false);
-const searchQuery = ref<string>('');
+/* ---------- state ---------- */
+const isMobile   = ref(false);
+const uMenu      = ref(false);
+const showSearch = ref(false);
 
-// Refs for click outside detection
-const searchInput = ref<HTMLInputElement | null>(null);
-const searchOverlay = ref<HTMLDivElement | null>(null);
-const mobileMenuRef = ref<HTMLDivElement | null>(null);
-const userMenuButtonRef = ref<HTMLButtonElement | null>(null);
-const userMenuRef = ref<HTMLDivElement | null>(null);
-const searchRef = ref<HTMLDivElement | null>(null);
+const sQuery  = ref('');
+const results = ref<Product[]>([]);
+const loading = ref(false);
 
-// Computed properties
-const isAuthenticated = computed<boolean>(() => authStore.isAuthenticated);
-const isAdmin = computed<boolean>(() => authStore.user?.role === 'admin');
-const cartCount = computed<number>(() => cartStore.items.reduce((total, item) => total + item.quantity, 0));
-const wishlistCount = computed<number>(() => wishlistStore.items.length);
+const btn   = ref<HTMLElement>();
+const menu  = ref<HTMLElement>();
+const mob   = ref<HTMLElement>();
+const sWrap = ref<HTMLElement>();
+const sInput= ref<HTMLInputElement>();
 
-// Navigation links
-const mainNav: NavItem[] = [
-  { title: 'Accueil', path: '/' },
-  { title: 'Boutique', path: '/products' },
-  { title: 'Femme', path: '/category/femme' },
-  { title: 'Homme', path: '/category/homme' },
-  { title: 'Équipement', path: '/category/equipement' },
-  { title: 'Nutrition', path: '/category/nutrition' },
-  { title: 'Promotions', path: '/promotions' },
-];
-
-// Mobile navigation links
-const mobileNav: NavItem[] = [
-  { title: 'Accueil', path: '/', icon: 'home' },
-  { title: 'Tous les produits', path: '/products', icon: 'shopping-bag' },
-];
-
-// Reactive state
-const searchSuggestions = ref<SearchSuggestion[]>([]);
-const isSearching = ref<boolean>(false);
-
-// User initials
-const userInitials = computed<string>(() => {
-  if (!authStore.user) return '?';
-  const user = authStore.user as { firstname?: string; lastname?: string; email?: string };
-  const firstname = user?.firstname || '';
-  const lastname = user?.lastname || '';
-  const email = user?.email || '';
-  
-  if (firstname && lastname) {
-    return `${firstname.charAt(0)}${lastname.charAt(0)}`.toUpperCase();
-  }
-  if (email) return email.charAt(0).toUpperCase();
-  return '?';
+/* ---------- computed ---------- */
+const isAuth  = computed(() => auth.isAuthenticated);
+const isAdmin = computed(() => auth.user?.role === 'admin');
+const cCount  = computed(() => cart.items.reduce((n, i) => n + i.quantity, 0));
+const wCount  = computed(() => wish.items.length);
+const uInitials = computed(() => {
+  const u = auth.user;
+  if (!u) return '?';
+  const f = u.firstname?.[0] ?? '';
+  const l = u.lastname?.[0] ?? '';
+  return (f || l ? f + l : u.email?.[0] ?? '?').toUpperCase();
 });
 
-// Search products
-const searchProducts = async (query: string): Promise<void> => {
+/* ---------- menu lists ---------- */
+const main     = [ { title:'Accueil',path:'/' }, { title:'Boutique',path:'/products' }, { title:'Promotions',path:'/promotions' } ];
+const mobLinks = [...main];
+const soc      = ['facebook-f','twitter','instagram'];
+
+/* ---------- helpers ---------- */
+const price    = (n:number) => n.toLocaleString('fr-FR',{style:'currency',currency:'EUR'});
+const fallback = 'https://via.placeholder.com/80?text=No+Image';
+const closeMenus = () => {
+  isMobile.value = false;
+  uMenu.value = false;
+  showSearch.value = false;
+  document.body.style.overflow = '';
+};
+
+const openMobileMenu = () => {
+  isMobile.value = true;
+  uMenu.value = false;
+  showSearch.value = false;
+  document.body.style.overflow = 'hidden';
+};
+
+/* ---------- auth ---------- */
+const openAuth = (m:'login'|'register')=>{ modal.openModal(m); closeMenus(); };
+const logout   = async()=>{ await auth.logout(); closeMenus(); router.push('/'); };
+
+/* ---------- search logic ---------- */
+const searchProducts = async (query: string) => {
   if (!query.trim()) {
-    searchSuggestions.value = [];
+    results.value = [];
     return;
   }
   
-  isSearching.value = true;
+  loading.value = true;
   try {
-    // Simuler une API call - À remplacer par un vrai appel API
-    // const response = await api.searchProducts(query);
-    // searchSuggestions.value = response.data;
+    // Utiliser la fonction searchProducts du store
+    await prod.searchProducts(query);
     
-    // Simulation de données
-    searchSuggestions.value = [
-      { id: 1, name: 'Produit de test 1', price: 49.99, image: 'https://via.placeholder.com/50' },
-      { id: 2, name: 'Autre produit', price: 29.99, image: 'https://via.placeholder.com/50' },
-    ];
+    // Récupérer les résultats du store
+    const searchResults = prod.products;
+    console.log('Résultats bruts de la recherche:', searchResults);
+    
+    // Vérifier si nous avons une réponse valide
+    if (!searchResults) {
+      console.warn('Aucun résultat de recherche');
+      results.value = [];
+      return;
+    }
+    
+    // Vérifier si nous avons directement les tableaux sqlProducts et mongoProducts
+    if (searchResults.sqlProducts || searchResults.mongoProducts) {
+      const { sqlProducts = [], mongoProducts = [] } = searchResults;
+      
+      console.log('SQL Products:', sqlProducts);
+      console.log('Mongo Products:', mongoProducts);
+      
+      // Formater les résultats SQL
+      const formattedSql = Array.isArray(sqlProducts) ? sqlProducts.map((product: any) => {
+        let imageUrl = null;
+        
+        // Gérer les images pour les produits SQL
+        if (product.image) {
+          try {
+            const parsedImage = JSON.parse(product.image);
+            imageUrl = Array.isArray(parsedImage) ? parsedImage[0] : parsedImage;
+          } catch (e) {
+            console.warn('Erreur lors du parsing de l\'image SQL:', e);
+            imageUrl = product.image;
+          }
+        }
+        
+        return {
+          _id: `sql-${product.id}`,
+          name: product.name || 'Nom non disponible',
+          brand: product.brand || 'Marque inconnue',
+          category: product.category || 'Non catégorisé',
+          price: parseFloat(product.price) || 0,
+          image: imageUrl,
+          source: 'sql'
+        };
+      }) : [];
+      
+      // Formater les résultats MongoDB
+      const formattedMongo = Array.isArray(mongoProducts) ? mongoProducts.map((product: any) => ({
+        _id: product._id,
+        name: product.name || 'Nom non disponible',
+        brand: product.brand || 'Marque inconnue',
+        category: product.category || 'Non catégorisé',
+        price: product.price || 0,
+        image: (product.images && product.images.length > 0) ? product.images[0] : null,
+        source: 'mongo'
+      })) : [];
+      
+      // Combiner et filtrer pour ne garder que les résultats dont le nom correspond exactement à la recherche
+      const allResults = [...formattedSql, ...formattedMongo];
+      const normalizedQuery = query.trim().toLowerCase();
+      const exactMatches = allResults.filter(product => 
+        product.name.toLowerCase() === normalizedQuery
+      );
+      
+      // Si on a des correspondances exactes, on les prend, sinon on garde les résultats initiaux
+      results.value = exactMatches.length > 0 
+        ? exactMatches.slice(0, 8) 
+        : allResults.slice(0, 8);
+    } else if (Array.isArray(searchResults)) {
+      // Si c'est directement un tableau de résultats
+      const allResults = searchResults.map((product: any) => {
+        let imageUrl = null;
+        
+        // Essayer de déterminer la source (SQL ou MongoDB)
+        const isMongo = '_id' in product;
+        
+        if (isMongo && product.images && product.images.length > 0) {
+          // Produit MongoDB avec images
+          imageUrl = product.images[0];
+        } else if (product.image) {
+          // Produit SQL avec image
+          try {
+            const parsedImage = JSON.parse(product.image);
+            imageUrl = Array.isArray(parsedImage) ? parsedImage[0] : parsedImage;
+          } catch (e) {
+            console.warn('Erreur lors du parsing de l\'image:', e);
+            imageUrl = product.image;
+          }
+        }
+        
+        return {
+          _id: isMongo ? product._id : `sql-${product.id || product.postgres_id}`,
+          name: product.name || 'Nom non disponible',
+          brand: product.brand || 'Marque inconnue',
+          category: product.category || 'Non catégorisé',
+          price: product.price || 0,
+          image: imageUrl,
+          source: isMongo ? 'mongo' : 'sql'
+        };
+      });
+      
+      // Filtrer pour ne garder que les résultats dont le nom correspond exactement à la recherche
+      const normalizedQuery = query.trim().toLowerCase();
+      const exactMatches = allResults.filter((product: any) => 
+        product.name.toLowerCase() === normalizedQuery
+      );
+      
+      // Si on a des correspondances exactes, on les prend, sinon on garde les résultats initiaux
+      results.value = exactMatches.length > 0 
+        ? exactMatches.slice(0, 8)
+        : allResults.slice(0, 8);
+    } else {
+      console.warn('Format de réponse inattendu:', searchResults);
+      results.value = [];
+    }
+    
+    console.log('Résultats formatés:', results.value);
+    
   } catch (error) {
-    console.error('Erreur lors de la recherche:', error);
-    searchSuggestions.value = [];
+    console.error('Erreur lors de la recherche :', error);
+    results.value = [];
   } finally {
-    isSearching.value = false;
+    loading.value = false;
   }
 };
 
-// Watch search query changes
+// Utilisation de watchDebounced pour limiter les appels API
 watchDebounced(
-  searchQuery,
-  (newQuery: string) => {
-    searchProducts(newQuery);
+  sQuery,
+  (query) => {
+    searchProducts(query);
   },
   { debounce: 300, maxWait: 1000 }
 );
 
-// Perform search
-const performSearch = (): void => {
-  if (searchQuery.value.trim()) {
-    router.push({ 
-      name: 'products', 
-      query: { q: searchQuery.value } 
-    } as RouteLocationRaw);
-    showSearch.value = false;
-    searchQuery.value = '';
-    searchSuggestions.value = [];
-  }
-};
-
-// Go to product page
-const goToProduct = (product: SearchSuggestion): void => {
-  const route: RouteLocationRaw = { 
-    name: 'product', 
-    params: { id: product.id.toString() } 
-  };
-  router.push(route);
-  showSearch.value = false;
-  searchQuery.value = '';
-  searchSuggestions.value = [];
-};
-
-// Auth methods
-const openAuthModal = (mode: 'login' | 'register'): void => {
-  authModalStore.openModal(mode);
-};
-
-const handleAuthClick = (mode: 'login' | 'register'): void => {
-  openAuthModal(mode);
-  showUserMenu.value = false;
-};
-
-const logout = async (): Promise<void> => {
-  await authStore.logout();
-  showUserMenu.value = false;
-  if (route.meta.requiresAuth) {
-    router.push('/');
-  }
-};
-
-// Toggle search overlay
-const toggleSearch = (event?: MouseEvent): void => {
-  event?.stopPropagation();
-  showSearch.value = !showSearch.value;
+const toggleSearch = (event?: Event) => {
+  if (event) event.stopPropagation();
   
   if (showSearch.value) {
-    // Close other menus when opening search
-    showUserMenu.value = false;
-    isMobileMenuOpen.value = false;
-    
-    // Focus the search input when search is opened
-    nextTick(() => {
-      if (searchInput.value) {
-        searchInput.value.focus();
-      }
+    closeMenus();
+    return;
+  }
+  
+  showSearch.value = true;
+  uMenu.value = false;
+  isMobile.value = false;
+  
+  sQuery.value = '';
+  results.value = [];
+  
+  nextTick(() => {
+    sInput.value?.focus();
+  });
+};
+
+const goSearch = () => {
+  const query = sQuery.value.trim();
+  if (query) {
+    router.push({ 
+      name: 'products', 
+      query: { q: query } 
     });
-  } else {
-    searchQuery.value = '';
-    searchSuggestions.value = [];
+  }
+  closeMenus();
+};
+const selectProduct = (product: Product) => {
+  if (product?._id) {
+    router.push({ 
+      name: 'product', 
+      params: { id: product._id } 
+    });
+    closeMenus();
   }
 };
 
-// Toggle user menu
-const toggleUserMenu = (event?: MouseEvent): void => {
-  event?.stopPropagation();
-  showUserMenu.value = !showUserMenu.value;
+/* ---------- global listeners ---------- */
+const clickOutside = (e: MouseEvent) => {
+  const target = e.target as HTMLElement;
   
-  // Close other menus when opening this one
-  if (showUserMenu.value) {
-    isMobileMenuOpen.value = false;
-    showSearch.value = false;
+  // Fermer le menu utilisateur si clic en dehors
+  if (uMenu.value && btn.value && !btn.value.contains(target) && menu.value && !menu.value.contains(target)) {
+    uMenu.value = false;
+  }
+  
+  // Fermer le menu mobile si clic en dehors
+  if (isMobile.value && mob.value && !mob.value.contains(target) && !target.closest('[aria-label="Menu"]')) {
+    closeMenus();
+  }
+  
+  // Fermer la recherche si clic en dehors
+  const searchBtn = target.closest('.search-btn');
+  if (showSearch.value && sWrap.value && !sWrap.value.contains(target) && !searchBtn) {
+    closeMenus();
   }
 };
+const esc = (e:KeyboardEvent) => { if (e.key==='Escape') closeMenus(); };
 
-// Close user menu when clicking outside
-const closeUserMenu = (event: Event): void => {
-  if (
-    userMenuButtonRef.value && 
-    !userMenuButtonRef.value.contains(event.target as Node) &&
-    userMenuRef.value &&
-    !userMenuRef.value.contains(event.target as Node) &&
-    showUserMenu.value
-  ) {
-    showUserMenu.value = false;
-  }
-}
-
-// Handle click outside to close menus
-const handleClickOutside = (event: Event): void => {
-  const target = event.target as HTMLElement;
-  
-  if (userMenuRef.value && !userMenuRef.value.contains(target)) {
-    showUserMenu.value = false;
-  }
-  
-  if (mobileMenuRef.value && !mobileMenuRef.value.contains(target) && !target.closest('.mobile-menu-button')) {
-    isMobileMenuOpen.value = false;
-  }
-  
-  if (showSearch.value && searchRef.value && !searchRef.value.contains(target) && !target.closest('.search-button')) {
-    showSearch.value = false;
-    searchQuery.value = '';
-    searchSuggestions.value = [];
-  }
-};
-
-// Handle escape key press
-const handleEscape = (e: KeyboardEvent): void => {
-  if (e.key === 'Escape') {
-    if (showSearch.value) {
-      showSearch.value = false;
-      searchQuery.value = '';
-      searchSuggestions.value = [];
-    }
-    if (showUserMenu.value) {
-      showUserMenu.value = false;
-    }
-    if (isMobileMenuOpen.value) {
-      isMobileMenuOpen.value = false;
-    }
-  }
-};
-
-// Add/remove event listeners
-onMounted(async (): Promise<void> => {
-  document.addEventListener('click', handleClickOutside);
-  document.addEventListener('click', closeUserMenu);
-  window.addEventListener('keydown', handleEscape);
-  
-  // Charger le panier et la wishlist
-  try {
-    if (authStore.isAuthenticated) {
-      await cartStore.loadCartFromBackend();
-    } else {
-      cartStore.loadCart();
-    }
-    await wishlistStore.fetchWishlist();
-  } catch (error) {
-    console.error('Erreur lors du chargement des données:', error);
+onMounted(()=>{
+  document.addEventListener('click',clickOutside);
+  window.addEventListener('keydown',esc);
+  cart.loadCart();
+  // Vérifier si la méthode fetchWishlist existe avant de l'appeler
+  if (wish && typeof wish.fetchWishlist === 'function') {
+    wish.fetchWishlist();
   }
 });
-
-// Cleanup event listeners
-onUnmounted((): void => {
-  document.removeEventListener('click', handleClickOutside);
-  document.removeEventListener('click', closeUserMenu);
-  window.removeEventListener('keydown', handleEscape);
+onUnmounted(()=>{
+  document.removeEventListener('click',clickOutside);
+  window.removeEventListener('keydown',esc);
 });
 </script>
-
-<style scoped>
-/* User menu dropdown */
-.user-menu-container {
-  @apply origin-top-right right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none;
-}
-
-/* Search bar */
-.search-input {
-  @apply block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm;
-}
-
-/* Cart and wishlist counters */
-.counter-badge {
-  @apply absolute -top-2 -right-2 inline-flex items-center justify-center h-5 w-5 rounded-full bg-primary-600 text-xs font-medium text-white;
-}
-
-/* Mobile menu button */
-.mobile-menu-button {
-  @apply inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-primary-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-500;
-}
-
-/* Navigation links */
-.nav-link {
-  @apply px-3 py-2 text-sm font-medium text-gray-700 hover:text-primary-600 transition-colors duration-200;
-}
-
-.nav-link.router-link-active {
-  @apply text-primary-600 border-b-2 border-primary-600;
-}
-
-/* Dropdown item */
-.dropdown-item {
-  @apply block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 cursor-pointer;
-}
-
-/* Auth buttons */
-.auth-button {
-  @apply inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500;
-}
-
-/* User avatar */
-.user-avatar {
-  @apply h-8 w-8 rounded-full bg-primary-100 flex items-center justify-center text-primary-600 font-medium text-sm;
-}
-
-/* Mobile menu */
-.mobile-menu {
-  @apply px-2 pt-2 pb-3 space-y-1;
-}
-
-.mobile-menu-link {
-  @apply block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-gray-50;
-}
-
-.mobile-menu-link.router-link-active {
-  @apply bg-gray-100 text-primary-600;
-}
-
-/* Search overlay */
-.search-overlay {
-  @apply fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity duration-200 ease-in-out;
-}
-
-/* Animations */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.animate-fade-in {
-  animation: fadeIn 0.2s ease-in-out;
-}
-
-/* Transition for menus */
-.menu-enter-active,
-.menu-leave-active {
-  transition: opacity 0.2s, transform 0.2s;
-}
-
-.menu-enter-from,
-.menu-leave-to {
-  opacity: 0;
-  transform: translateY(-10px);
-}
-
-/* Search bar focus effect */
-.search-input:focus {
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
-}
-
-/* Smooth transitions for interactive elements */
-.transition-all {
-  transition-property: all;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 150ms;
-}
-
-/* Custom scrollbar for dropdowns */
-.dropdown-scrollbar::-webkit-scrollbar {
-  width: 6px;
-}
-
-.dropdown-scrollbar::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 3px;
-}
-
-.dropdown-scrollbar::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 3px;
-}
-
-.dropdown-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #a1a1a1;
-}
-
-/* Pulse animation for loading states */
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
-
-.animate-pulse {
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-/* Sticky header */
-.sticky {
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  transition: all 0.3s ease;
-}
-
-/* Hide scrollbar but allow scrolling */
-.hide-scrollbar {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
-}
-
-.hide-scrollbar::-webkit-scrollbar {
-  display: none;  /* Chrome, Safari and Opera */
-}
-
-/* Smooth transitions */
-.transition-all {
-  transition-property: all;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 150ms;
-}
-
-/* Custom scrollbar for dropdowns */
-.custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 3px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 3px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
-}
-
-/* Responsive adjustments */
-@media (max-width: 767px) {
-  .container {
-    padding-left: 1rem;
-    padding-right: 1rem;
-  }
-  
-  .hidden-mobile {
-    display: none !important;
-  }
-}
-
-/* Accessibility focus styles */
-*:focus-visible {
-  outline: 2px solid #3b82f6;
-  outline-offset: 2px;
-  border-radius: 0.25rem;
-}
-
-/* Print styles */
-@media print {
-  header {
-    display: none !important;
-  }
-}
-</style>

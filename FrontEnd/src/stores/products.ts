@@ -1,218 +1,138 @@
-import { ref } from 'vue';
-import { defineStore } from 'pinia';
-import { useAuthStore } from '@/stores/user';
-import axiosInstance from "@/services/api";
+import { ref } from 'vue'
+import { defineStore } from 'pinia'
+import axiosInstance from '@/services/api'
+import { useAuthStore } from '@/stores/user'
+import type { Product, SearchCriteria, ProductForm } from '@/types/product'
+import defaultImage from '@/assets/No_Image_Available .jpg'
 
-export interface Product {
-    _id: string;
-    name: string;
-    description: string;
-    category: string;
-    brand: string;
-    price: number;
-    stock_available: number;
-    status: string;
-    images: string[];
+const extractImagePath = (raw: any): string => {
+    if (!raw) return ''
+    if (Array.isArray(raw)) return extractImagePath(raw[0])
+
+    let src = typeof raw === 'string' ? raw : raw.url ?? raw.path ?? ''
+    const match = src.match(/uploads\/[^"}\]]+/)
+    if (match) src = match[0]
+
+    src = src.replace(/^\/+/, '')
+    if (/^https?:\/\//i.test(src)) return src
+    if (!src.startsWith('uploads/')) src = `uploads/${src}`
+    return `/${src}`
 }
 
-export interface SearchCriteria {
-    name?: string;
-    description?: string;
-    category?: string;
-    brand?: string;
-    priceMin?: number;
-    priceMax?: number;
-    onSale?: boolean;
-    inStock?: boolean;
+const normalizeProduct = (p: any): Product => {
+    const images = (Array.isArray(p.images) ? p.images : [p.image])
+        .map(extractImagePath)
+        .filter(Boolean)
+
+    return {
+        ...p,
+        images: images.length ? images : [defaultImage],
+        image: images[0] ?? defaultImage
+    } as Product
 }
 
 export const useProductStore = defineStore('product', () => {
-    const products = ref<Product[]>([]);
-    const authStore = useAuthStore();
+    const products = ref<Product[]>([])
+    const authStore = useAuthStore()
 
     const fetchProducts = async (): Promise<void> => {
-        try {
-            const response = await axiosInstance.get('/products');
-            products.value = response.data.mongoProducts;
-            console.log('Fetched products:', products.value);
-        } catch (error) {
-            console.error('Error fetching products:', error);
-            throw new Error('Failed to fetch products');
-        }
-    };
+        const { data } = await axiosInstance.get('/products')
+        const { mongoProducts = [], sqlProducts = [] } = data
+        const pgMap = new Map(sqlProducts.map((p: any) => [String(p.id ?? p._id), p]))
 
-    const getProductById = async (id: string): Promise<Product> => {
-        try {
-            const response = await axiosInstance.get<Product>(`/products/${id}`);
-            return response.data;
-        } catch (error) {
-            console.error('Error fetching product by ID:', error);
-            throw new Error('Failed to fetch product by ID');
-        }
-    };
+        products.value = mongoProducts.map((m: any) => {
+            const id = String(m.id ?? m._id)
+            const pg = pgMap.get(id)
+            return normalizeProduct({ ...pg, ...m })
+        })
+    }
 
-    const createProduct = async (productData: FormData): Promise<void> => {
-        try {
-            if (!authStore.token) {
-                throw new Error('Token non disponible');
+    const getProductById = async (id: string) => {
+        const { data } = await axiosInstance.get(`/products/${id}`)
+        return normalizeProduct(data)
+    }
+
+    const createProduct = async (payload: FormData | ProductForm) => {
+        const { data } = await axiosInstance.post('/products', payload, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+                Authorization: `Bearer ${authStore.token}`
             }
-            console.log('Creating product with user data:', authStore.user);
-            const response = await axiosInstance.post('/products', productData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                    'Authorization': `Bearer ${authStore.token}`
-                }
-            });
-            const created: Product = (response.data as any).product.newSQLProduct;
-            products.value.push(created);
-            console.log('Product created:', created);
+        })
+        if (data?.product?.newSQLProduct)
+            products.value.push(normalizeProduct(data.product.newSQLProduct))
+    }
 
-        } catch (error) {
-            console.error('Error creating product:', error);
-            throw new Error('Failed to create product');
-        }
-    };
-
-    const uploadProductImages = async (formData: FormData): Promise<void> => {
-        try {
-            await axiosInstance.post('/upload/upload', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                    'Authorization': `Bearer ${authStore.token}`
-                }
-            });
-            console.log('Images uploaded successfully');
-        } catch (error) {
-            console.error('Error uploading images:', error);
-            throw new Error('Failed to upload images');
-        }
-    };
-
-    const updateProduct = async (id: string, productData: FormData): Promise<void> => {
-        try {
-            const response = await axiosInstance.put(`/products/${id}`, productData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                    'Authorization': `Bearer ${authStore.token}`
-                }
-            });
-            const index = products.value.findIndex(p => p._id === id);
-            if (index !== -1) {
-                products.value[index] = (response.data as any).product.updatedSQLProduct;
+    const uploadProductImages = (fd: FormData) =>
+        axiosInstance.post('/upload/upload', fd, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+                Authorization: `Bearer ${authStore.token}`
             }
-            console.log('Product updated:', (response.data as any).product.updatedSQLProduct);
+        })
 
-        } catch (error) {
-            console.error('Error updating product:', error);
-            throw new Error('Failed to update product');
-        }
-    };
-
-    const deleteProduct = async (id: string): Promise<void> => {
-        try {
-            await axiosInstance.delete(`/products/${id}`, {
-                headers: {
-                    'Authorization': `Bearer ${authStore.token}`
-                }
-            });
-            products.value = products.value.filter(p => p._id !== id);
-            console.log(`Product with ID ${id} deleted`);
-        } catch (error) {
-            console.error('Error deleting product:', error);
-            throw new Error('Failed to delete product');
-        }
-    };
-
-    const updateProductStock = async (id: string, stockData: { stock_available: number }): Promise<void> => {
-        try {
-            const response = await axiosInstance.patch(`/products/${id}/stock`, stockData, {
-                headers: {
-                    'Authorization': `Bearer ${authStore.token}`
-                }
-            });
-            const index = products.value.findIndex(p => p._id === id);
-            if (index !== -1) {
-                products.value[index] = { ...products.value[index], ...((response.data as any).product.updatedSQLProduct) };
+    const updateProduct = async (
+        id: string,
+        payload: FormData | Partial<ProductForm>
+    ) => {
+        const { data } = await axiosInstance.put(`/products/${id}`, payload, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+                Authorization: `Bearer ${authStore.token}`
             }
-            console.log('Product stock updated:', (response.data as any).product.updatedSQLProduct);
+        })
+        const idx = products.value.findIndex(p => String(p._id ?? p.id) === id)
+        if (idx !== -1 && data?.product?.updatedSQLProduct)
+            products.value[idx] = normalizeProduct({
+                ...products.value[idx],
+                ...data.product.updatedSQLProduct
+            })
+    }
 
-        } catch (error) {
-            console.error('Error updating product stock:', error);
-            throw new Error('Failed to update product stock');
-        }
-    };
+    const deleteProduct = async (id: string) => {
+        await axiosInstance.delete(`/products/${id}`, {
+            headers: { Authorization: `Bearer ${authStore.token}` }
+        })
+        products.value = products.value.filter(p => String(p._id ?? p.id) !== id)
+    }
 
-    const searchProducts = async (query: string): Promise<void> => {
-        try {
-            const response = await axiosInstance.get<Product[]>('/products/search', {
-                headers: {
-                    'Authorization': `Bearer ${authStore.token}`
-                },
-                params: { q: query }
-            });
-            products.value = response.data;
-            console.log('Products found:', products.value);
-        } catch (error) {
-            console.error('Error searching products:', error);
-            throw new Error('Failed to search products');
-        }
-    };
+    const updateProductStock = async (
+        id: string,
+        stock: { stock_available: number }
+    ) => {
+        const { data } = await axiosInstance.patch(`/products/${id}/stock`, stock, {
+            headers: { Authorization: `Bearer ${authStore.token}` }
+        })
+        const idx = products.value.findIndex(p => String(p._id ?? p.id) === id)
+        if (idx !== -1 && data?.product?.updatedSQLProduct)
+            products.value[idx] = {
+                ...products.value[idx],
+                ...data.product.updatedSQLProduct
+            }
+    }
 
-    const injectProducts = async () => {
-        try {
-            const response = await axiosInstance.post('/products/inject-products');
-            console.log(response.data.message);
-        } catch (error) {
-            console.error('Error injecting products:', error);
-        }
-    };
+    const searchProducts = async (q: string) => {
+        const { data } = await axiosInstance.get('/products/search', {
+            params: { q },
+            headers: { Authorization: `Bearer ${authStore.token}` }
+        })
+        const list = data.sqlProducts ?? data.mongoProducts ?? data
+        products.value = (list as any[]).map(normalizeProduct)
+    }
 
-    const searchFacetedProducts = (criteria: SearchCriteria): void => {
-        let filtered = products.value;
-
-        if (criteria.name) {
-            filtered = filtered.filter(product =>
-                product.name.toLowerCase().includes(criteria.name!.toLowerCase())
-            );
-        }
-
-        if (criteria.description) {
-            filtered = filtered.filter(product =>
-                product.description.toLowerCase().includes(criteria.description!.toLowerCase())
-            );
-        }
-
-        if (criteria.category) {
-            filtered = filtered.filter(product =>
-                product.category.toLowerCase().includes(criteria.category!.toLowerCase())
-            );
-        }
-
-        if (criteria.brand) {
-            filtered = filtered.filter(product =>
-                product.brand.toLowerCase().includes(criteria.brand!.toLowerCase())
-            );
-        }
-
-        if (criteria.priceMin !== undefined) {
-            filtered = filtered.filter(product => product.price >= criteria.priceMin!);
-        }
-
-        if (criteria.priceMax !== undefined) {
-            filtered = filtered.filter(product => product.price <= criteria.priceMax!);
-        }
-
-        if (criteria.onSale !== undefined) {
-            filtered = filtered.filter(product => product.status === 'sale');
-        }
-
-        if (criteria.inStock !== undefined) {
-            filtered = filtered.filter(product => product.stock_available > 0);
-        }
-
-        products.value = filtered;
-        console.log('Faceted search results:', products.value);
-    };
+    const searchFacetedProducts = (c: SearchCriteria) => {
+        products.value = products.value.filter(
+            p =>
+                (!c.name || p.name.toLowerCase().includes(c.name.toLowerCase())) &&
+                (!c.category ||
+                    p.category?.toLowerCase() === c.category.toLowerCase()) &&
+                (!c.brand || p.brand?.toLowerCase() === c.brand.toLowerCase()) &&
+                (c.priceMin === undefined || Number(p.price) >= c.priceMin) &&
+                (c.priceMax === undefined || Number(p.price) <= c.priceMax) &&
+                (!c.inStock || (p.stock_available ?? 0) > 0) &&
+                (!c.onSale || p.is_on_sale)
+        )
+    }
 
     return {
         products,
@@ -224,7 +144,6 @@ export const useProductStore = defineStore('product', () => {
         deleteProduct,
         updateProductStock,
         searchProducts,
-        injectProducts,
         searchFacetedProducts
-    };
-});
+    }
+})

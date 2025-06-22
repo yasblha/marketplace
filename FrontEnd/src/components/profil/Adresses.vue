@@ -39,12 +39,20 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue';
-import { useAddressStore, type Address } from '@/stores/Addresses';
+import { useAddressStore } from '@/stores/Addresses';
 import Modal from '@/components/common/Modale.vue';
 
 const props = defineProps<{
-  user: { id: number } | null
-  addresses: Address[]
+  user: { id: number } | null,
+  addresses: Array<{
+    id: number,
+    address: string,
+    city: string,
+    postalcode: string,
+    department: string | null,
+    country: string,
+    userId?: number
+  }>
 }>();
 
 const addressStore = useAddressStore();
@@ -62,20 +70,17 @@ const addressForm = ref({
   country: ''
 });
 
-const addresses = ref<Address[]>(props.addresses ?? []);
+const addresses = ref(props.addresses ?? []);
 
 const fetchAddresses = async () => {
-  isLoading.value = true;
-  error.value = null;
   try {
-    if (props.user) {
-      await addressStore.fetchAddressesByUserId();
-      addresses.value = addressStore.addresses;
-    }
-  } catch (err) {
-    error.value = 'Échec de la récupération des adresses';
-  } finally {
-    isLoading.value = false;
+    await addressStore.fetchAddresses();
+    addresses.value = addressStore.addresses.map(addr => ({
+      ...addr,
+      department: addr.department || null
+    }));
+  } catch (error) {
+    console.error('Error fetching addresses:', error);
   }
 };
 

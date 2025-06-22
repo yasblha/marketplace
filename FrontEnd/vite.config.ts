@@ -8,10 +8,11 @@ import vueJsx from '@vitejs/plugin-vue-jsx'
 export default defineConfig({
   server: {
     proxy: {
-      '/api': {
+      // Configuration spécifique pour l'API La Poste
+      '/laposte': {
         target: 'https://api.laposte.fr/controladresse/v2',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ''),
+        rewrite: (path) => path.replace(/^\/laposte/, ''),
         secure: true,
         configure: (proxy, options) => {
           proxy.on('proxyReq', (proxyReq, req, res) => {
@@ -19,6 +20,12 @@ export default defineConfig({
           });
         }
       },
+      // Configuration pour l'API du backend
+      '/api': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '')
+      }
     },
   },
   plugins: [

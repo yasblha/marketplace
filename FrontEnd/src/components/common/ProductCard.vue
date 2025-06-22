@@ -1,90 +1,63 @@
 <template>
-  <div class="product-card group">
-    <div class="relative overflow-hidden rounded-lg bg-gray-100 aspect-w-1 aspect-h-1">
-      <!-- Badge de promotion -->
-      <div v-if="product.discount > 0" class="absolute top-2 right-2 z-10">
-        <span class="bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-full">
-          -{{ product.discount }}%
-        </span>
-      </div>
-      
-      <!-- Image du produit -->
-      <img 
-        :src="product.images?.[0] || '/placeholder-product.jpg'" 
-        :alt="product.name"
-        class="w-full h-48 object-cover object-center group-hover:opacity-75 transition-opacity duration-300"
-      />
-      
-      <!-- Actions rapides -->
-      <div class="absolute inset-0 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black bg-opacity-30">
-        <button 
-          @click.stop="addToWishlist" 
-          class="p-2 bg-white rounded-full hover:bg-gray-100 transition-colors"
-          :title="isInWishlist ? 'Retirer des favoris' : 'Ajouter aux favoris'"
-        >
-          <i :class="[isInWishlist ? 'fas' : 'far', 'fa-heart', 'text-red-500']"></i>
+  <div
+      class="product-card group relative flex h-full flex-col overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+
+    <!-- promo -->
+    <span v-if="product.discount"
+          class="absolute right-3 top-3 z-10 rounded-full bg-gradient-to-r from-red-500 to-red-600 px-2 py-1 text-xs font-bold text-white">
+      -{{ product.discount }}%
+    </span>
+
+    <!-- image -->
+    <div class="relative bg-gray-100 pt-[100%]">
+      <div v-if="!imgLoaded" class="absolute inset-0 animate-pulse bg-gray-200"/>
+      <img :src="productImg" :alt="product.name" @load="imgLoaded=true"
+           class="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+           :class="{'opacity-0':!imgLoaded}" />
+
+      <!-- nouveau -->
+      <span v-if="isNew" class="absolute left-3 top-3 z-10 rounded bg-blue-500 px-2 py-1 text-xs font-bold text-white">
+        Nouveau
+      </span>
+
+      <!-- quick actions -->
+      <div
+          class="absolute inset-0 flex items-center justify-center gap-3 bg-black/30 opacity-0 backdrop-blur-sm transition-opacity duration-300 group-hover:opacity-100">
+        <button @click.stop="toggleWishlist"
+                :class="['action-btn', inWishlist ? 'bg-white text-red-500' : 'bg-white text-gray-800' ]"
+                :title="inWishlist ? 'Retirer des favoris' : 'Ajouter aux favoris'">
+          <i :class="[ inWishlist ? 'fas' : 'far', 'fa-heart']"/>
         </button>
-        <button 
-          @click.stop="addToCart" 
-          class="p-2 bg-white rounded-full hover:bg-gray-100 transition-colors"
-          title="Ajouter au panier"
-        >
-          <i class="fas fa-shopping-cart text-gray-700"></i>
+
+        <button @click.stop="goDetails" class="action-btn bg-white text-gray-800" title="Voir les détails">
+          <i class="fas fa-eye"/>
         </button>
-        <button 
-          @click.stop="viewDetails" 
-          class="p-2 bg-white rounded-full hover:bg-gray-100 transition-colors"
-          title="Voir les détails"
-        >
-          <i class="fas fa-eye text-gray-700"></i>
+
+        <button @click.stop="addToCart" :disabled="!inStock"
+                :class="['action-btn text-white', inStock ? 'bg-blue-600 hover:bg-blue-700' : 'cursor-not-allowed bg-gray-400']"
+                title="Ajouter au panier">
+          <i class="fas fa-shopping-cart"/>
         </button>
       </div>
     </div>
-    
-    <div class="mt-4">
-      <div class="flex justify-between items-start">
-        <div>
-          <h3 class="text-sm font-medium text-gray-900 line-clamp-2 h-12">
-            {{ product.name }}
-          </h3>
-          <p class="mt-1 text-sm text-gray-500">{{ product.brand }}</p>
+
+    <!-- infos -->
+    <div class="flex flex-1 flex-col p-4">
+      <span v-if="product.category" class="mb-1 text-xs font-medium text-blue-600">{{ product.category }}</span>
+
+      <h3 class="mb-1 line-clamp-2 font-semibold text-gray-900" :title="product.name">{{ product.name }}</h3>
+      <p v-if="product.brand" class="mb-2 text-sm text-gray-500">{{ product.brand }}</p>
+
+      <div class="mt-auto space-y-1">
+        <div class="flex items-end gap-2">
+          <span class="text-lg font-bold text-gray-900">{{ format(price) }}</span>
+          <span v-if="originalPrice" class="text-sm text-gray-500 line-through">{{ originalPrice }}</span>
         </div>
-        
-        <!-- Prix -->
-        <div class="text-right">
-          <p v-if="product.discount > 0" class="text-sm text-gray-500 line-through">
-            {{ formatPrice(calculateOriginalPrice()) }}
-          </p>
-          <p class="text-base font-medium text-gray-900">
-            {{ formatPrice(calculateDiscountedPrice()) }}
-          </p>
-        </div>
-      </div>
-      
-      <!-- Évaluation -->
-      <div class="mt-2 flex items-center">
-        <div class="flex">
-          <i v-for="i in 5" :key="i" 
-            :class="[
-              'fas',
-              i <= Math.round(product.rating || 0) ? 'fa-star text-yellow-400' : 'fa-star text-gray-300',
-              'text-sm'
-            ]"
-          ></i>
-        </div>
-        <span class="ml-1 text-xs text-gray-500">({{ product.reviewCount || 0 }})</span>
-      </div>
-      
-      <!-- Stock -->
-      <div class="mt-2">
-        <div class="w-full bg-gray-200 rounded-full h-1.5">
-          <div 
-            class="bg-green-500 h-1.5 rounded-full" 
-            :style="{ width: `${Math.min(100, (product.stock_available / product.stock_total) * 100)}%` }"
-          ></div>
-        </div>
-        <p class="text-xs text-gray-500 mt-1">
-          {{ product.stock_available }} en stock sur {{ product.stock_total }}
+
+        <p v-if="showStockInfo" :class="stockCls" class="text-sm">{{ stockTxt }}</p>
+
+        <p v-if="showShippingInfo" class="flex items-center gap-1 text-xs text-gray-500">
+          <i class="fas fa-truck text-blue-500"/> {{ product.free_shipping ? 'Livraison gratuite' : 'Frais de port en sus' }}
         </p>
       </div>
     </div>
@@ -92,79 +65,82 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import { useRouter } from 'vue-router';
-import { useCartStore } from '@/stores/panier';
-import { useWishlistStore } from '@/stores/wishlist';
+import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
+import { useCartStore }      from '@/stores/panier'
+import { useWishlistStore }  from '@/stores/wishlist'
 
-const props = defineProps({
-  product: {
-    type: Object,
-    required: true,
-    default: () => ({
-      id: '',
-      name: '',
-      brand: '',
-      price: 0,
-      discount: 0,
-      rating: 0,
-      reviewCount: 0,
-      stock_available: 0,
-      stock_total: 0,
-      images: []
-    })
-  }
-});
+interface Product {
+  id: string | number
+  name: string
+  brand: string
+  category?: string
+  price: number
+  discount?: number
+  stock_available: number
+  stock_total?: number
+  images?: string[]
+  created_at?: string | Date
+  free_shipping?: boolean
+  rating?: number
+  reviewCount?: number
+  slug?: string
+}
 
-const router = useRouter();
-const cartStore = useCartStore();
-const wishlistStore = useWishlistStore();
+const props = withDefaults(defineProps<{
+  product:         Product
+  showStockInfo?:  boolean
+  showShippingInfo?: boolean
+}>(), {
+  showStockInfo:  true,
+  showShippingInfo: true
+})
 
-const isInWishlist = computed(() => {
-  return wishlistStore.items.some(item => item.id === props.product.id);
-});
+/* ───── stores & router ───── */
+const cart      = useCartStore()
+const wishlist  = useWishlistStore()
+const router    = useRouter()
 
-const formatPrice = (price: number): string => {
-  return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(price);
-};
+/* ───── état local ───── */
+const imgLoaded = ref(false)
 
-const calculateOriginalPrice = (): number => {
-  return props.product.price;
-};
+/* ───── helpers ───── */
+const format = (n:number)=>n.toLocaleString('fr-FR',{style:'currency',currency:'EUR'})
+const price  = computed(()=> props.product.price * (1 - (props.product.discount??0)/100))
+const original = computed(()=> props.product.discount ? format(props.product.price) : '')
+const inStock  = computed(()=> props.product.stock_available > 0)
+const inWishlist = computed(()=> wishlist.isInWishlist(props.product.id))
+const isNew   = computed(()=>{
+  const c = props.product.created_at
+  return c ? (Date.now()-+new Date(c))/864e5 < 30 : false
+})
+const stockTxt  = computed(()=> inStock.value ? 'En stock' : 'Rupture')
+const stockCls  = computed(()=> inStock.value ? 'text-green-600' : 'text-red-600')
 
-const calculateDiscountedPrice = (): number => {
-  if (props.product.discount > 0) {
-    return props.product.price * (1 - props.product.discount / 100);
-  }
-  return props.product.price;
-};
+/* ───── image ───── */
+const productImg = computed(()=>{
+  const src = props.product.images?.[0] ?? ''
+  if (/^https?:\/\//.test(src)) return src
+  const api = (import.meta.env.VITE_APP_API_URL||'').replace(/\/$/,'')
+  return src ? `${api}/${src.replace(/^\/+/,'')}` : '/No_Image_Available.jpg'
+})
 
-const addToCart = (): void => {
-  cartStore.addToCart(props.product, 1);
-};
+/* ───── actions ───── */
+const addToCart = ()=> cart.addToCart({
+  id: props.product.id, name: props.product.name,
+  price: price.value, quantity:1, image: productImg.value
+})
 
-const addToWishlist = (): void => {
-  if (isInWishlist.value) {
-    wishlistStore.removeFromWishlist(props.product.id);
-  } else {
-    wishlistStore.addToWishlist(props.product);
-  }
-};
+const toggleWishlist = ()=> inWishlist.value
+    ? wishlist.removeFromWishlist(props.product.id)
+    : wishlist.addToWishlist({id:props.product.id,name:props.product.name,price:price.value,image:productImg.value})
 
-const viewDetails = (): void => {
-  router.push({ name: 'product', params: { id: props.product.id } });
-};
+const goDetails = ()=> router.push(props.product.slug
+    ? `/products/${props.product.slug}` : `/product/${props.product.id}`)
 </script>
 
 <style scoped>
-.product-card {
-  @apply p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300 border border-gray-100;
-}
-
-.line-clamp-2 {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+.action-btn{
+  @apply flex h-10 w-10 items-center justify-center rounded-full shadow transition hover:scale-110;
 }
 </style>

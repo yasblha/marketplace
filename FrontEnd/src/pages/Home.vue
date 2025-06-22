@@ -1,902 +1,624 @@
 <template>
-  <div class="home-container">
-    <AuthModal :isVisible="isAuthModalVisible" @close="closeAuthModal" />
-
+  <div class="min-h-screen bg-white font-sans antialiased text-gray-900">
     <!-- Hero Section -->
-    <section class="hero" data-aos="fade-in">
-      <div class="hero-content">
-        <span class="hero-tagline">We know how large objects will act, but things on a small scale just do not act that way.</span>
-        <button class="cta-button" @click="scrollToSection('featured-products')">
-          Start now
-          <i class="fas fa-arrow-right ml-2"></i>
+    <section class="relative min-h-screen flex items-center justify-center overflow-hidden">
+      <!-- Background Image with Overlay -->
+      <div class="absolute inset-0 bg-gradient-to-r from-black/70 to-black/30 z-0"></div>
+      <div class="absolute inset-0 bg-gray-800 flex items-center justify-center">
+        <img src="./../assets/ui_assets/dumbels.jpg" alt=" Dumbells Image " class="object-cover w-full" />
+      </div>
+      <!-- Hero Content -->
+      <div class="container mx-auto px-6 relative z-10 flex items-center justify-center">
+        <div class="max-w-3xl text-center text-white ">
+          <span class="inline-block bg-blue-600 text-white text-sm font-semibold px-4 py-2 rounded-full mb-6">
+            Nouvelle Collection 2025
+          </span>
+          <h1 class="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight mb-8">
+            Équipez-vous pour la <span class="text-blue-400">performance</span>
+          </h1>
+          <p class="text-xl text-gray-200 mb-10 max-w-2xl mx-auto">
+            Découvrez notre sélection premium d'équipements et vêtements sportifs pour atteindre vos objectifs.
+          </p>
+          <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <button 
+              @click="scrollToSection('featured')"
+              class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-8 rounded-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-lg flex items-center justify-center gap-3"
+            >
+              Découvrir nos produits
+              <font-awesome-icon icon="arrow-right" class="w-4 h-4" />
+            </button>
+            <button 
+              class="bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white font-medium py-4 px-8 rounded-lg border border-white/20 transition-all duration-300 hover:-translate-y-1"
+            >
+              En savoir plus
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Scroll Indicator -->
+      <div class="absolute bottom-8 left-1/2 -translate-x-1/2 z-10">
+        <button 
+          @click="scrollToSection('categories')" 
+          class="text-white hover:text-blue-400 transition-colors"
+          aria-label="Voir la suite"
+        >
+          <font-awesome-icon icon="chevron-down" class="w-6 h-6 animate-bounce" />
         </button>
       </div>
     </section>
 
-    <!-- Produits en Vedette -->
-    <section class="produits" data-aos="fade-up">
-      <div class="Oneproducts" v-for="(product, index) in featuredProducts" :key="index" :data-aos="index % 2 === 0 ? 'fade-right' : 'fade-left'">
-        <div class="texts">
-          <span class="product-tag">{{ product.tag }}</span>
-          <h1 class="product-title">{{ product.title }}</h1>
-          <span class="product-cta">{{ product.cta }}</span>
+    <!-- Categories Section -->
+    <section id="categories" class="py-16 md:py-24 bg-gray-50">
+      <div class="container mx-auto px-4">
+        <div class="text-center mb-12">
+          <span class="inline-block text-blue-600 font-medium mb-3">Catégories</span>
+          <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Parcourir par catégorie</h2>
+          <p class="text-gray-600 max-w-2xl mx-auto">
+            Découvrez nos différentes gammes de produits adaptés à vos besoins sportifs.
+          </p>
         </div>
-        <img :src="product.image" :alt="product.title" class="product-image" />
+        
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div 
+            v-for="(category, index) in categories" 
+            :key="index"
+            class="group relative rounded-xl overflow-hidden h-48 md:h-64 bg-white shadow-sm hover:shadow-md transition-all duration-300"
+            data-aos="fade-up"
+            :data-aos-delay="index * 100"
+          >
+            <div class="absolute inset-0 bg-gray-800 flex items-center justify-center">
+              <span class="text-white text-opacity-50">{{ category.name }}</span>
+            </div>
+            <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-6">
+              <div>
+                <h3 class="text-white text-lg font-semibold mb-1">{{ category.name }}</h3>
+                <span class="text-blue-300 text-sm font-medium flex items-center">
+                  {{ category.count }} {{ category.count > 1 ? 'produits' : 'produit' }}
+                  <font-awesome-icon icon="arrow-right" class="ml-2 text-xs" />
+                </span>
+              </div>
+            </div>
+          </div>
+          <div v-if="isLoading && categories.length === 0"
+               class="col-span-4 flex items-center justify-center py-12">
+            <font-awesome-icon icon="fas fa-spinner" class="animate-spin text-blue-600 text-4xl" />
+          </div>
+        </div>
       </div>
     </section>
 
-    <!-- Meilleures Ventes -->
-    <section class="BestSellers" data-aos="fade-up">
-      <div class="container">
-        <div class="section-header">
-          <h2 class="section-title">Best Sellers</h2>
-          <p class="section-subtitle">Découvrez nos produits les plus populaires</p>
-        </div>
-        <div class="allitems">
-          <div class="itemOne" data-aos="zoom-in">
-            <!-- Image de fond en CSS -->
+    <!-- Featured Products -->
+    <section id="featured" class="py-16 md:py-24 bg-white">
+      <div class="container mx-auto px-4">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-10">
+          <div class="mb-4 md:mb-0">
+            <span class="inline-block text-blue-600 font-medium mb-2">Produits Sélectionnés</span>
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900">Nos Produits Phares</h2>
           </div>
-          <div class="itemTwo">
-            <BestSellers_Products />
-          </div>
+          <a href="/products" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium">
+            Voir tout
+            <i class="fas fa-arrow-right ml-2"></i>
+          </a>
         </div>
-        <div class="text-center">
-          <a href="/products" class="btn btn-primary">Voir tous les produits</a>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div 
+            v-for="(product, index) in featuredProducts" 
+            v-if="!isLoading"
+            :key="product._id"
+            class="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden"
+            data-aos="fade-up"
+            :data-aos-delay="index * 100"
+          >
+            <div class="relative group">
+              <div class="aspect-w-1 aspect-h-1 w-full overflow-hidden bg-gray-200">
+                <img 
+                  v-if="getProductImage(product)"
+                  :src="getProductImage(product)" 
+                  :alt="product.name"
+                  class="h-64 w-full object-cover object-center"
+                  @error="$event.target.style.display='none'"
+                />
+                <div v-else class="h-64 w-full bg-gray-200 flex items-center justify-center">
+                  <span class="text-gray-400">{{ product.name || 'Image non disponible' }}</span>
+                </div>
+              </div>
+              <div class="absolute top-3 right-3 flex flex-col gap-2">
+                <button 
+                  @click="toggleFavorite(product._id)" 
+                  class="w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-gray-700 hover:text-red-500 transition-colors"
+                  :class="{ 'text-red-500': wishlistStore.isInWishlist(product._id) }"
+                >
+                  <font-awesome-icon 
+                    :icon="wishlistStore.isInWishlist(product._id) ? 'fas fa-heart' : 'far fa-heart'" 
+                    class="w-5 h-5" 
+                  />
+                </button>
+                <button class="w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-gray-700 hover:text-blue-600 transition-colors">
+                  <font-awesome-icon icon="fa-regular fa-eye" class="w-5 h-5" />
+                </button>
+              </div>
+              <div v-if="product.status === 'sale'" class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/60 to-transparent">
+                <span class="inline-block px-2 py-1 text-xs font-medium rounded-full mb-2 bg-red-500 text-white">
+                  Promo
+                </span>
+              </div>
+            </div>
+            <div class="p-4">
+              <div class="flex justify-between items-start mb-2">
+                <h3 class="text-lg font-semibold text-gray-900 line-clamp-2">{{ product.name }}</h3>
+                <div v-if="product.rating" class="flex items-center">
+                  <font-awesome-icon 
+                    v-for="i in 5" 
+                    :key="i" 
+                    :icon="i <= Math.round(product.rating) ? 'fas fa-star' : 'far fa-star'" 
+                    class="w-4 h-4 text-yellow-400"
+                  />
+                </div>
+              </div>
+              <p v-if="product.reviews" class="text-sm text-gray-500 mb-3">{{ product.reviews }} avis</p>
+              <div class="flex items-center justify-between">
+                <div>
+                  <span class="text-lg font-bold text-gray-900">{{ formatPrice(product.price) }}</span>
+                  <span v-if="product.originalPrice" class="ml-2 text-sm text-gray-500 line-through">{{ formatPrice(product.originalPrice) }}</span>
+                </div>
+                <button 
+                  @click="addToCart(product._id)" 
+                  class="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center hover:bg-blue-700 transition-colors"
+                  :disabled="isLoading"
+                >
+                  <font-awesome-icon 
+                    :icon="isLoading ? 'fas fa-spinner fa-spin' : 'fas fa-shopping-cart'" 
+                    class="w-4 h-4" 
+                  />
+                </button>
+              </div>
+            </div>
+          </div>
+          <div v-else class="col-span-4 flex items-center justify-center py-12">
+            <font-awesome-icon icon="fas fa-spinner" class="animate-spin text-blue-600 text-4xl" />
+          </div>
         </div>
       </div>
     </section>
 
     <!-- Testimonials -->
-    <section class="testimonials-section">
-      <div class="container">
-        <div class="section-header">
-          <h2 class="section-title">Ce que disent nos clients</h2>
-          <p class="section-subtitle">Découvrez les avis de nos clients satisfaits</p>
+    <section class="py-24 bg-gray-50">
+      <div class="container px-6 mx-auto">
+        <div class="mb-16 text-center">
+          <span class="inline-block text-blue-600 font-medium mb-3">Témoignages</span>
+          <h2 class="mb-4 text-4xl font-bold text-gray-900">Ce que disent nos clients</h2>
+          <p class="max-w-2xl mx-auto text-lg text-gray-600">
+            Découvrez pourquoi nos clients nous font confiance pour leurs équipements sportifs.
+          </p>
         </div>
-        <div class="testimonials-grid">
-          <div v-for="(testimonial, index) in testimonials" :key="index" class="testimonial-card">
-            <div class="testimonial-content">
-              <div class="rating">
-                <i v-for="i in 5" :key="i" 
-                   :class="['fas', 'fa-star', { 'active': i <= testimonial.rating }]">
-                </i>
-              </div>
-              <p class="testimonial-text">"{{ testimonial.text }}"</p>
-              <div class="testimonial-author">
-                <img :src="testimonial.avatar" :alt="testimonial.name" class="author-avatar" />
-                <div class="author-info">
-                  <h4>{{ testimonial.name }}</h4>
-                  <span>{{ testimonial.role }}</span>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div 
+            v-for="(testimonial, index) in testimonials" 
+            :key="index"
+            class="bg-white p-8 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100"
+            data-aos="fade-up"
+            :data-aos-delay="index * 100"
+          >
+            <div class="flex items-center mb-6">
+              <div class="flex-shrink-0">
+                <div class="w-14 h-14 rounded-full bg-gray-800 flex items-center justify-center">
+                  <span class="text-white text-opacity-50">{{ testimonial.name.charAt(0) }}</span>
                 </div>
               </div>
+              <div class="ml-4">
+                <h4 class="text-lg font-semibold text-gray-900">{{ testimonial.name }}</h4>
+                <p class="text-blue-600 text-sm">{{ testimonial.role }}</p>
+              </div>
+            </div>
+            <div class="mb-4">
+              <div class="flex text-yellow-400 mb-2">
+                <i v-for="i in 5" :key="i" class="fas fa-star text-sm"></i>
+              </div>
+              <p class="text-gray-600 italic">"{{ testimonial.comment }}"</p>
+            </div>
+            <div class="text-right">
+              <span class="text-blue-600 text-sm font-medium">
+                <i class="fas fa-quote-right text-blue-200 mr-1"></i> Voir l'avis complet
+              </span>
             </div>
           </div>
         </div>
+        
+        <div class="mt-12 text-center">
+          <button class="px-8 py-3 bg-white border-2 border-blue-600 text-blue-600 font-semibold rounded-lg hover:bg-blue-50 transition-colors duration-300">
+            Voir plus d'avis
+          </button>
+        </div>
       </div>
     </section>
 
-    <!-- Newsletter -->
-    <section class="newsletter-section">
-      <div class="container">
-        <div class="newsletter-content">
-          <div class="newsletter-text">
-            <h2>Restez informé</h2>
-            <p>Inscrivez-vous à notre newsletter pour recevoir nos offres exclusives</p>
+    <!-- CTA Section -->
+    <section class="py-16 md:py-24 bg-gradient-to-r from-blue-600 to-blue-800 text-white">
+      <div class="container mx-auto px-4">
+        <div class="max-w-4xl mx-auto text-center">
+          <h2 class="text-3xl md:text-4xl font-bold mb-6">Prêt à transformer votre entraînement ?</h2>
+          <p class="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
+            Rejoignez des milliers de sportifs satisfaits qui nous font confiance pour leurs équipements.
+          </p>
+          <div class="flex flex-col sm:flex-row justify-center gap-4">
+            <button class="px-8 py-4 bg-white text-blue-700 font-semibold rounded-lg hover:bg-gray-100 transition-colors duration-300 flex items-center justify-center">
+              Découvrir nos produits
+              <i class="fas fa-arrow-right ml-3"></i>
+            </button>
+            <button class="px-8 py-4 bg-transparent border-2 border-white text-white font-semibold rounded-lg hover:bg-white/10 transition-colors duration-300">
+              Nous contacter
+            </button>
           </div>
-          <form @submit.prevent="subscribeNewsletter" class="newsletter-form">
-            <input 
-              type="email" 
-              v-model="email" 
-              placeholder="Votre adresse email" 
-              required 
-              class="newsletter-input"
-            />
-            <button type="submit" class="btn btn-primary">S'abonner</button>
-          </form>
         </div>
       </div>
     </section>
-
-    <section class="products-section">
-      <div class="product-card" v-for="(product, index) in products" :key="index">
-        <div class="product-text">
-          <span class="product-tag">{{ product.tag }}</span>
-          <h1 class="product-title">{{ product.title }}</h1>
-          <span class="product-cta">{{ product.cta }}</span>
-        </div>
-        <img :src="product.image" :alt="product.title" />
-      </div>
-    </section>
-
-    <section class="best-sellers-section">
-      <div class="best-sellers-container">
-        <div class="featured-item">
-          <img src="../assets/ui_assets/card_items.jpg" alt="Featured item" />
-        </div>
-        <div class="best-sellers-list">
-          <BestSellers_Products />
-        </div>
-      </div>
-    </section>
-
-    <section class="newsletter-section">
-      <div class="newsletter-content">
-        <h2 class="newsletter-title">Subscribe to Our Newsletter</h2>
-        <p class="newsletter-description">Stay updated with our latest products and offers</p>
-        <form class="newsletter-form">
-          <input type="email" placeholder="Enter your email" required>
-          <button type="submit">Subscribe</button>
-        </form>
-      </div>
-    </section>
-
-    <Footer />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
-import NavigationBar from "@/components/UI/NavigationBar.vue";
-import Footer from "@/components/UI/Footer.vue";
-import BestSellers_Products from "@/components/UI/BestSellers_Products.vue";
-import AuthModal from '@/components/common/AuthModal.vue';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { 
+  faArrowDown, 
+  faArrowRight, 
+  faPaperPlane,
+  faTshirt,
+  faWind,
+  faMagic,
+  faStar,
+  faShoppingCart,
+  faHeart,
+  faEye,
+  faQuoteRight,
+  faEnvelope,
+  faChevronDown,
+  faSpinner
+} from '@fortawesome/free-solid-svg-icons';
+import { 
+  faFacebookF, 
+  faTwitter, 
+  faInstagram, 
+  faLinkedinIn,
+  faYoutube
+} from '@fortawesome/free-brands-svg-icons';
+import { faStar as farStar, faHeart as farHeart } from '@fortawesome/free-regular-svg-icons';
 
-const isAuthModalVisible = ref(false);
+// Import des stores
+import { useProductStore } from '@/stores/products';
+import { useWishlistStore } from '@/stores/wishlist';
+import { useCartStore } from '@/stores/panier';
+
+// Initialisation des stores
+const productStore = useProductStore();
+const wishlistStore = useWishlistStore();
+const cartStore = useCartStore();
+
+// Add icons to library
+library.add(
+  faArrowDown, 
+  faArrowRight, 
+  faPaperPlane,
+  faTshirt,
+  faWind,
+  faMagic,
+  faFacebookF, 
+  faTwitter, 
+  faInstagram, 
+  faLinkedinIn,
+  faYoutube,
+  faStar,
+  farStar,
+  faShoppingCart,
+  faHeart,
+  farHeart,
+  faEye,
+  faQuoteRight,
+  faEnvelope,
+  faChevronDown,
+  faSpinner
+);
+
+// State
 const email = ref('');
+const isLoading = ref(false);
+const privacyAccepted = ref(false);
+const isInitialized = ref(false);
 
-// Données des produits en vedette
-const featuredProducts = [
-  {
-    tag: "Votre Espace",
-    title: "Vie Unique",
-    cta: "Explorer les articles",
-    image: "/src/assets/image2.png"
-  },
-  {
-    tag: "Se termine aujourd'hui",
-    title: "Style Éléments",
-    cta: "Explorer les articles",
-    image: "/src/assets/image1.png"
-  },
-  {
-    tag: "Votre Espace",
-    title: "Vie Unique",
-    cta: "Explorer les articles",
-    image: "/src/assets/image3.png"
+// Charger les données au montage du composant
+const loadData = async () => {
+  try {
+    isLoading.value = true;
+    await Promise.all([
+      productStore.fetchProducts(),
+      wishlistStore.loadWishlist()
+    ]);
+    
+    // Si l'utilisateur est connecté, charger son panier
+    if (localStorage.getItem('authToken')) {
+      await cartStore.loadCartFromBackend();
+    } else {
+      cartStore.loadCart();
+    }
+    
+    isInitialized.value = true;
+  } catch (error) {
+    console.error('Erreur lors du chargement des données:', error);
+  } finally {
+    isLoading.value = false;
   }
-];
+};
 
-// Initialiser AOS
-onMounted(() => {
-  AOS.init({
-    duration: 800,
-    easing: 'ease-in-out',
-    once: true,
-    mirror: false
-  });
+// Données réactives depuis les stores
+const featuredProducts = computed(() => {
+  // Prendre les 4 premiers produits comme produits phares
+  return productStore.products.slice(0, 4).map(product => ({
+    ...product,
+    isFavorite: wishlistStore.isInWishlist(product._id)
+  }));
 });
 
-const scrollToSection = (sectionId) => {
-  const element = document.getElementById(sectionId);
-  if (element) {
+// Catégories dynamiques basées sur les produits
+const categories = computed(() => {
+  const categoryCounts: Record<string, number> = {};
+  
+  productStore.products.forEach(product => {
+    if (product.category) {
+      categoryCounts[product.category] = (categoryCounts[product.category] || 0) + 1;
+    }
+  });
+  
+  return Object.entries(categoryCounts).map(([name, count]) => ({
+    name,
+    count
+  }));
+});
+
+// Témoignages (toujours statiques pour l'exemple)
+const testimonials = ref([
+  {
+    name: 'Jean Dupont',
+    role: 'Coach sportif',
+    comment: 'Matériel de qualité supérieure. Mes clients adorent !',
+    rating: 5,
+    date: '15/06/2023'
+  },
+  {
+    name: 'Marie Martin',
+    role: 'Athlète amateur',
+    comment: 'Livraison rapide et produits conformes à mes attentes.',
+    rating: 4,
+    date: '22/05/2023'
+  },
+  {
+    name: 'Thomas Leroy',
+    role: 'Débutant en fitness',
+    comment: 'Excellent rapport qualité-prix. Je recommande vivement !',
+    rating: 5,
+    date: '10/06/2023'
+  }
+]);
+
+// Marques (toujours statiques pour l'exemple)
+const brands = ref([
+  { name: 'Nike' },
+  { name: 'Adidas' },
+  { name: 'Puma' },
+  { name: 'Under Armour' },
+  { name: 'Reebok' }
+]);
+
+// Helper methods
+const getProductImage = (product: any) => {
+  if (!product) return null;
+  
+  try {
+    // Gestion des images pour les produits MongoDB
+    if (product.images && product.images.length > 0) {
+      const imagePath = product.images[0];
+      const imageName = imagePath.split('/').pop();
+      return `http://localhost:3000/uploads/${imageName}`;
+    }
+    
+    // Gestion des images pour les produits PostgreSQL
+    if (product.image) {
+      // Essayer de parser le champ image qui est une chaîne JSON
+      const images = typeof product.image === 'string' 
+        ? JSON.parse(product.image.replace(/\"/g, '"')) 
+        : product.image;
+        
+      if (Array.isArray(images) && images.length > 0) {
+        const imagePath = images[0];
+        const imageName = imagePath.split('/').pop();
+        return `http://localhost:3000/uploads/${imageName}`;
+      }
+    }
+  } catch (e) {
+    console.error('Erreur lors du traitement de l\'image:', e);
+  }
+  
+  return null;
+};
+
+// Methods
+const scrollToSection = (sectionId: string) => {
+  const section = document.getElementById(sectionId);
+  if (section) {
     window.scrollTo({
-      top: element.offsetTop - 100,
+      top: section.offsetTop - 80,
       behavior: 'smooth'
     });
   }
-}
+};
 
-function subscribeNewsletter() {
-  alert(`Merci pour votre inscription avec l'email : ${email.value}`);
-  email.value = '';
-}
+const subscribeNewsletter = async () => {
+  if (!email.value) return;
+  
+  isLoading.value = true;
+  
+  try {
+    // Simuler un appel API
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    alert(`Merci de vous être abonné avec l'email : ${email.value}`);
+    email.value = '';
+  } catch (error) {
+    console.error('Erreur lors de l\'inscription :', error);
+    alert('Une erreur est survenue. Veuillez réessayer plus tard.');
+  } finally {
+    isLoading.value = false;
+  }
+};
 
-function openAuthModal() {
+const toggleFavorite = async (productId: string) => {
+  try {
+    await wishlistStore.toggleWishlistItem({
+      id: productId,
+      ...productStore.products.find(p => p._id === productId)
+    });
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour des favoris:', error);
+  }
+};
+
+const addToCart = async (productId: string) => {
+  try {
+    const product = productStore.products.find(p => p._id === productId);
+    if (product) {
+      await cartStore.addToCart({
+        _id: product._id,
+        name: product.name,
+        price: product.price,
+        images: product.images
+      });
+    }
+  } catch (error) {
+    console.error('Erreur lors de l\'ajout au panier:', error);
+  }
+};
+
+const openAuthModal = () => {
   isAuthModalVisible.value = true;
-}
+};
 
-function closeAuthModal() {
+const closeAuthModal = () => {
   isAuthModalVisible.value = false;
-}
+};
+
+const getRatingStars = (rating: number) => {
+  const stars = [];
+  const fullStars = Math.floor(rating);
+  const hasHalfStar = rating % 1 >= 0.5;
+  
+  for (let i = 1; i <= 5; i++) {
+    if (i <= fullStars) {
+      stars.push('full');
+    } else if (i === fullStars + 1 && hasHalfStar) {
+      stars.push('half');
+    } else {
+      stars.push('empty');
+    }
+  }
+  
+  return stars;
+};
+
+const getTagClass = (tag: string) => {
+  const tagClasses: { [key: string]: string } = {
+    'Nouveauté': 'bg-blue-100 text-blue-800',
+    'Promo': 'bg-red-100 text-red-800',
+    'Meilleure vente': 'bg-yellow-100 text-yellow-800',
+    'Coup de cœur': 'bg-pink-100 text-pink-800',
+    'Tendance': 'bg-purple-100 text-purple-800',
+  };
+  
+  return tagClasses[tag] || 'bg-gray-100 text-gray-800';
+};
+
+const formatPrice = (price: number | string) => {
+  // Convertir en nombre si c'est une chaîne
+  const priceNumber = typeof price === 'string' ? parseFloat(price) : price;
+  return new Intl.NumberFormat('fr-FR', { 
+    style: 'currency', 
+    currency: 'EUR',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(priceNumber);
+};
+
+// Lifecycle Hooks
+onMounted(async () => {
+  AOS.init({
+    duration: 800,
+    once: true,
+    easing: 'ease-out-cubic'
+  });
+  
+  // Charger les données au montage
+  await loadData();
+});
+
+// Expose methods
+defineExpose({
+  scrollToSection,
+  subscribeNewsletter,
+  toggleFavorite,
+  addToCart,
+  openAuthModal,
+  closeAuthModal
+});
 </script>
 
-<style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
-@import 'aos/dist/aos.css';
-
-:root {
-  --primary: #23a6f0;
-  --secondary: #23856d;
-  --dark: #252b42;
-  --light: #ffffff;
-  --light-bg: #f8f9fa;
-  --gray: #737373;
-  --light-gray: #f9f9f9;
-  --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  --transition: all 0.3s ease-in-out;
-}
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: 'Montserrat', sans-serif;
-}
-
-body {
-  background-color: var(--light-bg);
-  color: var(--dark);
-  line-height: 1.6;
-  overflow-x: hidden;
-}
-
-/* Animations */
+<style>
+/* AOS Animation */
 [data-aos] {
-  transition: opacity 0.6s ease, transform 0.6s ease;
+  opacity: 0;
+  transition-property: opacity, transform;
 }
 
 [data-aos].aos-animate {
-  opacity: 1 !important;
-  transform: none !important;
-}
-
-/* Hero Section */
-.hero {
-  background-image: url('@/assets/dumbels.jpg');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  color: white;
-  position: relative;
-  padding: 80px 20px;
-}
-
-.hero::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 1;
-}
-
-.hero-content {
-  position: relative;
-  z-index: 2;
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 2rem;
-  transform: translateY(0);
   opacity: 1;
-  transition: var(--transition);
+  transform: translateZ(0);
 }
 
-.hero-tagline {
-  font-size: 1.5rem;
-  font-weight: 500;
-  margin-bottom: 2rem;
-  line-height: 1.5;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-.cta-button {
-  background-color: var(--primary);
-  color: white;
-  border: none;
-  padding: 1rem 2.5rem;
-  font-size: 1.1rem;
-  font-weight: 600;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: var(--transition);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 12px rgba(35, 166, 240, 0.3);
-}
-
-.cta-button:hover {
-  background-color: #1e8fd1;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(35, 166, 240, 0.4);
-}
-
-.cta-button i {
-  margin-left: 0.5rem;
-  transition: transform 0.3s ease;
-}
-
-.cta-button:hover i {
-  transform: translateX(4px);
-}
-
-/* Produits Section */
-.produits {
-  display: flex;
-  padding: 4rem 2rem;
-  background: #f8f9fa;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 2rem;
-}
-
-.Oneproducts {
-  background-color: white;
-  display: flex;
-  padding: 2rem;
-  border-radius: 10px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-  transition: var(--transition);
-  max-width: 380px;
-  width: 100%;
-  overflow: hidden;
-}
-
-.Oneproducts:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-}
-
-.texts {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding-right: 1.5rem;
-}
-
-.product-tag {
-  color: var(--primary);
-  font-size: 0.9rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.product-title {
-  color: var(--dark);
-  font-size: 1.8rem;
-  font-weight: 700;
-  line-height: 1.2;
-  margin-bottom: 1rem;
-}
-
-.product-cta {
-  color: var(--gray);
-  font-size: 0.95rem;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  transition: var(--transition);
-}
-
-.product-cta:hover {
-  color: var(--primary);
-}
-
-.product-cta::after {
-  content: '→';
-  margin-left: 0.5rem;
-  transition: var(--transition);
-}
-
-.product-cta:hover::after {
-  transform: translateX(4px);
-}
-
-.product-image {
-  width: 150px;
-  height: 150px;
-  object-fit: contain;
-  transition: var(--transition);
-}
-
-/* Best Sellers Section */
-.BestSellers {
-  padding: 5rem 2rem;
-  background-color: white;
-}
-
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 1rem;
-}
-
-.section-header {
-  text-align: center;
-  margin-bottom: 3rem;
-}
-
-.section-title {
-  font-size: 2.2rem;
-  color: var(--dark);
-  margin-bottom: 1rem;
-  position: relative;
-  display: inline-block;
-}
-
-.section-title::after {
-  content: '';
-  position: absolute;
-  bottom: -10px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 60px;
-  height: 3px;
-  background-color: var(--primary);
-}
-
-.section-subtitle {
-  color: var(--gray);
-  font-size: 1.1rem;
-  max-width: 700px;
-  margin: 0 auto;
-  line-height: 1.6;
-}
-
-.allitems {
-  display: flex;
-  gap: 2rem;
-  margin-top: 2rem;
-}
-
-.itemOne {
-  flex: 1;
-  background-image: url('../assets/card_items.jpg');
-  background-size: cover;
-  background-position: center;
-  border-radius: 10px;
-  min-height: 400px;
-  position: relative;
-  overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-}
-
-.itemOne::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(135deg, rgba(35, 166, 240, 0.9) 0%, rgba(35, 133, 109, 0.9) 100%);
-  opacity: 0.9;
-}
-
-.itemTwo {
-  flex: 2;
-  background: white;
-  border-radius: 10px;
-  padding: 2rem;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
-}
-
-/* Responsive Design */
-@media (max-width: 1024px) {
-  .allitems {
-    flex-direction: column;
-  }
-  
-  .itemOne {
-    min-height: 200px;
-  }
-}
-
-@media (max-width: 768px) {
-  .produits {
-    padding: 2rem 1rem;
-  }
-  
-  .Oneproducts {
-    flex-direction: column;
-    text-align: center;
-    padding: 1.5rem;
-  }
-  
-  .texts {
-    padding-right: 0;
-    margin-bottom: 1.5rem;
-  }
-  
-  .product-image {
-    margin: 0 auto;
-  }
-  
-  .hero-tagline {
-    font-size: 1.2rem;
-  }
-  
-  .section-title {
-    font-size: 1.8rem;
-  }
-  
-  .section-subtitle {
-    font-size: 1rem;
-  }
-}
-
-/* Animation Keyframes */
+/* Custom animations */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { 
+    opacity: 0; 
+    transform: translateY(20px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
 }
 
 .fade-in {
-  animation: fadeIn 0.8s ease-out forwards;
+  animation: fadeIn 0.6s ease-out forwards;
 }
 
-/* Container */
-/* Container */
-.container {
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
 }
 
-/* Typography */
-h1, h2, h3, h4, h5, h6 {
-  font-weight: 700;
-  line-height: 1.2;
-  margin-bottom: 1rem;
+/* Focus styles for better accessibility */
+button:focus, a:focus, input:focus, textarea:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+  ring: 2px;
+  ring-color: #93c5fd;
 }
 
-.section-title {
-  font-size: 2.5rem;
-  text-align: center;
-  margin-bottom: 1rem;
-  position: relative;
-  display: inline-block;
-}
-
-.section-title::after {
-  content: '';
-  position: absolute;
-  bottom: -10px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 60px;
-  height: 3px;
-  background: var(--primary);
-  border-radius: 2px;
-}
-
-.section-subtitle {
-  font-size: 1.1rem;
-  color: var(--gray);
-  text-align: center;
-  max-width: 700px;
-  margin: 0 auto 3rem;
-}
-
-/* Buttons */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.75rem 1.5rem;
-  border-radius: 50px;
-  font-weight: 600;
-  text-decoration: none;
-  cursor: pointer;
-  transition: var(--transition);
-  border: 2px solid transparent;
-  font-size: 1rem;
-}
-
-.btn-primary {
-  background-color: var(--primary);
-  color: var(--white);
-}
-
-.btn-primary:hover {
-  background-color: var(--primary-dark);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(58, 134, 255, 0.3);
-}
-
-.btn-outline {
-  background-color: transparent;
-  border-color: var(--white);
-  color: var(--white);
-}
-
-.btn-outline:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-  transform: translateY(-2px);
-}
-
-.btn-light {
-  background-color: var(--white);
-  color: var(--primary);
-}
-
-.btn-light:hover {
-  background-color: #f1f1f1;
-  transform: translateY(-2px);
-}
-
-.btn-sm {
-  padding: 0.5rem 1rem;
-  font-size: 0.9rem;
-}
-
-/* Hero Section */
-.hero-section {
-  height: 100vh;
-  min-height: 700px;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  color: var(--white);
-  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://images.unsplash.com/photo-1571019614242-c5c5dee9f725?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') no-repeat center center/cover;
-  background-attachment: fixed;
-  overflow: hidden;
-}
-
-.hero-content {
-  position: relative;
-  z-index: 2;
-  max-width: 800px;
-  padding: 0 20px;
-}
-
-.hero-title {
-  font-size: 4.5rem;
-  margin-bottom: 1.5rem;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  line-height: 1.1;
-}
-
-.hero-subtitle {
-  font-size: 1.5rem;
-  margin-bottom: 2.5rem;
-  font-weight: 400;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-  max-width: 700px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.hero-cta {
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.scroll-indicator {
-  position: absolute;
-  bottom: 30px;
-  left: 50%;
-  transform: translateX(-50%);
-  cursor: pointer;
-  z-index: 2;
-  animation: bounce 2s infinite;
-}
-
-.mouse {
-  width: 30px;
-  height: 50px;
-  border: 2px solid var(--white);
-  border-radius: 20px;
-  display: flex;
-  justify-content: center;
-  padding-top: 10px;
-  margin-bottom: 10px;
-}
-
-.wheel {
-  width: 6px;
-  height: 10px;
-  background-color: var(--white);
-  border-radius: 3px;
-  animation: scroll 2s infinite;
-}
-
-.arrow {
-  width: 10px;
-  height: 10px;
-  border-right: 2px solid var(--white);
-  border-bottom: 2px solid var(--white);
-  transform: rotate(45deg);
-  margin: 0 auto;
-}
-
-/* Features Section */
-.features-section {
-  padding: 6rem 0;
-  background-color: var(--white);
-}
-
-.features-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 2rem;
-  margin-top: 3rem;
-}
-
-.feature-card {
-  background: var(--white);
-  padding: 2rem;
-  border-radius: 10px;
-  text-align: center;
-  transition: var(--transition);
-  box-shadow: var(--shadow);
-}
-
-.feature-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-}
-
-.feature-icon {
-  width: 70px;
-  height: 70px;
-  background: rgba(58, 134, 255, 0.1);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 1.5rem;
-  color: var(--primary);
-  font-size: 1.8rem;
-}
-
-.feature-card h3 {
-  font-size: 1.3rem;
-  margin-bottom: 1rem;
-  color: var(--dark);
-}
-
-.feature-card p {
-  color: var(--gray);
-  font-size: 0.95rem;
-  line-height: 1.6;
-}
-
-/* Featured Products Section */
-.featured-section {
-  padding: 6rem 0;
-  background-color: var(--light);
-}
-
-.products-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
-  gap: 2rem;
-  margin-bottom: 3rem;
-}
-
-.product-card {
-  background: var(--white);
-  border-radius: 10px;
-}
-
-.product-card img {
-  width: 244px;
-  height: 181px;
-  object-fit: cover;
-}
-
-.product-text {
-  display: flex;
-  flex-direction: column;
-  margin: auto;
-  text-align: center;
-}
-
-.product-title {
-  color: black;
-  margin: 10px 0;
-}
-
-.product-tag, .product-cta {
-  color: #808080ad;
-}
-
-.best-sellers-section {
-  padding: 40px 20px;
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.best-sellers-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-}
-
-.featured-item {
-  flex: 1;
-  min-width: 300px;
-  max-width: 100%;
-  height: auto;
-  overflow: hidden;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.featured-item img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.3s ease;
-}
-
-.featured-item:hover img {
-  transform: scale(1.05);
-}
-
-.best-sellers-list {
-  flex: 2;
-  min-width: 300px;
-}
-
-@media (max-width: 768px) {
-  .best-sellers-container {
-    flex-direction: column;
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
   }
-
-  .featured-item,
-  .best-sellers-list {
-    width: 100%;
-  }
-}
-
-.newsletter-section {
-  background-color: #f8f8f8;
-  padding: 40px 0;
-  text-align: center;
-}
-
-.newsletter-content {
-  max-width: 600px;
-  margin: 0 auto;
-}
-
-.newsletter-title {
-  font-size: 24px;
-  color: #333;
-  margin-bottom: 10px;
-}
-
-.newsletter-description {
-  color: #666;
-  margin-bottom: 20px;
-}
-
-.newsletter-form {
-  display: flex;
-  justify-content: center;
-}
-
-.newsletter-form input {
-  padding: 10px;
-  width: 60%;
-  border: 1px solid #ddd;
-  border-radius: 3px 0 0 3px;
-}
-
-.newsletter-form button {
-  padding: 10px 20px;
-  background-color: #23a6f0;
-  color: white;
-  border: none;
-  border-radius: 0 3px 3px 0;
-  cursor: pointer;
 }
 </style>

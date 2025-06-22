@@ -20,8 +20,13 @@ export default async function denormalizeProduct(productId) {
         });
 
         //const imagePaths = images.map(image => image.path);
-        const imagePaths = images.map(image => image.dataValues.path);
-        console.log('images paths',imagePaths);
+        const imagePaths = images.map(image => {
+            const fullPath = image.dataValues.path;
+            const uploadsIndex = fullPath.indexOf('uploads/');
+            return uploadsIndex !== -1
+                ? fullPath.substring(uploadsIndex)
+                : fullPath;
+        });        console.log('images paths',imagePaths);
         console.log('tpoutes les images',images);
 
         // Vérifier d'abord si le produit existe déjà
