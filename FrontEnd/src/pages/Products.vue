@@ -80,7 +80,7 @@
         <div v-else :class="gridCls">
           <ProductCard
               v-for="p in displayed"
-              :key="p.id"
+              :key="p.id || p._id"
               :product="p"
               :show-stock-info
               :show-shipping-info

@@ -1,207 +1,140 @@
-import { defineStore } from 'pinia';
-import { computed, ref, watch } from 'vue';
-import { useAuthStore } from '@/stores/user';
-import { useProductStore } from '@/stores/products';
-import axiosInstance from "@/services/api";
-import type { Product } from '@/stores/products';
+import { ref, computed, onBeforeUnmount } from 'vue'
+import { defineStore } from 'pinia'
+import axiosInstance from '@/services/api'
+import { useAuthStore } from '@/stores/user'
+import { useProductStore } from '@/stores/products'
+import type { Product } from '@/types/product'
 
-type CartProduct = Pick<Product, '_id' | 'name' | 'price' | 'images'> & { quantity: number, reservedUntil?: Date };
+type CartItem = Product & { _id: string; quantity: number; reservedUntil?: string }
+
+const lsKey = 'cartItems'
+const now = () => new Date().toISOString()
 
 export const useCartStore = defineStore('cart', () => {
-    const items = ref<CartProduct[]>(JSON.parse(localStorage.getItem('cartItems') || '[]'));
-    const authStore = useAuthStore();
-    const productStore = useProductStore();
+    const auth   = useAuthStore()
+    const prod   = useProductStore()
 
-    const isAuthenticated = computed(() => authStore.isAuthenticated);
+    const items      = ref<CartItem[]>(JSON.parse(localStorage.getItem(lsKey) || '[]'))
+    const loading    = ref(false)
+    const error      = ref<string | null>(null)
+    const isAuth     = computed(() => auth.isAuthenticated)
+    const totalQty   = computed(() => items.value.reduce((n, i) => n + i.quantity, 0))
+    const totals     = computed(() => items.value.reduce((t, i) => t + +i.price * i.quantity, 0))
 
-    const addToCart = async (product: Pick<Product, '_id' | 'name' | 'price' | 'images'>, quantity: number = 1) => {
-        const existingItem = items.value.find(item => item._id === product._id);
-        if (existingItem) {
-            existingItem.quantity += quantity;
-        } else {
-            items.value.push({ ...product, quantity });
-        }
-        saveCart();
+    const persist = () => localStorage.setItem(lsKey, JSON.stringify(items.value))
 
-        if (isAuthenticated.value) {
-            try {
-                const response = await axiosInstance.post('/cart/', {
-                    productid: product._id.toString(),
-                    quantity,
-                    userid: authStore.user?.id
-                });
-                const reservedUntil = new Date(response.data.reservedUntil);
-                if (existingItem) {
-                    existingItem.reservedUntil = reservedUntil;
-                } else {
-                    const addedItem = items.value.find(item => item._id === product._id);
-                    if (addedItem) {
-                        addedItem.reservedUntil = reservedUntil;
-                    }
-                }
-                saveCart();
-            } catch (error) {
-                console.error('Error adding to cart:', error);
-            }
-        }
-    };
-
-    const updateCartItemQuantity = async (index: number, quantity: number) => {
-        if (quantity < 1) {
-            removeFromCart(index);
-            return;
-        }
-
-        const product = items.value[index];
-        product.quantity = quantity;
-        saveCart();
-
-        if (isAuthenticated.value) {
-            try {
-                await axiosInstance.put(`/cart/${product._id}`, {
-                    userid: authStore.user?.id,
-                    productid: product._id,
-                    quantity
-                });
-                saveCart();
-            } catch (error) {
-                console.error('Error updating cart item quantity:', error);
-            }
-        }
-    };
-
-    const removeFromCart = async (index: number) => {
-        const product = items.value[index];
-        items.value.splice(index, 1);
-        saveCart();
-
-        if (isAuthenticated.value) {
-            try {
-                await axiosInstance.delete(`/cart/${product._id}`);
-                saveCart();
-            } catch (error) {
-                console.error('Error removing from cart:', error);
-            }
-        }
-    };
-
-    const calculateTotals = () => {
-        return items.value.reduce(
-            (totals, item) => {
-                totals.subtotal += item.price * item.quantity;
-                totals.total += item.price * item.quantity;
-                return totals;
-            },
-            { subtotal: 0, total: 0 }
-        );
-    };
-
-    const saveCart = () => {
-        localStorage.setItem('cartItems', JSON.stringify(items.value));
-    };
-
-    const loadCart = async () => {
-        items.value = JSON.parse(localStorage.getItem('cartItems') || '[]');
-        if (isAuthenticated.value) {
-            await loadCartFromBackend();
-        }
-    };
-
-    const loadCartFromBackend = async () => {
+    const syncAdd = async (id: string, q: number) => {
+        if (!isAuth.value) return
         try {
-            items.value = []; // Clear existing cart items to avoid duplicates
-            const userid = authStore.user?.id;
-            
-            if (!userid) {
-                console.warn('No user ID available to load cart');
-                return;
+            const { data } = await axiosInstance.post('/cart', {
+                productid: id,
+                userid: auth.user!.id,
+                quantity: q
+            })
+            const itm = items.value.find(i => i._id === id)
+            if (itm && data?.reservedUntil) itm.reservedUntil = data.reservedUntil
+        } catch (e) { /* silent */ }
+    }
+
+    const syncUpdate = async (id: string, q: number) => {
+        if (!isAuth.value) return
+        try {
+            await axiosInstance.put(`/cart/${id}`, {
+                userid: auth.user!.id,
+                productid: id,
+                quantity: q
+            })
+        } catch (e) { /* silent */ }
+    }
+
+    const syncDelete = async (id: string) => {
+        if (!isAuth.value) return
+        try { await axiosInstance.delete(`/cart/${id}`) } catch (e) { /* silent */ }
+    }
+
+    const add = async (p: Product, q = 1) => {
+        if (q < 1) return
+        loading.value = true
+        try {
+            const id = String(p._id ?? p.id)
+            const existing = items.value.find(i => i._id === id)
+            if (existing) existing.quantity += q
+            else items.value.push({ ...p, _id: id, quantity: q })
+            persist()
+            await syncAdd(id, q)
+        } catch (e: any) {
+            error.value = e.message || 'add error'
+            throw e
+        } finally { loading.value = false }
+    }
+
+    const setQty = async (id: string, q: number) => {
+        if (q < 1) return remove(id)
+        loading.value = true
+        try {
+            const it = items.value.find(i => i._id === id)
+            if (!it) return
+            it.quantity = q
+            persist()
+            await syncUpdate(id, q)
+        } finally { loading.value = false }
+    }
+
+    const remove = async (id: string) => {
+        loading.value = true
+        try {
+            items.value = items.value.filter(i => i._id !== id)
+            persist()
+            await syncDelete(id)
+        } finally { loading.value = false }
+    }
+
+    const clear = async () => {
+        loading.value = true
+        try {
+            if (isAuth.value) await axiosInstance.delete('/cart/clear', { params: { userid: auth.user!.id } })
+            items.value = []
+            persist()
+        } finally { loading.value = false }
+    }
+
+    const loadRemote = async () => {
+        if (!isAuth.value) return
+        loading.value = true
+        try {
+            const { data } = await axiosInstance.get(`/cart/${auth.user!.id}`)
+            const list = Array.isArray(data) ? data : []
+            const fresh: CartItem[] = []
+            for (const row of list) {
+                const id = String(row.product?._id ?? row.productid)
+                const p  = await prod.getProductById(id)
+                if (p) fresh.push({ ...p, _id: id, quantity: row.quantity, reservedUntil: row.reservedUntil })
             }
-            
-            const response = await axiosInstance.get(`/cart/${userid}`);
-            const cartItems = response.data || [];
-            
-            // Si le panier est vide, on le sauvegarde et on sort
-            if (!Array.isArray(cartItems) || cartItems.length === 0) {
-                saveCart();
-                return;
-            }
+            items.value = fresh
+            persist()
+        } finally { loading.value = false }
+    }
 
-            const newItems: CartProduct[] = [];
-            
-            for (const item of cartItems) {
-                try {
-                    const productId = item.product?._id || item.productid;
-                    if (!productId) continue;
-                    
-                    const product = await productStore.getProductById(productId.toString());
-                    if (!product) {
-                        console.warn(`Product not found: ${productId}`);
-                        continue;
-                    }
-                    
-                    const existingItem = newItems.find(cartItem => cartItem._id === product._id);
-                    const quantity = item.quantity || 1;
-                    
-                    if (existingItem) {
-                        existingItem.quantity += quantity;
-                    } else {
-                        newItems.push({
-                            _id: product._id,
-                            name: product.name,
-                            price: product.price,
-                            images: product.images,
-                            quantity: quantity,
-                            reservedUntil: item.reserved_until ? new Date(item.reserved_until) : undefined,
-                        });
-                    }
-                } catch (error) {
-                    console.error('Error processing cart item:', item, error);
-                }
-            }
-            
-            items.value = newItems;
-            saveCart();
-        } catch (error: any) {
-            if (error.response?.status === 404) {
-                // L'utilisateur n'a pas encore de panier, on le crée vide
-                items.value = [];
-                saveCart();
-            } else {
-                console.error('Error loading cart from backend:', error);
-            }
-        }
-    };
+    const purgeExpired = () => {
+        const t = new Date()
+        items.value = items.value.filter(i => !i.reservedUntil || new Date(i.reservedUntil) > t)
+        persist()
+    }
 
-    const clearCart = () => {
-        items.value = [];
-        localStorage.removeItem('cartItems');
-    };
-
-    const checkReservations = () => {
-        const now = new Date();
-        items.value = items.value.filter(item => item.reservedUntil && new Date(item.reservedUntil) > now);
-        saveCart();
-    };
-
-    window.addEventListener('beforeunload', () => {
-        saveCart();
-    });
-
-    watch(items, saveCart, { deep: true });
-
-    loadCart();
-
-    setInterval(checkReservations, 60000);
+    const timer = setInterval(purgeExpired, 60_000)
+    window.addEventListener('beforeunload', persist)
+    onBeforeUnmount(() => { clearInterval(timer); window.removeEventListener('beforeunload', persist) })
 
     return {
         items,
-        addToCart,
-        updateCartItemQuantity,
-        removeFromCart,
-        calculateTotals,
-        loadCart,
-        loadCartFromBackend,
-        clearCart,
-        checkReservations,
-    };
-});
+        loading,
+        error,
+        totalQty,
+        totals,
+        add,
+        setQty,
+        remove,
+        clear,
+        loadRemote
+    }
+})

@@ -1,37 +1,32 @@
-<script setup lang="ts">
-
-
-import { onMounted } from 'vue';
-import { useCartStore } from '@/stores/panier';
-import NavigationBar from "@/components/UI/NavigationBar.vue";
-import AuthModal from "@/components/common/AuthModal.vue";
-import { useAuthModalStore } from '@/stores/authModale';
-
-
-import {useRoute} from "vue-router";
-
-const cartStore = useCartStore();
-const route = useRoute();
-const authModalStore = useAuthModalStore();
-
-
-onMounted(() => {
-  cartStore.loadCart();
-});
-
-</script>
-
 <template>
-  <div id="app">
-    <NavigationBar v-if="!route.path.startsWith('/admin')" />
+  <div>
+    <NavigationBar v-if="!isAdminPage" />
 
-    <router-view></router-view>
-    <AuthModal :isVisible="authModalStore.isVisible" @close="authModalStore.closeModal" />
+    <router-view />
 
+    <AuthModal v-model:isVisible="authModalStore.isVisible" />
   </div>
 </template>
 
-<style >
+<script setup lang="ts">
+import { onMounted, computed } from 'vue'
+import { useRoute }          from 'vue-router'
 
+import NavigationBar         from '@/components/UI/NavigationBar.vue'
+import AuthModal             from '@/components/common/AuthModal.vue'
 
-</style>
+import { useCartStore }      from '@/stores/panier'
+import { useAuthModalStore } from '@/stores/authModale'
+
+const cartStore      = useCartStore()
+const authModalStore = useAuthModalStore()
+const route          = useRoute()
+
+const isAdminPage = computed(() => route.path.startsWith('/admin'))
+
+onMounted(async () => {
+  await cartStore.loadCart?.()
+})
+</script>
+
+<style scoped></style>

@@ -33,11 +33,21 @@
           <i class="fas fa-eye"/>
         </button>
 
-        <button @click.stop="addToCart" :disabled="!inStock"
-                :class="['action-btn text-white', inStock ? 'bg-blue-600 hover:bg-blue-700' : 'cursor-not-allowed bg-gray-400']"
-                title="Ajouter au panier">
-          <i class="fas fa-shopping-cart"/>
-        </button>
+        <button 
+  @click.stop="addToCart" 
+  :disabled="!inStock || cart.loading"
+  :class="[
+    'action-btn text-white flex items-center justify-center', 
+    inStock 
+      ? 'bg-blue-600 hover:bg-blue-700' 
+      : 'cursor-not-allowed bg-gray-400',
+    cart.loading ? 'opacity-70' : ''
+  ]"
+  :title="inStock ? 'Ajouter au panier' : 'Produit indisponible'"
+>
+  <i v-if="!cart.loading" class="fas fa-shopping-cart"/>
+  <i v-else class="fas fa-spinner fa-spin"></i>
+</button>
       </div>
     </div>
 
@@ -69,9 +79,11 @@ import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCartStore }      from '@/stores/panier'
 import { useWishlistStore }  from '@/stores/wishlist'
+import { encodeBase64 } from '@/utils/encodage'
 
 interface Product {
-  id: string | number
+  id?: string | number
+  _id?: string | number
   name: string
   brand: string
   category?: string
@@ -126,17 +138,38 @@ const productImg = computed(()=>{
 })
 
 /* ───── actions ───── */
-const addToCart = ()=> cart.addToCart({
-  id: props.product.id, name: props.product.name,
-  price: price.value, quantity:1, image: productImg.value
-})
+const addToCart = async () => {
+  try {
+    await cart.addToCart({
+      ...props.product,
+      _id: props.product.id || props.product._id,
+      price: price.value,
+      images: [productImg.value]
+    }, 1);
+    
+    // Afficher une notification de succès
+    // Vous pouvez utiliser un système de notification comme toast ou une alerte
+    console.log('Produit ajouté au panier');
+    
+  } catch (error) {
+    console.error('Erreur lors de l\'ajout au panier:', error);
+    // Afficher un message d'erreur à l'utilisateur
+  }
+}
 
 const toggleWishlist = ()=> inWishlist.value
     ? wishlist.removeFromWishlist(props.product.id)
     : wishlist.addToWishlist({id:props.product.id,name:props.product.name,price:price.value,image:productImg.value})
 
-const goDetails = ()=> router.push(props.product.slug
-    ? `/products/${props.product.slug}` : `/product/${props.product.id}`)
+const goDetails = () => {
+  if (props.product.slug) {
+    router.push(`/products/${props.product.slug}`)
+  } else {
+    let id:any = props.product.id ?? props.product._id
+    if (typeof id === 'string' && id.startsWith('pg_')) id = id.slice(3)
+    router.push(`/product/${encodeBase64(String(id))}`)
+  }
+}
 </script>
 
 <style scoped>

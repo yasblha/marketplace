@@ -1,508 +1,199 @@
+
 <template>
-  <section class="cart">
-    <div class="cart-content">
-      <div class="cart-items">
-        <div class="title">Your cart</div>
-        <div class="not-ready-to">Not ready to checkout? Continue Shopping</div>
-        <div class="separator"></div>
+  <section class="min-h-screen bg-slate-100 pb-28 px-4 md:px-8">
+    <h1 class="text-3xl font-semibold py-6 text-center">Your cart</h1>
 
-        <div v-for="(product, index) in cartStore.items" :key="index" class="horizontal-product-card">
-          <img :src="getImage(product)" :alt="product.name" class="product-image"/>
-          <div class="title-parent">
-            <div class="title2">{{ product.name }}</div>
-            <div v-if="product.size" class="size-l">Size: {{ product.size }}</div>
-            <div class="brand" v-if="product.brand">Brand: {{ product.brand }}</div>
-            <div class="size-l">
-              Quantity:
-              <button @click="updateQuantity(index, product.quantity - 1)">-</button>
-              {{ product.quantity }}
-              <button @click="updateQuantity(index, product.quantity + 1)">+</button>
+    <!-- cart wrapper -->
+    <div class="flex flex-col xl:flex-row gap-8 max-w-7xl mx-auto">
+      <!-- products -->
+      <div class="flex-1 bg-white rounded-xl shadow p-6">
+        <p class="text-sm mb-5">
+          Not ready to checkout?
+          <RouterLink to="/" class="text-blue-600 underline">Continue shopping</RouterLink>
+        </p>
+
+        <div class="divide-y">
+          <div
+              v-for="p in items"
+              :key="p._id"
+              class="flex flex-col sm:flex-row gap-4 py-6"
+          >
+            <img :src="imageSrc(p)" :alt="p.name" class="w-28 h-28 object-cover rounded" />
+
+            <div class="flex-1">
+              <h2 class="font-medium text-lg">{{ p.name }}</h2>
+              <p v-if="p.brand" class="text-sm text-slate-500">Brand: {{ p.brand }}</p>
+
+              <!-- qty -->
+              <div class="flex items-center gap-2 mt-2">
+                <span class="text-sm">Qty:</span>
+                <button
+                    class="w-6 h-6 flex items-center justify-center border rounded"
+                    @click="updateQty(p._id, p.quantity - 1)"
+                >-</button>
+                <span class="w-8 text-center">{{ p.quantity }}</span>
+                <button
+                    class="w-6 h-6 flex items-center justify-center border rounded"
+                    @click="updateQty(p._id, p.quantity + 1)"
+                >+</button>
+              </div>
             </div>
-            <div class="price">${{ product.price }}</div>
+
+            <div class="flex flex-col items-end justify-between">
+              <p class="font-semibold text-lg">€{{ (+p.price).toFixed(2) }}</p>
+              <button
+                  class="text-sm underline text-red-600"
+                  @click="remove(p._id)"
+              >Remove</button>
+            </div>
           </div>
-          <div class="remove-button" @click="removeItem(index)">Remove</div>
         </div>
       </div>
 
-      <div class="order-summary">
-        <div class="title1">Order Summary</div>
+      <!-- summary -->
+      <aside class="w-full xl:w-80 bg-white rounded-xl shadow p-6">
+        <h3 class="text-xl font-medium mb-4">Order summary</h3>
 
-        <div class="order-information">
-          <div class="title4">
-            <div class="title5">Order Information</div>
-            <div class="title-child"></div>
-          </div>
-          <div class="simple-accordion" v-for="info in orderInformation" :key="info.title">
-            <div class="title-container">
-              <div class="title6">{{ info.title }}</div>
-              <div class="icon"></div>
-            </div>
-            <div class="title7">{{ info.description }}</div>
-            <div class="simple-accordion-child"></div>
+        <div class="space-y-4">
+          <div
+              v-for="info in orderInfos"
+              :key="info.title"
+              class="border rounded-lg p-3"
+          >
+            <details class="space-y-2">
+              <summary class="cursor-pointer font-medium">{{ info.title }}</summary>
+              <p class="text-sm text-slate-600">{{ info.description }}</p>
+            </details>
           </div>
         </div>
 
-        <div class="input">
-          <div class="rectangle"></div>
-          <div class="input-name">Enter coupon code here</div>
-        </div>
-
-        <div class="line-items">
-          <div class="order-line-item">
-            <div class="subtotal">Subtotal</div>
-            <div class="amount">${{ cartStore.calculateTotals().subtotal }}</div>
+        <div class="my-6 space-y-2 text-sm">
+          <div class="flex justify-between">
+            <span>Subtotal</span>
+            <span class="font-medium">€{{ totals.toFixed(2) }}</span>
           </div>
-          <div class="order-line-item">
-            <div class="subtotal">Shipping</div>
-            <div class="amount">Calculated at the next step</div>
+          <div class="flex justify-between">
+            <span>Shipping</span>
+            <span class="text-slate-500">Calculated at next step</span>
           </div>
-          <div class="line-items-child"></div>
-          <div class="order-line-item">
-            <div class="subtotal">Total</div>
-            <div class="amount">${{ cartStore.calculateTotals().total }}</div>
+          <hr />
+          <div class="flex justify-between font-semibold text-lg">
+            <span>Total</span>
+            <span>€{{ totals.toFixed(2) }}</span>
           </div>
         </div>
 
-        <div class="default">
-          <div class="button" @click="checkout">
-            <div class="base"></div>
-            <div class="button-text">Continue to checkout</div>
-          </div>
-        </div>
-      </div>
+        <button
+            class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition"
+            @click="checkout"
+        >
+          Continue to checkout
+        </button>
+      </aside>
     </div>
 
-    <div class="cart-footer">
-      <div class="newsletter">
-        <div class="title10">Sign up for our newsletter</div>
-        <div class="email-input">
-          <div class="rectangle"></div>
-          <div class="input-name">Email Address</div>
+    <!-- newsletter / footer -->
+    <footer class="mt-16 space-y-10">
+      <div class="bg-white rounded-xl shadow p-8 max-w-4xl mx-auto text-center">
+        <h4 class="text-xl font-semibold mb-4">Sign up for our newsletter</h4>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+          <input
+              type="email"
+              placeholder="Email address"
+              class="flex-1 border rounded px-4 py-2"
+          />
+          <button class="bg-slate-900 text-white px-6 py-2 rounded">Sign up</button>
         </div>
-        <b class="sign-up">Sign Up</b>
-        <div class="be-the-first">Be the first to know about our special offers, news, and updates.</div>
+        <p class="text-sm text-slate-500 mt-4">
+          Be the first to know about our special offers, news and updates.
+        </p>
       </div>
-      <div class="copyrights-sitecom-all">Copyrights site.com. All Rights Reserved</div>
-    </div>
+      <p class="text-center text-xs text-slate-500">
+        © {{ new Date().getFullYear() }} site.com — All rights reserved
+      </p>
+    </footer>
 
-    <Modal v-if="showErrorModal" v-model="showErrorModal" title="Error">
-      <div class="error-modal">
-        <p>Your cart is empty. Please add products to your cart before proceeding.</p>
-        <button @click="closeErrorModal">OK</button>
-      </div>
+    <!-- empty-cart modal -->
+    <Modal v-model="showError" title="Empty cart">
+      <p class="mb-6">Your cart is empty. Add products before checking out.</p>
+      <button
+          class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+          @click="showError = false"
+      >
+        OK
+      </button>
     </Modal>
+
+    <Footer />
   </section>
-  <Footer />
 </template>
+<script setup lang="ts">
+import { computed, ref, onMounted } from 'vue'
+import { useRouter }                from 'vue-router'
+import { useCartStore }             from '@/stores/panier'
+import { useOrderStore }            from '@/stores/Commande'
+import defaultImage                 from '@/assets/No_Image_Available .jpg'
+import Modal                        from '@/components/common/Modale.vue'
+import Footer                       from '@/components/UI/Footer.vue'
 
-<script setup>
-import { ref, onMounted } from 'vue';
-import { useCartStore } from '@/stores/panier';
-import { useOrderStore } from '@/stores/Commande';
-import { useRouter } from 'vue-router';
-import defaultImage from "@/assets/ui_assets/image1.png";
-import Modal from '@/components/common/Modale.vue';
+const cart        = useCartStore()
+const orderStore  = useOrderStore()
+const router      = useRouter()
+const showError   = ref(false)
 
-const cartStore = useCartStore();
-const orderStore = useOrderStore();
-const router = useRouter();
-const showErrorModal = ref(false);
-
-const orderInformation = ref([
+const orderInfos = [
   {
     title: 'Return Policy',
-    description: 'This is our example return policy which is everything you need to know about our returns.'
+    description:
+        'This is our example return policy which is everything you need to know about our returns.'
   },
-  { title: 'Shipping Options', description: 'Various shipping options are available for your convenience.' }
-]);
-
-import { backendUrl } from '@/utils/backend';
-
-const getImage = (product) => {
-  if (product.images && product.images.length > 0) {
-    return `${backendUrl}/${product.images[0]}`;
+  {
+    title: 'Shipping Options',
+    description: 'Various shipping options are available for your convenience.'
   }
-  return defaultImage;
-};
+] as const
 
-const checkout = async () => {
-  if (cartStore.items.length === 0) {
-    showErrorModal.value = true;
-    return;
+/** ───── getters ─────────────────────────────────────────────── */
+const items   = computed(() => cart.items)
+const totals  = computed(() => cart.totals) // {totalQty, totals}
+
+/** ───── helpers ─────────────────────────────────────────────── */
+const backendUrl = import.meta.env.VITE_APP_API_URL?.replace(/\/+$/, '') || ''
+
+const imageSrc = (p: { images?: string[] }): string =>
+    p.images?.length
+        ? `${backendUrl}/${String(p.images[0]).replace(/^\/+/, '')}`
+        : defaultImage
+
+/** ───── actions ─────────────────────────────────────────────── */
+const updateQty = (id: string, q: number) => cart.setQty(id, q)
+const remove    = (id: string)            => cart.remove(id)
+
+const checkout  = async () => {
+  if (!items.value.length) {
+    showError.value = true
+    return
   }
 
   try {
-    const { subtotal } = cartStore.calculateTotals();
-    const userId = cartStore.isAuthenticated ? cartStore.authStore.user.id : null;
-    const products = cartStore.items.map(item => ({
-      productId: item._id,
-      quantity: item.quantity
-    }));
+    const orderId = await orderStore.createOrder({
+      userId      : cart.isAuthenticated ? cart.auth.user.id : null,
+      statusOrder : 'Pending Validation',
+      totalAmount : totals.value,
+      products    : items.value.map(i => ({ productId: i._id, quantity: i.quantity }))
+    })
 
-    const response = await orderStore.createOrder({
-      userId,
-      statusOrder: 'Pending Validation',
-      totalAmount: subtotal,
-      products
-    });
-
-    const orderId = response;
-    console.log(orderId);
-    console.log(response);
-
-    localStorage.setItem('currentOrderId', orderId);
-    cartStore.clearCart();
-    router.push({ path: '/checkout', query: { orderId } });
-  } catch (error) {
-    console.error('Failed to create order and continue to checkout:', error);
+    localStorage.setItem('currentOrderId', orderId)
+    await cart.clear()
+    router.push({ name: 'checkout', query: { orderId } })
+  } catch (e) {
+    console.error('checkout error', e)
   }
-};
+}
 
-const removeItem = (index) => {
-  cartStore.removeFromCart(index);
-};
-
-const updateQuantity = (index, quantity) => {
-  cartStore.updateCartItemQuantity(index, quantity);
-};
-
-const closeErrorModal = () => {
-  showErrorModal.value = false;
-};
-
-onMounted(() => {
-  cartStore.loadCart();
-});
+onMounted(cart.loadRemote)
 </script>
 
 <style scoped>
-body {
-  font-family: 'Public Sans', sans-serif;
-}
-
-.cart {
-  padding: 20px;
-  background-color: #eff2f6;
-  width: 100%;
-  height: 100%;
-}
-
-.cart-content {
-  display: flex;
-  justify-content: space-between;
-  gap: 40px;
-  flex-wrap: wrap;
-}
-
-.cart-header, .cart-footer {
-  margin-bottom: 20px;
-  text-align: center;
-  width: 100%;
-}
-
-.title {
-  font-size: 36px;
-  font-weight: 600;
-  margin: 20px 0;
-}
-
-.title1 {
-  font-size: 22px;
-  font-weight: 600;
-  margin: 10px 0;
-}
-
-.not-ready-to {
-  font-size: 16px;
-  font-weight: 500;
-  margin: 10px 0;
-}
-
-.separator {
-  width: 100%;
-  border-top: 1px solid #909090;
-  margin: 20px 0;
-}
-
-.cart-items {
-  flex: 3;
-  padding: 20px;
-  background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  width: 100%;
-}
-
-.horizontal-product-card {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  padding: 20px 0;
-  border-bottom: 1px solid #ddd;
-}
-
-.product-image {
-  width: 129px;
-  height: 133px;
-  object-fit: cover;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-}
-
-.title-parent {
-  flex: 1;
-  padding: 6px 5px;
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-}
-
-.title2 {
-  font-size: 22px;
-  font-weight: 600;
-}
-
-.size-l, .price {
-  font-size: 14px;
-  font-weight: 400;
-}
-
-.brand {
-  font-size: 14px;
-  font-weight: 400;
-}
-
-.price {
-  font-size: 22px;
-  font-weight: 600;
-}
-
-.remove-button {
-  text-decoration: underline;
-  cursor: pointer;
-}
-
-.order-summary {
-  flex: 1;
-  padding: 20px;
-  background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  min-width: 300px;
-}
-
-.order-information {
-  margin: 20px 0;
-}
-
-.title4 {
-  position: relative;
-}
-
-.title5 {
-  font-size: 22px;
-  font-weight: 600;
-}
-
-.title-child {
-  width: 100%;
-  border-top: 1px solid #000;
-  margin-top: 10px;
-}
-
-.simple-accordion {
-  margin-bottom: 10px;
-}
-
-.title-container {
-  position: relative;
-}
-
-.title6 {
-  font-size: 16px;
-  font-weight: 600;
-  color: #909090;
-}
-
-.icon {
-  width: 13px;
-  height: 13px;
-  background: #909090;
-  position: absolute;
-  top: 4px;
-  right: 0;
-}
-
-.title7 {
-  font-size: 16px;
-  font-weight: 400;
-  color: #909090;
-  margin: 10px 0;
-}
-
-.simple-accordion-child {
-  width: 100%;
-  border-top: 1px solid #909090;
-}
-
-.input {
-  position: relative;
-  margin: 20px 0;
-}
-
-.input .rectangle {
-  border: 0.5px solid #000;
-  height: 40px;
-}
-
-.input .input-name {
-  position: absolute;
-  top: 10px;
-  left: 15px;
-  color: #a9abbd;
-  font-size: 14px;
-  font-weight: 400;
-}
-
-.line-items {
-  margin: 20px 0;
-}
-
-.order-line-item {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 10px;
-}
-
-.subtotal, .amount {
-  font-size: 14px;
-  font-weight: 400;
-}
-
-.amount {
-  text-align: right;
-}
-
-.line-items-child {
-  width: 100%;
-  border-top: 1px solid #000;
-}
-
-.default {
-  text-align: center;
-  margin: 20px 0;
-}
-
-.button {
-  background-color: #0d0d0d;
-  color: white;
-  padding: 15px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.button:hover {
-  background-color: #333;
-}
-
-.newsletter {
-  margin-top: 20px;
-  text-align: center;
-  width: 100%;
-}
-
-.newsletter .title10 {
-  font-size: 24px;
-  font-weight: 600;
-  margin-bottom: 10px;
-}
-
-.newsletter .email-input {
-  position: relative;
-  margin-bottom: 10px;
-}
-
-.newsletter .email-input .rectangle {
-  border: 1px solid #000;
-  height: 40px;
-}
-
-.newsletter .email-input .input-name {
-  position: absolute;
-  top: 10px;
-  left: 15px;
-  color: #a9abbd;
-  font-size: 14px;
-  font-weight: 400;
-}
-
-.sign-up {
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.be-the-first {
-  font-size: 14px;
-  font-weight: 400;
-  color: #a9abbd;
-  margin-top: 10px;
-}
-
-.copyrights-sitecom-all {
-  margin-top: 20px;
-  text-align: center;
-  font-size: 12px;
-  color: #a9abbd;
-}
-
-@media (max-width: 1200px) {
-  .cart-content {
-    flex-direction: column;
-  }
-
-  .order-summary {
-    width: 100%;
-  }
-}
-
-@media (max-width: 768px) {
-  .horizontal-product-card {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .product-image {
-    width: 100%;
-    max-width: 300px;
-  }
-
-  .title-parent {
-    width: 100%;
-  }
-}
-
-@media (max-width: 480px) {
-  .title {
-    font-size: 28px;
-  }
-
-  .title1 {
-    font-size: 18px;
-  }
-
-  .title2 {
-    font-size: 20px;
-  }
-
-  .price {
-    font-size: 18px;
-  }
-
-  .remove-button {
-    font-size: 12px;
-  }
-}
+/* plus aucun CSS verbeux : tout le style est géré par Tailwind */
 </style>
