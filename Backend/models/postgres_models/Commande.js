@@ -1,6 +1,5 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../../config/postgres.js';
-import Clients from '../postgres_models/UserPg.js';
 import ORDER_STATUS from '../../constants/orderStatus.js';
 
 const Order = sequelize.define('Order', {
@@ -11,28 +10,24 @@ const Order = sequelize.define('Order', {
     },
     dateOrder: {
         type: DataTypes.DATE,
-        field: 'date_order',
+        field: 'dateOrder',
         allowNull: false,
         defaultValue: DataTypes.NOW,
     },
     statusOrder: {
         type: DataTypes.STRING,
-        field: 'status_order',
+        field: 'statusOrder',
         allowNull: false,
         defaultValue: ORDER_STATUS.PENDING,
     },
     totalAmount: {
         type: DataTypes.FLOAT,
-        field: 'total_amount',
+        field: 'totalAmount',
         allowNull: false,
     },
     userId: {
         type: DataTypes.INTEGER,
         field: 'userId',
-        references: {
-            model: Clients,
-            key: 'id',
-        },
         allowNull: false,
     },
     createdAt: {
@@ -50,23 +45,9 @@ const Order = sequelize.define('Order', {
 }, {
     tableName: 'Orders',
     timestamps: true,
-    underscored: true,
-    freezeTableName: true,
     createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
+    updatedAt: 'updatedAt',
+    underscored: false
 });
-
-// Relations
-Order.associate = (models) => {
-    Order.belongsTo(models.Clients, {
-        foreignKey: 'userId',
-        as: 'user'
-    });
-    
-    Order.hasMany(models.OrderDetails, {
-        foreignKey: 'orderId',
-        as: 'OrderDetails'
-    });
-};
 
 export default Order;

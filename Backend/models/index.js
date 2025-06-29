@@ -55,61 +55,10 @@ try {
 
 console.log('\n🔧 Initializing models...');
 
-// En supposant que les imports ci-dessus fournissent des classes de modèle non initialisées, nous les initialisons ici.
-// Adaptez cette partie si vos modèles sont définis différemment.
-try {
-    Alert.init(Alert.getAttributes(), { 
-        sequelize: sequelizeInstance, 
-        modelName: 'Alert', 
-        tableName: 'Alerts',
-        timestamps: true
-    });
-    console.log('✅ Alert model initialized');
-} catch (error) {
-    console.error('❌ Error initializing Alert model:', error.message);
-}
-// Fonction utilitaire pour initialiser un modèle avec gestion d'erreur
-const initModel = (model, modelName, tableName, options = {}) => {
-    try {
-        // Récupérer les options du modèle, y compris les timestamps
-        const modelOptions = model.getOptions ? model.getOptions() : {};
-        
-        model.init(model.getAttributes(), { 
-            sequelize: sequelizeInstance, 
-            modelName, 
-            tableName,
-            // Utiliser les timestamps du modèle s'ils sont définis, sinon false par défaut
-            timestamps: modelOptions.timestamps !== undefined ? modelOptions.timestamps : false,
-            // Conserver createdAt et updatedAt du modèle s'ils sont définis
-            createdAt: modelOptions.createdAt !== undefined ? modelOptions.createdAt : false,
-            updatedAt: modelOptions.updatedAt !== undefined ? modelOptions.updatedAt : false,
-            ...options
-        });
-        console.log(`✅ ${modelName} model initialized`);
-        return true;
-    } catch (error) {
-        console.error(`❌ Error initializing ${modelName} model:`, error.message);
-        if (error.original) {
-            console.error('Original error:', error.original);
-        }
-        return false;
-    }
-};
+// Les modèles sont déjà définis avec sequelize.define() dans leurs fichiers individuels
+// Pas besoin de les réinitialiser ici
 
-// Initialisation de tous les modèles
-initModel(Commande, 'Commande', 'Orders');
-initModel(DetailsCommande, 'DetailsCommande', 'OrderDetails');
-initModel(Favorite, 'Favorite', 'Favorites');
-initModel(Media, 'Media', 'Media');
-initModel(Menu, 'Menu', 'Menus');
-initModel(Panier, 'Panier', 'Cart');
-initModel(Payments, 'Payments', 'Payments');
-initModel(ProductPg, 'ProductPg', 'Product');
-initModel(Returns, 'Returns', 'Returns');
-initModel(UserPg, 'UserPg', 'Clients');
-initModel(AdresseLivraison, 'AdresseLivraison', 'DeliveryAddresses');
-
-// Attribuer les modèles initialisés à l'objet db
+// Attribuer les modèles à l'objet db
 db.Alert = Alert;
 //db.CategoryPg = CategoryPg;
 db.Commande = Commande;
@@ -161,12 +110,11 @@ db.AdresseLivraison.belongsTo(db.UserPg, { foreignKey: 'userId' });
 db.ProductPg.hasMany(db.Media, { foreignKey: 'productId' });
 db.Media.belongsTo(db.ProductPg, { foreignKey: 'productId' });
 
+db.UserPg.hasMany(db.Panier, { foreignKey: 'userid', as: 'UserPg' });
+db.Panier.belongsTo(db.UserPg, { foreignKey: 'userid', as: 'UserPg' });
 
-db.UserPg.hasMany(db.Panier, { foreignKey: 'userid' });
-db.Panier.belongsTo(db.UserPg, { foreignKey: 'userid' });
-
-db.ProductPg.hasMany(db.Panier, { foreignKey: 'productid' });
-db.Panier.belongsTo(db.ProductPg, { foreignKey: 'productid' });
+db.ProductPg.hasMany(db.Panier, { foreignKey: 'productid', as: 'ProductPg' });
+db.Panier.belongsTo(db.ProductPg, { foreignKey: 'productid', as: 'ProductPg' });
 
 db.Commande.hasMany(db.Payments, { foreignKey: 'orderId' });
 db.Payments.belongsTo(db.Commande, { foreignKey: 'orderId' });

@@ -5,8 +5,8 @@ export interface Product {
     description: string;
     category: string;
     brand: string;
-    price: number | string;
-    sale_price?: number | string | null;
+    price: number;
+    sale_price?: number | null;
     is_on_sale?: boolean;
     stock_available: number;
     stock_total?: number;
@@ -16,6 +16,9 @@ export interface Product {
     created_at?: string;
     updated_at?: string;
     category_id?: number | null;
+    rating?: number;
+    reviews?: number;
+    originalPrice?: number;
 }
 
 export interface ProductForm {

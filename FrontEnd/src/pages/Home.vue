@@ -106,7 +106,7 @@
           <div 
             v-for="(product, index) in featuredProducts" 
             v-if="!isLoading"
-            :key="product._id"
+            :key="product._id || product.id || index"
             class="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden"
             data-aos="fade-up"
             :data-aos-delay="index * 100"
@@ -118,7 +118,7 @@
                   :src="getProductImage(product)" 
                   :alt="product.name"
                   class="h-64 w-full object-cover object-center"
-                  @error="$event.target.style.display='none'"
+                  @error="handleImageError"
                 />
                 <div v-else class="h-64 w-full bg-gray-200 flex items-center justify-center">
                   <span class="text-gray-400">{{ product.name || 'Image non disponible' }}</span>
@@ -126,12 +126,12 @@
               </div>
               <div class="absolute top-3 right-3 flex flex-col gap-2">
                 <button 
-                  @click="toggleFavorite(product._id)" 
+                  @click="toggleFavorite(String(product._id || product.id))" 
                   class="w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-gray-700 hover:text-red-500 transition-colors"
-                  :class="{ 'text-red-500': wishlistStore.isInWishlist(product._id) }"
+                  :class="{ 'text-red-500': wishlistStore.isInWishlist(String(product._id || product.id)) }"
                 >
                   <font-awesome-icon 
-                    :icon="wishlistStore.isInWishlist(product._id) ? 'fas fa-heart' : 'far fa-heart'" 
+                    :icon="wishlistStore.isInWishlist(String(product._id || product.id)) ? 'fas fa-heart' : 'far fa-heart'" 
                     class="w-5 h-5" 
                   />
                 </button>
@@ -164,7 +164,7 @@
                   <span v-if="product.originalPrice" class="ml-2 text-sm text-gray-500 line-through">{{ formatPrice(product.originalPrice) }}</span>
                 </div>
                 <button 
-                  @click="addToCart(product._id)" 
+                  @click="addToCart(String(product._id || product.id))" 
                   class="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center hover:bg-blue-700 transition-colors"
                   :disabled="isLoading"
                 >
@@ -329,6 +329,7 @@ const email = ref('');
 const isLoading = ref(false);
 const privacyAccepted = ref(false);
 const isInitialized = ref(false);
+const isAuthModalVisible = ref(false);
 
 // Charger les données au montage du composant
 const loadData = async () => {
@@ -341,9 +342,9 @@ const loadData = async () => {
     
     // Si l'utilisateur est connecté, charger son panier
     if (localStorage.getItem('authToken')) {
-      await cartStore.loadCartFromBackend();
+      await cartStore.syncWithBackend();
     } else {
-      cartStore.loadCart();
+      // Le panier local est déjà chargé par défaut
     }
     
     isInitialized.value = true;
@@ -359,7 +360,7 @@ const featuredProducts = computed(() => {
   // Prendre les 4 premiers produits comme produits phares
   return productStore.products.slice(0, 4).map(product => ({
     ...product,
-    isFavorite: wishlistStore.isInWishlist(product._id)
+    isFavorite: wishlistStore.isInWishlist(String(product._id || product.id || ''))
   }));
 });
 
@@ -415,14 +416,14 @@ const brands = ref([
 
 // Helper methods
 const getProductImage = (product: any) => {
-  if (!product) return null;
+  if (!product) return '';
   
   try {
     // Gestion des images pour les produits MongoDB
     if (product.images && product.images.length > 0) {
       const imagePath = product.images[0];
       const imageName = imagePath.split('/').pop();
-      return `http://localhost:3000/uploads/${imageName}`;
+      return `http://localhost:3000/uploads/${imageName || ''}`;
     }
     
     // Gestion des images pour les produits PostgreSQL
@@ -435,19 +436,20 @@ const getProductImage = (product: any) => {
       if (Array.isArray(images) && images.length > 0) {
         const imagePath = images[0];
         const imageName = imagePath.split('/').pop();
-        return `http://localhost:3000/uploads/${imageName}`;
+        return `http://localhost:3000/uploads/${imageName || ''}`;
       }
     }
   } catch (e) {
     console.error('Erreur lors du traitement de l\'image:', e);
   }
   
-  return null;
+  return '';
 };
 
 // Methods
-const scrollToSection = (sectionId: string) => {
-  const section = document.getElementById(sectionId);
+const scrollToSection = (sectionId: string | number) => {
+  const id = String(sectionId);
+  const section = document.getElementById(id);
   if (section) {
     window.scrollTo({
       top: section.offsetTop - 80,
@@ -475,12 +477,30 @@ const subscribeNewsletter = async () => {
   }
 };
 
+// Helper functions pour corriger les erreurs de typage
+const getProductId = (product: any): string => String(product._id || product.id || '');
+const isInWishlist = (product: any): boolean => wishlistStore.isInWishlist(String(product._id || product.id || ''));
+
+// Fonction pour gérer les erreurs d'image
+const handleImageError = (event: Event) => {
+  const target = event.target as HTMLImageElement;
+  if (target) {
+    target.style.display = 'none';
+  }
+};
+
+// Corriger les erreurs de typage dans les appels de fonctions
 const toggleFavorite = async (productId: string) => {
   try {
-    await wishlistStore.toggleWishlistItem({
-      id: productId,
-      ...productStore.products.find(p => p._id === productId)
-    });
+    const product = productStore.products.find(p => p._id === productId);
+    if (product) {
+      await wishlistStore.toggleWishlistItem({
+        id: productId,
+        name: product.name,
+        price: product.price,
+        image: product.images?.[0] || ''
+      });
+    }
   } catch (error) {
     console.error('Erreur lors de la mise à jour des favoris:', error);
   }
@@ -491,10 +511,15 @@ const addToCart = async (productId: string) => {
     const product = productStore.products.find(p => p._id === productId);
     if (product) {
       await cartStore.addToCart({
-        _id: product._id,
+        _id: String(product._id || product.id),
+        id: String(product._id || product.id),
         name: product.name,
         price: product.price,
-        images: product.images
+        images: product.images || [],
+        description: product.description || '',
+        category: product.category || '',
+        brand: product.brand || '',
+        stock_available: product.stock_available || 0
       });
     }
   } catch (error) {
@@ -541,14 +566,11 @@ const getTagClass = (tag: string) => {
 };
 
 const formatPrice = (price: number | string) => {
-  // Convertir en nombre si c'est une chaîne
-  const priceNumber = typeof price === 'string' ? parseFloat(price) : price;
-  return new Intl.NumberFormat('fr-FR', { 
-    style: 'currency', 
-    currency: 'EUR',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  }).format(priceNumber);
+  const numPrice = typeof price === 'string' ? parseFloat(price) : price;
+  return new Intl.NumberFormat('fr-FR', {
+    style: 'currency',
+    currency: 'EUR'
+  }).format(numPrice);
 };
 
 // Lifecycle Hooks

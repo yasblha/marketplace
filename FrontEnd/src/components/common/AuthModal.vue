@@ -7,7 +7,7 @@
           <button @click="closeModal" class="close-button">&times;</button>
 
           <!-- Formulaire de connexion -->
-          <div v-if="isLogin" class="auth-container">
+          <div v-if="authModalStore.mode === 'login'" class="auth-container">
             <h2 class="auth-title">Connexion</h2>
             <form @submit.prevent="handleLogin" class="auth-form">
               <div class="form-group">
@@ -71,7 +71,7 @@
           </div>
 
           <div class="toggle-auth">
-            <span @click="toggleAuth">{{ isLogin ? 'Pas de compte ? Inscrivez-vous' : 'Déjà un compte ? Connectez-vous' }}</span>
+            <span @click="toggleAuth">{{ authModalStore.mode === 'login' ? 'Pas de compte ? Inscrivez-vous' : 'Déjà un compte ? Connectez-vous' }}</span>
           </div>
         </div>
       </div>
@@ -83,6 +83,7 @@
 import { ref, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/user';
+import { useAuthModalStore } from '@/stores/authModale';
 
 const props = defineProps({
   isVisible: {
@@ -94,6 +95,7 @@ const props = defineProps({
 const emit = defineEmits(['close']);
 
 const authStore = useAuthStore();
+const authModalStore = useAuthModalStore();
 const router = useRouter();
 
 const email = ref('');
@@ -102,14 +104,13 @@ const role = ref('user');
 const firstName = ref('');
 const lastName = ref('');
 const passwordConfirm = ref('');
-const isLogin = ref(true);
 const rememberMe = ref(false);
 
 watch(() => props.isVisible, (newValue) => {
   if (!newValue) {
     email.value = '';
     password.value = '';
-    role.value = '';
+    role.value = 'user';
     firstName.value = '';
     lastName.value = '';
     passwordConfirm.value = '';
@@ -122,7 +123,7 @@ const isPasswordValid = computed(() => {
 });
 
 const isFormValid = computed(() => {
-  if (isLogin.value) {
+  if (authModalStore.mode === 'login') {
     return email.value && password.value;
   } else {
     return role.value && email.value && firstName.value && lastName.value && password.value && passwordConfirm.value && isPasswordValid.value && password.value === passwordConfirm.value;
@@ -170,10 +171,11 @@ async function handleRegister() {
 }
 
 function toggleAuth() {
-  isLogin.value = !isLogin.value;
+  authModalStore.openModal(authModalStore.mode === 'login' ? 'register' : 'login');
 }
 
 function closeModal() {
+  authModalStore.closeModal();
   emit('close');
 }
 </script>

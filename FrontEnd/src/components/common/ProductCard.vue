@@ -45,8 +45,10 @@
   ]"
   :title="inStock ? 'Ajouter au panier' : 'Produit indisponible'"
 >
-  <i v-if="!cart.loading" class="fas fa-shopping-cart"/>
-  <i v-else class="fas fa-spinner fa-spin"></i>
+  <template v-if="true">
+    <i v-if="!cart.loading" class="fas fa-shopping-cart"/>
+    <i v-else class="fas fa-spinner fa-spin"></i>
+  </template>
 </button>
       </div>
     </div>
@@ -97,6 +99,7 @@ interface Product {
   rating?: number
   reviewCount?: number
   slug?: string
+  description?: string
 }
 
 const props = withDefaults(defineProps<{
@@ -119,9 +122,9 @@ const imgLoaded = ref(false)
 /* ───── helpers ───── */
 const format = (n:number)=>n.toLocaleString('fr-FR',{style:'currency',currency:'EUR'})
 const price  = computed(()=> props.product.price * (1 - (props.product.discount??0)/100))
-const original = computed(()=> props.product.discount ? format(props.product.price) : '')
+const originalPrice = computed(()=> props.product.discount ? format(props.product.price) : '')
 const inStock  = computed(()=> props.product.stock_available > 0)
-const inWishlist = computed(()=> wishlist.isInWishlist(props.product.id))
+const inWishlist = computed(()=> wishlist.isInWishlist(String(props.product.id)))
 const isNew   = computed(()=>{
   const c = props.product.created_at
   return c ? (Date.now()-+new Date(c))/864e5 < 30 : false
@@ -134,23 +137,32 @@ const productImg = computed(()=>{
   const src = props.product.images?.[0] ?? ''
   if (/^https?:\/\//.test(src)) return src
   const api = (import.meta.env.VITE_APP_API_URL||'').replace(/\/$/,'')
-  return src ? `${api}/${src.replace(/^\/+/,'')}` : '/No_Image_Available.jpg'
+  return src ? `${api}/${src.replace(/^\/+/,'')}` : '/NoImage.jpg'
 })
 
 /* ───── actions ───── */
 const addToCart = async () => {
+  if (cart.loading) return; // Prevent multiple clicks
+
   try {
-    await cart.addToCart({
+    const result = await cart.add({
       ...props.product,
-      _id: props.product.id || props.product._id,
+      _id: String(props.product.id || props.product._id || ''),
+      id: String(props.product.id || props.product._id || ''),
       price: price.value,
-      images: [productImg.value]
+      images: [productImg.value],
+      description: props.product.description || '',
+      category: props.product.category || '',
+      brand: props.product.brand || '',
+      stock_available: props.product.stock_available || 0,
+      created_at: typeof props.product.created_at === 'string' ? props.product.created_at : undefined
     }, 1);
-    
-    // Afficher une notification de succès
-    // Vous pouvez utiliser un système de notification comme toast ou une alerte
-    console.log('Produit ajouté au panier');
-    
+
+    if (result) {
+      // Afficher une notification de succès
+      // Vous pouvez utiliser un système de notification comme toast ou une alerte
+      console.log('Produit ajouté au panier');
+    }
   } catch (error) {
     console.error('Erreur lors de l\'ajout au panier:', error);
     // Afficher un message d'erreur à l'utilisateur
@@ -158,8 +170,8 @@ const addToCart = async () => {
 }
 
 const toggleWishlist = ()=> inWishlist.value
-    ? wishlist.removeFromWishlist(props.product.id)
-    : wishlist.addToWishlist({id:props.product.id,name:props.product.name,price:price.value,image:productImg.value})
+    ? wishlist.removeFromWishlist(String(props.product.id))
+    : wishlist.addToWishlist({id:String(props.product.id),name:props.product.name,price:price.value,image:productImg.value})
 
 const goDetails = () => {
   if (props.product.slug) {

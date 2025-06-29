@@ -1,72 +1,137 @@
-import Cart from '../models/postgres_models/Panier.js';
-import Client from '../models/postgres_models/UserPg.js';
-import Product from '../models/postgres_models/ProductPg.js';
+import db from '../models/index.js';
 import ProductService from '../services/productService.js';
+import {Op} from "sequelize";
 //import { authenticateAdmin, authenticateToken } from '';
 
+const Cart = db.Panier;
+const Client = db.UserPg;
+const Product = db.ProductPg;
 
 const padProductId = (id) => id.toString().padStart(24, '0');
 const removeLeftZeros = (str) => str.replace(/^0+/, '');
 
 export async function createCartItem(req, res) {
     try {
-        const { userid, productid, quantity } = req.body;
+        const { userid, productid, quantity = 1 } = req.body;
 
-        let client = null;
-        if (userid) {
-            client = await Client.findByPk(userid);
-            if (!client) {
-                return res.status(404).json({ message: 'Client not found' });
-            }
+        // Validation des entrées
+        if (!productid || !userid) {
+            return res.status(400).json({ 
+                success: false,
+                message: 'productid et userid sont requis' 
+            });
         }
 
+        const quantityNum = parseInt(quantity, 10);
+        if (isNaN(quantityNum) || quantityNum < 1) {
+            return res.status(400).json({ 
+                success: false,
+                message: 'Quantité invalide' 
+            });
+        }
+
+        // Vérification de l'utilisateur
+        const user = await Client.findByPk(userid);
+        if (!user) {
+            return res.status(404).json({ 
+                success: false,
+                message: 'Utilisateur non trouvé' 
+            });
+        }
+
+        // Récupération du produit
         const paddedProductId = padProductId(productid);
         const product = await ProductService.getProductById(paddedProductId);
+        
         if (!product) {
-            return res.status(404).json({ message: 'Product not found' });
+            return res.status(404).json({ 
+                success: false,
+                message: 'Produit non trouvé' 
+            });
         }
 
-        const quantityNumber = parseInt(quantity, 10);
-        if(quantityNumber) {
-
-        }
-        if (isNaN(quantityNumber)) {
-            return res.status(400).json({ message: 'Invalid quantity' });
-        }
-
-        if (product.stock_available < quantityNumber) {
-            return res.status(400).json({ message: 'Not enough stock available' });
+        // Vérification du stock
+        if (product.stock_available < quantityNum) {
+            return res.status(400).json({ 
+                success: false,
+                message: 'Stock insuffisant', 
+                available: product.stock_available 
+            });
         }
 
-        product.stock_available -= quantityNumber;
-        await product.save();
+        // Mise à jour du stock avec verrouillage optimiste
+        const updatedStock = product.stock_available - quantityNum;
+        const [updated] = await Product.update(
+            { stock_available: updatedStock },
+            { 
+                where: { 
+                    id: removeLeftZeros(paddedProductId),
+                    stock_available: { [Op.gte]: quantityNum }
+                },
+                returning: true
+            }
+        );
 
+        if (!updated) {
+            return res.status(400).json({ 
+                success: false,
+                message: 'Stock insuffisant ou produit modifié' 
+            });
+        }
+
+        // Création de l'article du panier
         const reservedUntil = new Date();
         reservedUntil.setMinutes(reservedUntil.getMinutes() + 15);
 
-        const cartItemData = {
-            productid: paddedProductId,
-            quantity: quantityNumber,
+        const cartItem = await Cart.create({
+            productid: removeLeftZeros(paddedProductId),
+            quantity: quantityNum,
             reservedUntil,
-            userid: client ? client.id : userid
+            userid: user.id
+        });
+
+        // Libération du stock différée
+        const releaseStock = async () => {
+            const item = await Cart.findByPk(cartItem.id);
+            if (!item) return;
+
+            // Vérifier si l'article est toujours réservé
+            if (new Date() > item.reservedUntil) {
+                const productToUpdate = await ProductService.getProductById(padProductId(item.productid));
+                if (productToUpdate) {
+                    // Utiliser une transaction pour la mise à jour du stock
+                    await sequelize.transaction(async (t) => {
+                        await Product.increment('stock_available', {
+                            by: item.quantity,
+                            where: { id: item.productid },
+                            transaction: t
+                        });
+                        await item.destroy({ transaction: t });
+                    });
+                }
+            }
         };
 
-        const cartItem = await Cart.create(cartItemData);
-        res.status(201).json(cartItem);
+        // Planifier la libération du stock
+        setTimeout(releaseStock, 15 * 60 * 1000);
 
-        setTimeout(async () => {
-            const item = await Cart.findByPk(cartItem.id);
-            if (item && new Date() > item.reservedUntil) {
-                const productToUpdate = await ProductService.getProductById(item.productid);
-                if (productToUpdate) {
-                    productToUpdate.stock_available += item.quantity;
-                    await productToUpdate.save();
-                }
-                await item.destroy();
+        res.status(201).json({ 
+            success: true,
+            data: {
+                id: cartItem.id,
+                productid: cartItem.productid,
+                quantity: cartItem.quantity,
+                reservedUntil: cartItem.reservedUntil
             }
-        }, 15 * 60 * 1000);
+        });
+
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error('Erreur lors de l\'ajout au panier:', error);
+        res.status(500).json({ 
+            success: false,
+            message: 'Erreur serveur',
+            ...(process.env.NODE_ENV === 'development' && { error: error.message })
+        });
     }
 };
 
@@ -112,7 +177,6 @@ export async function getCartItems(req, res) {
                 userid: cartItem.userid,
                 productid: cartItem.productid,
                 quantity: cartItem.quantity,
-                session_id: cartItem.sessionId,
                 reserved_until: cartItem.reservedUntil,
                 created_at: cartItem.createdAt,
                 updated_at: cartItem.updatedAt,
@@ -177,10 +241,6 @@ export async function updateCartItem(req, res) {
     }
 };
 
-
-
-
-
 export async function deleteCartItem(req, res) {
     try {
         const { id } = req.params;
@@ -208,5 +268,32 @@ export async function deleteCartItem(req, res) {
         res.status(204).json({ message: 'Cart item deleted' });
     } catch (error) {
         res.status(500).json({ message: error.message });
+    }
+};
+
+export async function clearCart(req, res) {
+    try {
+        const { userid } = req.params;
+
+        const items = await Cart.findAll({ where: { userid } });
+
+        if (!items.length) {
+            return res.status(200).json({ success: true, message: 'Panier déjà vide' });
+        }
+
+        // Restituer le stock pour chaque produit
+        for (const item of items) {
+            await Product.increment('stock_available', {
+                by: item.quantity,
+                where: { id: item.productid }
+            });
+        }
+
+        await Cart.destroy({ where: { userid } });
+
+        res.status(200).json({ success: true, message: 'Panier vidé' });
+    } catch (error) {
+        console.error('Erreur clearCart:', error);
+        res.status(500).json({ success: false, message: 'Erreur serveur' });
     }
 };

@@ -7,10 +7,12 @@
       <div class="filters">
         <select v-model="statusFilter" class="filter-select">
           <option value="all">Tous les statuts</option>
-          <option value="en_attente">En attente de paiement</option>
-          <option value="en_cours">En cours de traitement</option>
-          <option value="livree">Livrée</option>
-          <option value="annulee">Annulée</option>
+          <option value="pending">En attente</option>
+          <option value="paid">Payée</option>
+          <option value="processing">En cours de préparation</option>
+          <option value="shipped">Expédiée</option>
+          <option value="delivered">Livrée</option>
+          <option value="canceled">Annulée</option>
         </select>
       </div>
     </div>
@@ -60,7 +62,7 @@
 
         <div class="order-content">
           <div class="order-items">
-            <div v-for="item in order.DetailsCommandes" :key="item.id" class="order-item">
+            <div v-for="item in order.OrderDetails" :key="item.productId" class="order-item">
               <img :src="getProductImage(item)" :alt="item.productName" class="item-image">
               <div class="item-details">
                 <h4>{{ item.productName || 'Produit sans nom' }}</h4>
@@ -95,7 +97,7 @@
           
           <!-- Bouton pour reprendre une commande non terminée -->
           <button 
-            v-if="['en_attente', 'en_attente_de_paiement'].includes(order.statusOrder)" 
+            v-if="['pending','paid'].includes(order.statusOrder)" 
             @click="resumeOrder(order)" 
             class="btn-action bg-blue-600 text-white hover:bg-blue-700"
           >
@@ -103,7 +105,7 @@
           </button>
           
           <button 
-            v-if="['en_attente', 'en_attente_de_paiement', 'en_preparation'].includes(order.statusOrder)" 
+            v-if="['pending','processing','paid'].includes(order.statusOrder)" 
             @click="cancelOrder(order)" 
             class="btn-action bg-red-600 text-white hover:bg-red-700"
           >
@@ -111,7 +113,7 @@
           </button>
           
           <button 
-            v-if="['en_cours', 'en_cours_de_livraison', 'en_preparation'].includes(order.statusOrder)" 
+            v-if="['processing','shipped'].includes(order.statusOrder)" 
             @click="trackOrder(order)" 
             class="btn-action bg-green-600 text-white hover:bg-green-700"
           >
@@ -133,52 +135,52 @@
 
         <div class="modal-body">
           <div class="order-timeline">
-            <div class="timeline-item" :class="{ active: true }">
+            <div class="timeline-item active">
               <i class="fas fa-shopping-cart"></i>
               <div class="timeline-content">
                 <h4>Commande passée</h4>
-                <p>{{ formatDate(selectedOrder.date) }}</p>
+                <p>{{ formatDate(selectedOrder.dateOrder) }}</p>
               </div>
             </div>
-            <div class="timeline-item" :class="{ active: selectedOrder.status !== 'en_attente' }">
+            <div class="timeline-item" :class="{ active: selectedOrder.statusOrder !== 'pending' }">
               <i class="fas fa-check-circle"></i>
               <div class="timeline-content">
                 <h4>Commande confirmée</h4>
-                <p>{{ selectedOrder.confirmationDate || 'En attente' }}</p>
+                <p>{{ selectedOrder.statusOrder !== 'pending' ? formatDate(selectedOrder.dateOrder) : 'En attente' }}</p>
               </div>
             </div>
-            <div class="timeline-item" :class="{ active: ['en_cours', 'livree'].includes(selectedOrder.status) }">
+            <div class="timeline-item" :class="{ active: ['processing', 'shipped'].includes(selectedOrder.statusOrder) }">
               <i class="fas fa-box"></i>
               <div class="timeline-content">
                 <h4>En préparation</h4>
-                <p>{{ selectedOrder.preparationDate || 'En attente' }}</p>
+                <p>{{ ['processing', 'shipped'].includes(selectedOrder.statusOrder) ? 'En cours' : 'En attente' }}</p>
               </div>
             </div>
-            <div class="timeline-item" :class="{ active: selectedOrder.status === 'livree' }">
+            <div class="timeline-item" :class="{ active: selectedOrder.statusOrder === 'shipped' }">
               <i class="fas fa-truck"></i>
               <div class="timeline-content">
                 <h4>En livraison</h4>
-                <p>{{ selectedOrder.shippingDate || 'En attente' }}</p>
+                <p>{{ selectedOrder.statusOrder === 'shipped' ? 'En cours' : 'En attente' }}</p>
               </div>
             </div>
-            <div class="timeline-item" :class="{ active: selectedOrder.status === 'livree' }">
+            <div class="timeline-item" :class="{ active: selectedOrder.statusOrder === 'delivered' }">
               <i class="fas fa-home"></i>
               <div class="timeline-content">
                 <h4>Livrée</h4>
-                <p>{{ selectedOrder.deliveryDate || 'En attente' }}</p>
+                <p>{{ selectedOrder.statusOrder === 'delivered' ? formatDate(selectedOrder.dateOrder) : 'En attente' }}</p>
               </div>
             </div>
           </div>
 
           <div class="shipping-info">
             <h4>Adresse de livraison</h4>
-            <p>{{ selectedOrder.shippingAddress }}</p>
+            <p>Adresse non disponible</p>
           </div>
 
           <div class="payment-info">
             <h4>Informations de paiement</h4>
-            <p>Méthode : {{ selectedOrder.paymentMethod }}</p>
-            <p>Transaction : {{ selectedOrder.transactionId }}</p>
+            <p>Méthode : Non spécifiée</p>
+            <p>Transaction : Non spécifiée</p>
           </div>
         </div>
       </div>
@@ -188,33 +190,17 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
-import { useOrderStore } from '@/stores/Commande';
+import { useOrderStore, type Order, type OrderDetail } from '@/stores/Commande';
 import { useAuthStore } from '@/stores/user';
 import { useRouter } from 'vue-router';
+import { OrderStatus } from '@/types/orderStatus';
 
 interface OrderItem {
-  id: number;
-  name: string;
+  productId: string;
+  productName: string;
   price: number;
   quantity: number;
-  image: string;
-}
-
-interface Order {
-  id: number;
-  date: string;
-  status: 'en_attente' | 'en_cours' | 'livree' | 'annulee';
-  items: OrderItem[];
-  subtotal: number;
-  shipping: number;
-  total: number;
-  confirmationDate?: string;
-  preparationDate?: string;
-  shippingDate?: string;
-  deliveryDate?: string;
-  shippingAddress: string;
-  paymentMethod: string;
-  transactionId: string;
+  image?: string;
 }
 
 const router = useRouter();
@@ -239,7 +225,12 @@ const loadUserOrders = async () => {
     }
     
     // Charger les commandes de l'utilisateur connecté
-    await orderStore.getOrderByUserId(authStore.user.id);
+    const ordersData = await orderStore.getOrderByUserId(authStore.user.id);
+    
+    // Adapter les données reçues au format attendu par le composant
+    if (ordersData) {
+      // Les données sont déjà dans le bon format depuis le store
+    }
     
   } catch (err) {
     console.error('Erreur lors du chargement des commandes:', err);
@@ -256,22 +247,16 @@ onMounted(() => {
 
 // Commandes filtrées selon le statut
 const filteredOrders = computed(() => {
-  // Utiliser directement les commandes du store car elles sont déjà filtrées par utilisateur
-  const orders = orderStore.orders || [];
-  
+  const orders = orderStore.orders;
   if (statusFilter.value === 'all') return orders;
-  
-  return orders.filter(order => 
-    order.statusOrder && 
-    order.statusOrder.toLowerCase().includes(statusFilter.value.toLowerCase())
-  );
+  return orders.filter(order => order.statusOrder === statusFilter.value);
 });
 
 // Reprendre une commande non terminée
 const resumeOrder = async (order: Order) => {
   try {
     // Vérifier si la commande peut être reprise
-    if (['en_attente', 'en_attente_de_paiement'].includes(order.statusOrder)) {
+    if (['pending','paid'].includes(order.statusOrder)) {
       // Rediriger vers la page de paiement avec l'ID de commande
       await router.push({ 
         name: 'Checkout', 
@@ -287,7 +272,7 @@ const resumeOrder = async (order: Order) => {
 const cancelOrder = async (order: Order) => {
   if (confirm('Êtes-vous sûr de vouloir annuler cette commande ?')) {
     try {
-      await orderStore.updateOrder(order.id, { statusOrder: 'annulee' });
+      await orderStore.updateOrder(order.id, { statusOrder: OrderStatus.Canceled });
       // Recharger les commandes après annulation
       await loadUserOrders();
     } catch (err) {
@@ -332,9 +317,9 @@ const formatPrice = (price: number) => {
 };
 
 // Calculer le sous-total d'une commande
-const calculateSubtotal = (order: any) => {
-  if (!order.DetailsCommandes || !order.DetailsCommandes.length) return 0;
-  return order.DetailsCommandes.reduce((total: number, item: any) => {
+const calculateSubtotal = (order: Order) => {
+  if (!order.OrderDetails || !order.OrderDetails.length) return 0;
+  return order.OrderDetails.reduce((total: number, item: OrderDetail) => {
     const price = Number(item.unitPrice) || 0;
     const quantity = Number(item.quantity) || 0;
     return total + (price * quantity);
@@ -342,47 +327,45 @@ const calculateSubtotal = (order: any) => {
 };
 
 // Calculer le total d'une commande
-const calculateTotal = (order: any) => {
-  const subtotal = calculateSubtotal(order);
-  // Pour l'instant, on ne gère pas les frais de livraison
-  return subtotal;
-};
+const calculateTotal = (order: Order) => calculateSubtotal(order);
 
 // Obtenir l'image d'un produit
-const getProductImage = (item: any) => {
-  if (item.images && item.images.length > 0) {
-    return item.images[0];
-  }
+const getProductImage = (item: OrderDetail) => {
+  // Utiliser une image par défaut car OrderDetail n'a pas d'image
   return 'https://via.placeholder.com/100';
 };
 
 // Obtenir la classe de statut
 const getStatusClass = (status: string) => {
   const statusLower = status.toLowerCase();
-  if (statusLower.includes('en_attente')) return 'bg-yellow-100 text-yellow-800';
-  if (statusLower.includes('en_cours')) return 'bg-blue-100 text-blue-800';
-  if (statusLower.includes('livr')) return 'bg-green-100 text-green-800';
-  if (statusLower.includes('annul') || statusLower.includes('refus')) return 'bg-red-100 text-red-800';
+  if (statusLower.includes('pending') || statusLower.includes('paid')) return 'bg-yellow-100 text-yellow-800';
+  if (statusLower.includes('process')) return 'bg-blue-100 text-blue-800';
+  if (statusLower.includes('ship')) return 'bg-indigo-100 text-indigo-800';
+  if (statusLower.includes('deliver')) return 'bg-green-100 text-green-800';
+  if (statusLower.includes('cancel')) return 'bg-red-100 text-red-800';
   return 'bg-gray-100 text-gray-800';
 };
 
 // Obtenir l'icône de statut
 const getStatusIcon = (status: string) => {
   const statusLower = status.toLowerCase();
-  if (statusLower.includes('en_attente')) return 'fa-clock';
-  if (statusLower.includes('en_cours')) return 'fa-truck';
-  if (statusLower.includes('livr')) return 'fa-check-circle';
-  if (statusLower.includes('annul') || statusLower.includes('refus')) return 'fa-times-circle';
+  if (statusLower.includes('pending') || statusLower.includes('paid')) return 'fa-clock';
+  if (statusLower.includes('process')) return 'fa-cogs';
+  if (statusLower.includes('ship')) return 'fa-truck';
+  if (statusLower.includes('deliver')) return 'fa-check-circle';
+  if (statusLower.includes('cancel')) return 'fa-times-circle';
   return 'fa-question-circle';
 };
 
 // Obtenir le libellé de statut
 const getStatusLabel = (status: string) => {
   const statusLower = status.toLowerCase();
-  if (statusLower.includes('en_attente')) return 'En attente de paiement';
-  if (statusLower.includes('en_cours')) return 'En cours de traitement';
-  if (statusLower.includes('livr')) return 'Livrée';
-  if (statusLower.includes('annul') || statusLower.includes('refus')) return 'Annulée';
+  if (statusLower.includes('pending')) return 'En attente';
+  if (statusLower.includes('paid')) return 'Payée';
+  if (statusLower.includes('process')) return 'En préparation';
+  if (statusLower.includes('ship')) return 'Expédiée';
+  if (statusLower.includes('deliver')) return 'Livrée';
+  if (statusLower.includes('cancel')) return 'Annulée';
   return status;
 };
 

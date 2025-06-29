@@ -6,15 +6,22 @@ import { recordStock } from './stockService.js';
 class ProductService {
     static async getProducts() {
         const sqlProducts = await ProductSQL.getProducts();
-        const mongoProducts = await ProductMongo.find();
-
-        return { sqlProducts, mongoProducts };
+        return sqlProducts;
     }
 
     static async getProductById(productId) {
-        //const sqlProduct = await ProductSQL.getProductById(productId);
-        const Product = await ProductMongo.findById(productId);
-        return Product;
+        // Si l'ID est numérique, on tente d'abord la table PostgreSQL
+        if (!isNaN(productId)) {
+            const sqlProduct = await ProductSQL.getProductById(Number(productId));
+            if (sqlProduct) return sqlProduct;
+        }
+
+        // Sinon (ou si non trouvé), on regarde dans MongoDB (24 char hex)
+        try {
+            return await ProductMongo.findById(productId);
+        } catch {
+            return null;
+        }
     }
 
     static async getProductsByIds(productIds) {
@@ -70,14 +77,12 @@ class ProductService {
 
     static async searchProducts(criteria) {
         const sqlProducts = await ProductSQL.searchProducts(criteria);
-        const mongoProducts = await ProductMongo.find(criteria);
-        return { sqlProducts, mongoProducts };
+        return sqlProducts;
     }
 
     static async getProductsByCategory(category) {
         const sqlProducts = await ProductSQL.getProductsByCategory(category);
-        const mongoProducts = await ProductMongo.find({ category });
-        return { sqlProducts, mongoProducts };
+        return sqlProducts;
     }
 
     static async updateProductStock(productId, newStock) {
@@ -92,6 +97,26 @@ class ProductService {
             );
 
             await recordStock(productId, newStock);
+
+            return { updatedSQLProduct };
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    static async incrementStock(productId, quantity) {
+        try {
+            const paddedProductId = productId.toString().padStart(24, '0');
+            
+            // Incrémenter dans PostgreSQL
+            const updatedSQLProduct = await ProductSQL.incrementStock(productId, quantity);
+
+            // Incrémenter dans MongoDB
+            await ProductMongo.findByIdAndUpdate(
+                paddedProductId,
+                { $inc: { stock_available: quantity } },
+                { new: true }
+            );
 
             return { updatedSQLProduct };
         } catch (error) {

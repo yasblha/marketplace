@@ -1,4 +1,3 @@
-
 <template>
   <section class="min-h-screen bg-slate-100 pb-28 px-4 md:px-8">
     <h1 class="text-3xl font-semibold py-6 text-center">Your cart</h1>
@@ -84,10 +83,18 @@
         </div>
 
         <button
-            class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition"
+            class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed"
             @click="checkout"
+            :disabled="isCheckingOut"
         >
-          Continue to checkout
+          <span v-if="isCheckingOut" class="inline-flex items-center">
+            <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" viewBox="0 0 24 24" fill="none">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+            </svg>
+            Processing...
+          </span>
+          <span v-else>Continue to checkout</span>
         </button>
       </aside>
     </div>
@@ -109,13 +116,13 @@
         </p>
       </div>
       <p class="text-center text-xs text-slate-500">
-        © {{ new Date().getFullYear() }} site.com — All rights reserved
+        {{ new Date().getFullYear() }} site.com — All rights reserved
       </p>
     </footer>
 
-    <!-- empty-cart modal -->
-    <Modal v-model="showError" title="Empty cart">
-      <p class="mb-6">Your cart is empty. Add products before checking out.</p>
+    <!-- cart error modal -->
+    <Modal v-model="showError" :title="errorTitle">
+      <p class="mb-6">{{ errorMessage }}</p>
       <button
           class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
           @click="showError = false"
@@ -132,14 +139,21 @@ import { computed, ref, onMounted } from 'vue'
 import { useRouter }                from 'vue-router'
 import { useCartStore }             from '@/stores/panier'
 import { useOrderStore }            from '@/stores/Commande'
-import defaultImage                 from '@/assets/No_Image_Available .jpg'
+import { useAuthStore }             from '@/stores/user'
+import { OrderStatus }              from '@/types/orderStatus'
+// @ts-ignore
+import defaultImage from '@/assets/ui_assets/NoImage.jpg'
 import Modal                        from '@/components/common/Modale.vue'
 import Footer                       from '@/components/UI/Footer.vue'
 
 const cart        = useCartStore()
 const orderStore  = useOrderStore()
+const auth        = useAuthStore()
 const router      = useRouter()
 const showError   = ref(false)
+const errorTitle  = ref('Cart Error')
+const errorMessage = ref('An error occurred with your cart.')
+const isCheckingOut = ref(false)
 
 const orderInfos = [
   {
@@ -155,43 +169,63 @@ const orderInfos = [
 
 /** ───── getters ─────────────────────────────────────────────── */
 const items   = computed(() => cart.items)
-const totals  = computed(() => cart.totals) // {totalQty, totals}
+const totals  = cart.totals // computed<number>
 
 /** ───── helpers ─────────────────────────────────────────────── */
 const backendUrl = import.meta.env.VITE_APP_API_URL?.replace(/\/+$/, '') || ''
 
-const imageSrc = (p: { images?: string[] }): string =>
-    p.images?.length
-        ? `${backendUrl}/${String(p.images[0]).replace(/^\/+/, '')}`
-        : defaultImage
+const imageSrc = (p: { images?: string[] }): string => {
+  if (!p.images?.length) return defaultImage
+  const src = p.images[0]
+  if (/^https?:\/\//i.test(src)) return src // déjà absolu
+  return `${backendUrl}/${src.replace(/^\/+/, '')}`
+}
 
 /** ───── actions ─────────────────────────────────────────────── */
 const updateQty = (id: string, q: number) => cart.setQty(id, q)
 const remove    = (id: string)            => cart.remove(id)
 
-const checkout  = async () => {
+const checkout = async () => {
   if (!items.value.length) {
+    errorTitle.value = 'Empty Cart'
+    errorMessage.value = 'Your cart is empty. Add products before checking out.'
     showError.value = true
     return
   }
-
+  if (isCheckingOut.value) return
+  isCheckingOut.value = true
   try {
+    await cart.saveSnapshot()
     const orderId = await orderStore.createOrder({
-      userId      : cart.isAuthenticated ? cart.auth.user.id : null,
-      statusOrder : 'Pending Validation',
-      totalAmount : totals.value,
-      products    : items.value.map(i => ({ productId: i._id, quantity: i.quantity }))
+      statusOrder : OrderStatus.Pending,
+      totalAmount : totals,
+      products    : items.value.map(i => ({
+        productId: typeof i._id === 'string' && i._id.startsWith('pg_') ? i._id.slice(3) : String(i._id),
+        quantity : i.quantity
+      }))
     })
 
-    localStorage.setItem('currentOrderId', orderId)
+    if (!orderId) {
+      throw new Error('Failed to create order')
+    }
+
+    localStorage.setItem('currentOrderId', String(orderId))
     await cart.clear()
-    router.push({ name: 'checkout', query: { orderId } })
-  } catch (e) {
+    router.push({ name: 'Checkout', query: { orderId } })
+  } catch (e:any) {
     console.error('checkout error', e)
+
+    // Set appropriate error message
+    errorTitle.value = 'Checkout Error'
+    errorMessage.value = e.message || 'Unexpected checkout error'
+    showError.value = true
+    cart.restoreSnapshot()
+  } finally {
+    isCheckingOut.value = false
   }
 }
 
-onMounted(cart.loadRemote)
+onMounted(() => cart.syncWithBackend())
 </script>
 
 <style scoped>

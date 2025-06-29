@@ -1,15 +1,15 @@
 <template>
-  <form @submit.prevent="handleSubmit" class="max-w-4xl mx-auto my-8 p-8 bg-white rounded-lg shadow-sm border border-gray-100">
-    <div class="text-center mb-8">
-      <h2 class="text-2xl font-semibold text-gray-900 mb-2">
+  <form @submit.prevent="handleSubmit" class="space-y-6">
+    <div class="text-center">
+      <h2 class="text-xl font-semibold text-gray-900 mb-2">
         {{ isEditing ? 'Modifier le produit' : 'Ajouter un nouveau produit' }}
       </h2>
-      <p class="text-gray-600 max-w-2xl mx-auto">
+      <p class="text-sm text-gray-600">
         Remplissez les détails du produit ci-dessous
       </p>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div v-for="field in formFields" :key="field.name" :class="{ 'md:col-span-2': field.fullWidth }">
         <div class="space-y-2">
           <label :for="field.name" class="block text-sm font-medium text-gray-700">
@@ -26,8 +26,8 @@
               :placeholder="field.placeholder"
               :step="field.step"
               :min="field.min"
-              class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-colors"
-              :class="{ 'border-red-300': errors[field.name], 'border-gray-200': !errors[field.name] }"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              :class="{ 'border-red-300': errors[field.name] }"
               @input="field.type === 'number' ? validateNumberInput(field.name) : null"
             >
           </template>
@@ -36,11 +36,12 @@
           <template v-else-if="field.type === 'textarea'">
             <textarea
               :id="field.name"
-              v-model="productData[field.name]"
+              :value="String(productData[field.name] || '')"
+              @input="(e) => (productData as any)[field.name] = (e.target as HTMLTextAreaElement).value"
               :placeholder="field.placeholder"
-              rows="4"
-              class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-colors"
-              :class="{ 'border-red-300': errors[field.name], 'border-gray-200': !errors[field.name] }"
+              rows="3"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-y"
+              :class="{ 'border-red-300': errors[field.name] }"
             ></textarea>
           </template>
           
@@ -50,15 +51,15 @@
               <select
                 :id="field.name"
                 v-model="productData[field.name]"
-                class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-colors appearance-none bg-white pr-10"
-                :class="{ 'border-red-300': errors[field.name], 'border-gray-200': !errors[field.name] }"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors appearance-none bg-white pr-10"
+                :class="{ 'border-red-300': errors[field.name] }"
               >
                 <option value="" disabled selected>{{ field.placeholder || 'Sélectionnez une option' }}</option>
                 <option v-for="option in field.options" :key="option" :value="option">
                   {{ option }}
                 </option>
               </select>
-              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
                 <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                   <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
                 </svg>
@@ -67,15 +68,15 @@
           </template>
           
           <!-- Error Message -->
-          <p v-if="errors[field.name]" class="mt-1 text-sm text-red-500">
+          <p v-if="errors[field.name]" class="text-sm text-red-500">
             {{ errors[field.name] }}
           </p>
         </div>
       </div>
     </div>
 
-    <div class="mb-8">
-      <label class="flex flex-col items-center justify-center w-full p-12 border-2 border-dashed border-gray-200 rounded-lg cursor-pointer hover:border-blue-300 hover:bg-blue-50 transition-colors">
+    <div class="space-y-4">
+      <label class="flex flex-col items-center justify-center w-full p-8 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-colors">
         <input
           type="file"
           ref="fileInput"
@@ -85,7 +86,7 @@
           @change="handleFileChange"
         >
         <div class="flex flex-col items-center justify-center text-center">
-          <div class="w-14 h-14 flex items-center justify-center bg-blue-50 text-blue-500 rounded-full mb-4">
+          <div class="w-12 h-12 flex items-center justify-center bg-blue-100 text-blue-600 rounded-full mb-4">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
             </svg>
@@ -95,43 +96,31 @@
         </div>
       </label>
       
-      <div v-if="images.length > 0" class="mt-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-        <div v-for="(image, index) in images" :key="index" class="relative aspect-square rounded-lg overflow-hidden border border-gray-100">
-          <img :src="image.preview" :alt="'Preview ' + (index + 1)" class="w-full h-full object-cover" />
-          <button 
-            type="button" 
-            @click="removeImage(index)"
-            class="absolute top-2 right-2 w-7 h-7 flex items-center justify-center bg-white/90 text-red-500 rounded-full hover:bg-red-50 transition-colors shadow-sm"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+      <!-- Images preview -->
+      <div v-if="images.length > 0" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+        <div v-for="(image, index) in images" :key="index" class="relative aspect-square rounded-lg overflow-hidden border border-gray-200">
+          <img :src="image.preview" :alt="`Image ${index + 1}`" class="w-full h-full object-cover" />
+          <button type="button" @click="removeImage(index)" class="absolute top-2 right-2 w-6 h-6 bg-black bg-opacity-70 text-white rounded-full hover:bg-opacity-90 transition-all flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
       </div>
     </div>
 
-    <div v-if="serverError" class="p-4 mb-6 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-r">
-      <div class="flex items-center">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
-        </svg>
-        <span>{{ serverError }}</span>
-      </div>
-    </div>
-
-    <div class="flex items-center justify-end space-x-4 pt-4 border-t border-gray-100">
+    <div class="flex items-center justify-end space-x-4 pt-4 border-t border-gray-200">
       <button 
         type="button" 
-        class="px-6 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
-        @click="$emit('cancel')"
+        class="px-6 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+        @click="emit('cancel')"
         :disabled="isSubmitting"
       >
         Annuler
       </button>
       <button 
         type="submit" 
-        class="px-6 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors flex items-center"
+        class="px-6 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors flex items-center"
         :disabled="isSubmitting"
         :class="{ 'opacity-70 cursor-not-allowed': isSubmitting }"
       >
@@ -144,7 +133,7 @@
     </div>
 
     <transition name="fade">
-      <div v-if="serverError" class="server-error">
+      <div v-if="serverError" class="flex items-center gap-2 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M10 14L12 12M12 12L14 10M12 12L10 10M12 12L14 14M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
@@ -158,6 +147,7 @@
 import { ref, computed, watch } from 'vue';
 import { z } from 'zod';
 import { useProductStore } from '@/stores/products';
+import type { Product } from '@/types/product';
 
 interface ProductData {
   _id?: string;
@@ -176,15 +166,23 @@ interface FormField {
   type: string;
   label: string;
   options?: string[];
+  placeholder?: string;
+  fullWidth?: boolean;
+  required?: boolean;
+  step?: string;
+  min?: string;
 }
 
 const props = defineProps<{
-  initialData?: Partial<ProductData>
+  initialData?: Partial<Product> | Partial<ProductData>
 }>();
 
 const emit = defineEmits<{
   (e: 'product-added'): void;
   (e: 'product-updated'): void;
+  (e: 'saved'): void;
+  (e: 'cancel'): void;
+  (e: 'success', message: string): void;
 }>();
 
 const productStore = useProductStore();
@@ -298,8 +296,11 @@ const validate = () => {
 
 const validateNumberInput = (fieldName: keyof ProductData) => {
   const value = productData.value[fieldName];
-  if (typeof value === 'number' && value < 0) {
-    productData.value[fieldName] = 0 as never;
+  if (typeof value === 'string') {
+    const numValue = parseFloat(value);
+    if (!isNaN(numValue)) {
+      (productData.value as any)[fieldName] = numValue;
+    }
   }
 };
 
@@ -382,5 +383,3 @@ const handleSubmit = async () => {
   }
 };
 </script>
-
-<!-- Tous les styles sont gérés par Tailwind CSS -->

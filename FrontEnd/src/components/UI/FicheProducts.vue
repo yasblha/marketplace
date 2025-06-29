@@ -1,17 +1,17 @@
 <template>
   <section class="produits">
     <div class="itemsView">
-      <div v-for="product in products" :key="product._id" class="productCard">
+      <div v-for="product in products" :key="String(product._id || product.id)" class="productCard">
         <div class="OneProduct">
-          <a :href="'/product/' + encodeBase64(product._id)" class="productLink">
+          <a :href="'/product/' + encodeBase64(String(product._id || product.id))" class="productLink">
             <div class="imageWrapper">
               <img :src="getImage(product)" :alt="product.name" />
               <div class="heartOverlay" @click.stop="toggleFavorite(product)">
                 <div class="heartWrapper">
                   <svg
-                      @mouseover="hoverHeart = product._id"
+                      @mouseover="hoverHeart = String(product._id || product.id)"
                       @mouseleave="hoverHeart = null"
-                      :class="['heartIcon', { 'hover': hoverHeart === product._id || isFavorite(product) }]"
+                      :class="['heartIcon', { 'hover': hoverHeart === String(product._id || product.id) || isFavorite(product) }]"
                       xmlns="http://www.w3.org/2000/svg"
                       viewBox="0 0 24 24"
                       fill="currentColor">
@@ -22,7 +22,7 @@
             </div>
           </a>
           <div class="productDetails">
-            <a :href="'/product/' + encodeBase64(product._id)" class="productTitleLink">
+            <a :href="'/product/' + encodeBase64(String(product._id || product.id))" class="productTitleLink">
               <h2>{{ product.name }}</h2>
             </a>
             <p class="category">{{ product.category }}</p>
@@ -31,7 +31,7 @@
             </div>
             <div class="quantity-selector">
               <label for="quantity">Quantity:</label>
-              <input type="number" v-model.number="quantities[product._id]" min="1" />
+              <input type="number" v-model.number="quantities[String(product._id || product.id)]" min="1" />
             </div>
             <button class="addToCartButton" @click.stop="addToCart(product)">Ajouter au panier</button>
           </div>
@@ -47,8 +47,9 @@
 <script setup lang="ts">
 import { defineProps, ref, onMounted } from 'vue';
 import { useCartStore } from '@/stores/panier';
+// @ts-ignore
 import defaultImage from '@/assets/ui_assets/image1.png';
-import type { Product } from "@/stores/products";
+import type { Product } from "@/types/product";
 import { encodeBase64 } from '@/utils/encodage';
 import { backendUrl } from '@/utils/backend';
 
@@ -60,7 +61,7 @@ const props = defineProps<{
 
 const getImage = (product: Product) => {
   if (product.images && product.images.length > 0) {
-    return `${backendUrl}/${product.images[0]}`;
+    return `${backendUrl}/${product.images[0] || ''}`;
   }
   return defaultImage;
 };
@@ -72,38 +73,38 @@ const quantities = ref<Record<string, number>>({});
 
 onMounted(() => {
   props.products.forEach(product => {
-    if (!quantities.value[product._id]) {
-      quantities.value[product._id] = 1;
+    const key = String(product._id || product.id);
+    if (!quantities.value[key]) {
+      quantities.value[key] = 1;
     }
   });
 });
 
 const toggleFavorite = (product: Product) => {
-  if (favorites.value.has(product._id)) {
-    favorites.value.delete(product._id);
+  if (favorites.value.has(String(product._id || product.id))) {
+    favorites.value.delete(String(product._id || product.id));
   } else {
-    favorites.value.add(product._id);
+    favorites.value.add(String(product._id || product.id));
   }
 };
 
 const isFavorite = (product: Product) => {
-  return favorites.value.has(product._id);
+  return favorites.value.has(String(product._id || product.id));
 };
 
 interface ProductWithImageUrl extends Product {
   imageUrl: string;
 }
 
-const encodeId = (id: string) => {
-  return encodeBase64(id);
+const encodeId = (id: string | undefined) => {
+  return encodeBase64(id || '');
 };
 
 const addToCart = (product: Product) => {
-  const imageUrl = getImage(product);
-  const productWithImageUrl: ProductWithImageUrl = { ...product, imageUrl };
-  const quantity = quantities.value[product._id] || 1;
-  console.log('quantité', quantities.value[product._id]);
-  cartStore.addToCart(productWithImageUrl, quantity);
+  const key = String(product._id || product.id);
+  const quantity = quantities.value[key] || 1;
+  console.log('quantité', quantities.value[key]);
+  cartStore.addToCart(product, quantity);
 };
 </script>
 

@@ -15,7 +15,7 @@ import { ref, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useProductStore } from '@/stores/products';
 import FicheProducts from "@/components/UI/FicheProducts.vue";
-import type { Product, SearchCriteria } from '@/stores/products';
+import type { Product, SearchCriteria } from '@/types/product';
 
 const route = useRoute();
 const productStore = useProductStore();

@@ -32,11 +32,13 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useOrderStore, type Order } from '@/stores/Commande';
+import { useCartStore } from '@/stores/panier';
 import { printInvoice } from '@/utils/invoice';
 import { OrderStatus } from '@/types/orderStatus'
 
 const router = useRouter();
 const orderStore = useOrderStore();
+const cart = useCartStore();
 const order = ref<Order | null>(null);
 
 const generateInvoice = () => {
@@ -55,6 +57,8 @@ onMounted(async () => {
       order.value = fetched;
       await orderStore.updateOrder(fetched.id, { statusOrder: OrderStatus.Paid });
       localStorage.removeItem('currentOrderId');
+      await cart.clear();
+      cart.clearSnapshot();
     }
   }
 });
@@ -96,4 +100,3 @@ button {
   cursor: pointer;
 }
 </style>
-  

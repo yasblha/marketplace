@@ -1,7 +1,5 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../../config/postgres.js';
-import Order from './Commande.js';
-import Product from './ProductPg.js';
 
 const OrderDetails = sequelize.define('OrderDetails', {
     id: {
@@ -12,19 +10,11 @@ const OrderDetails = sequelize.define('OrderDetails', {
     orderId: {
         type: DataTypes.INTEGER,
         field: 'orderId',
-        references: {
-            model: 'Orders',
-            key: 'id',
-        },
         allowNull: false,
     },
     productId: {
         type: DataTypes.INTEGER,
         field: 'productId',
-        references: {
-            model: 'Product',
-            key: 'id',
-        },
         allowNull: false,
     },
     productName: {
@@ -57,6 +47,11 @@ const OrderDetails = sequelize.define('OrderDetails', {
         field: 'quantity',
         allowNull: false,
     },
+    subtotal: {
+        type: DataTypes.FLOAT,
+        field: 'subtotal',
+        allowNull: false,
+    },
     createdAt: {
         type: DataTypes.DATE,
         field: 'createdAt',
@@ -73,22 +68,9 @@ const OrderDetails = sequelize.define('OrderDetails', {
     tableName: 'OrderDetails',
     timestamps: true,
     freezeTableName: true,
-    underscored: true,
     createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
+    updatedAt: 'updatedAt',
+    underscored: false
 });
-
-// Relations
-OrderDetails.associate = (models) => {
-    OrderDetails.belongsTo(models.Order, {
-        foreignKey: 'orderId',
-        as: 'order'
-    });
-    
-    OrderDetails.belongsTo(models.Product, {
-        foreignKey: 'productId',
-        as: 'product'
-    });
-};
 
 export default OrderDetails;

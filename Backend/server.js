@@ -33,11 +33,15 @@ import ReturnRoutes    from './routes/api/ReturnsRoutes.js';
 import stripeRoutes    from './routes/api/stripeRoutes.js';
 import analyticsRoutes from './routes/api/analyticsRoutes.js';
 import alertRoutes     from './routes/api/alertRoutes.js';
+import checkoutRoutes  from './routes/api/CheckoutRoutes.js';
+import syncRoutes      from './routes/api/syncRoutes.js';
 
 /*  Services */
 import { checkPasswordRenewal } from './services/reset_mail.js';
 // import injectProducts          from './utils/faker.js';
 import { syncDatabase }         from './synchronize.js';
+import SyncService              from './services/syncService.js';
+import CronService              from './services/CronService.js';
 
 /*───────────────────────────────────
   Variables d'environnement (debug)
@@ -77,6 +81,8 @@ app.use('/api/returns',    ReturnRoutes);
 app.use('/api/stripe',     stripeRoutes);
 app.use('/api/analytics',  analyticsRoutes);
 app.use('/api/alerts',     alertRoutes);
+app.use('/api/checkout',   checkoutRoutes);
+app.use('/api/sync',       syncRoutes);
 
 /*───────────────────────────────────
   Fichiers statiques
@@ -110,11 +116,38 @@ app.get('/', (_req, res) => res.send('Welcome to my server!'));
 ─────────────────────────────────────*/
 await syncDatabase();
 
+// Configuration de la synchronisation périodique
+const setupPeriodicSync = () => {
+    // Synchronisation toutes les 5 minutes
+    cron.schedule('*/5 * * * *', async () => {
+        try {
+            console.log('🕐 Synchronisation périodique PostgreSQL ↔ MongoDB...');
+            await SyncService.fullSync();
+        } catch (error) {
+            console.error('❌ Erreur lors de la synchronisation périodique:', error);
+        }
+    });
+    
+    // Synchronisation complète au démarrage
+    setTimeout(async () => {
+        try {
+            console.log('🚀 Synchronisation initiale au démarrage...');
+            await SyncService.fullSync();
+        } catch (error) {
+            console.error('❌ Erreur lors de la synchronisation initiale:', error);
+        }
+    }, 10000); // 10 secondes après le démarrage
+};
+
 app.use(errorHandler);
 
-const server = app.listen(PORT, () =>
-    console.log(`App is listening at http://localhost:${PORT}`)
-);
+const server = app.listen(PORT, () => {
+    console.log(`App is listening at http://localhost:${PORT}`);
+    // Démarrer la synchronisation périodique après le démarrage du serveur
+    setupPeriodicSync();
+    // Initialiser les tâches cron
+    CronService.init();
+});
 
 // await checkPasswordRenewal();
 // injectProducts();

@@ -29,19 +29,9 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import { useProductStore } from '@/stores/products';
+import type { Product } from '@/types/product';
+// @ts-ignore
 import defaultImage from '@/assets/ui_assets/image1.png';
-
-interface Product {
-  _id: string;
-  name: string;
-  description: string;
-  category: string;
-  brand: string;
-  price: number;
-  stock_available: number;
-  status: string;
-  images: string[];
-}
 
 const productStore = useProductStore();
 const products = ref<Product[]>([]);

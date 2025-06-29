@@ -9,7 +9,7 @@ export interface Order {
     dateOrder: Date;
     statusOrder: OrderStatus;
     totalAmount: number;
-    userId: number;
+    userId: number | null;
     OrderDetails: OrderDetail[];
 }
 
@@ -24,7 +24,7 @@ export interface OrderDetail {
 }
 
 interface OrderCreateData {
-    userId: number;
+    userId: number | null;
     statusOrder: OrderStatus;
     totalAmount: number;
     products: { productId: string; quantity: number }[];
@@ -60,6 +60,7 @@ export const useOrderStore = defineStore('order', () => {
         try {
             const response = await axiosInstance.get(`/orders/user/${userId}`);
             orders.value = response.data;
+            return response.data;
         } catch (err) {
             error.value = `Échec de la récupération des commandes de l'utilisateur avec l'ID ${userId}`;
             return null;
@@ -83,17 +84,26 @@ export const useOrderStore = defineStore('order', () => {
     };
 
     const createOrder = async (orderData: Omit<OrderCreateData, 'userId'>) => {
+        if (isLoading.value) return null;
+
         isLoading.value = true;
         error.value = null;
         try {
-            // Ajoutez le userId à orderData
+            if (!authStore.user?.id) throw new Error('User not authenticated');
+
             const data: OrderCreateData = {
                 ...orderData,
-                userId: authStore.user?.id || 0,
+                userId: authStore.user.id,
             };
-            const response = await axiosInstance.post('/orders', data);
+
+            const response = await axiosInstance.post('/orders/', data);
+
+            // Backend can return {success:true,data:{orderId}} or {orderId}
+            const orderId = response.data?.data?.orderId ?? response.data?.orderId ?? response.data?.id;
+            if (!orderId) throw new Error('Invalid response from server');
+
             const newOrder: Order = {
-                id: response.data,
+                id: orderId,
                 dateOrder: new Date(),
                 statusOrder: data.statusOrder,
                 totalAmount: data.totalAmount,
@@ -109,9 +119,11 @@ export const useOrderStore = defineStore('order', () => {
                 }))
             };
             orders.value.push(newOrder);
-            return response.data
-        } catch (err) {
-            error.value = 'Échec de la création de la commande';
+            return orderId;
+        } catch (err: any) {
+            console.error('Error creating order:', err);
+            error.value = err.response?.data?.message || err.message || 'Failed to create order';
+            return null;
         } finally {
             isLoading.value = false;
         }
@@ -126,8 +138,10 @@ export const useOrderStore = defineStore('order', () => {
             if (index !== -1) {
                 orders.value[index] = response.data;
             }
+            return response.data;
         } catch (err) {
             error.value = `Échec de la mise à jour de la commande avec l'ID ${orderId}`;
+            return null;
         } finally {
             isLoading.value = false;
         }

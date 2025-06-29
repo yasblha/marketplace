@@ -83,6 +83,7 @@ Product.getProductById = async (id) => {
 
 Product.createProduct = async (productData) => {
     try {
+        const now = new Date();
         const newProduct = await Product.create({
             name: productData.name,
             description: productData.description,
@@ -92,7 +93,9 @@ Product.createProduct = async (productData) => {
             price: parseFloat(productData.price),
             stock_available: parseInt(productData.stock_available),
             status: productData.status,
-            image: productData.images || []
+            image: productData.images || [],
+            created_at: now,
+            updated_at: now
         });
         return newProduct;
     } catch (error) {
@@ -153,6 +156,21 @@ Product.updateProductStock = async (id, newStock) => {
     try {
         const [updatedRowsCount, updatedProducts] = await Product.update(
             { stock_available: newStock },
+            {
+                where: { id: id },
+                returning: true,
+            }
+        );
+        return updatedProducts[0];
+    } catch (error) {
+        throw error;
+    }
+};
+
+Product.incrementStock = async (id, quantity) => {
+    try {
+        const [updatedRowsCount, updatedProducts] = await Product.increment(
+            { stock_available: quantity },
             {
                 where: { id: id },
                 returning: true,

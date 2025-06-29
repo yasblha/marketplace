@@ -55,8 +55,8 @@
             <transition name="fade">
               <div v-if="showUser" id="user-menu" class="abs-menu">
                 <template v-if="isAuth">
-                  <RouterLink to="/profile" class="menu-item" @click="closeAll">Profil</RouterLink>
-                  <RouterLink v-if="isAdmin" to="/admin/dashboard" class="menu-item" @click="closeAll">Admin</RouterLink>
+                  <RouterLink to="/profile" class="menu-item" @click="closeAll()">Profil</RouterLink>
+                  <RouterLink v-if="isAdmin" to="/admin/dashboard" class="menu-item" @click="closeAll()">Admin</RouterLink>
                   <button class="menu-item text-red-600" @click="logout">Déconnexion</button>
                 </template>
                 <template v-else>
@@ -71,14 +71,14 @@
 
       <transition name="fade">
         <nav v-if="isMobile" class="md:hidden border-t bg-white py-4 shadow">
-          <RouterLink v-for="l in links" :key="l.p" :to="l.p" class="mobile-link" @click="closeAll">{{ l.t }}</RouterLink>
+          <RouterLink v-for="l in links" :key="l.p" :to="l.p" class="mobile-link" @click="closeAll()">{{ l.t }}</RouterLink>
           <template v-if="!isAuth">
             <button class="mobile-link" @click="openAuth('login')">Connexion</button>
             <button class="mobile-link" @click="openAuth('register')">Créer un compte</button>
           </template>
           <template v-else>
-            <RouterLink to="/profile" class="mobile-link" @click="closeAll">Profil</RouterLink>
-            <RouterLink v-if="isAdmin" to="/admin/dashboard" class="mobile-link" @click="closeAll">Admin</RouterLink>
+            <RouterLink to="/profile" class="mobile-link" @click="closeAll()">Profil</RouterLink>
+            <RouterLink v-if="isAdmin" to="/admin/dashboard" class="mobile-link" @click="closeAll()">Admin</RouterLink>
             <button class="mobile-link text-red-600" @click="logout">Déconnexion</button>
           </template>
         </nav>
@@ -86,7 +86,7 @@
     </nav>
 
     <transition name="fade">
-      <div v-if="showSearch" class="overlay" @click.self="closeAll">
+      <div v-if="showSearch" class="overlay" @click.self="closeAll()">
         <div ref="searchBox" class="search-box">
           <input ref="searchInput" v-model="query" class="search-input" placeholder="Rechercher un produit…" @keyup.enter="router.push({name:'products',query:{q:query.trim()}}); closeAll()" />
           <button v-if="query" class="clear" @click="query = ''"><i class="fas fa-times" /></button>
@@ -146,7 +146,7 @@ const cartQty  = computed(() => cart.items.reduce((t,i)=>t+i.quantity,0))
 const wishQty  = computed(() => wish.items.length)
 const initials = computed(() => {
   const u = auth.user
-  return u ? (u.firstname?.[0] ?? u.email?.[0] ?? '?') + (u.lastname?.[0] ?? '') : '?'
+  return u ? (u.firstName?.[0] ?? u.email?.[0] ?? '?') + (u.lastName?.[0] ?? '') : '?'
 })
 
 const lock   = () => document.body.style.overflow = 'hidden'
@@ -157,7 +157,11 @@ const closeAll   = () => { isMobile.value = showUser.value = showSearch.value = 
 const openAuth = (m:'login'|'register') => { modal.openModal(m); closeAll() }
 const logout   = async () => { await auth.logout(); closeAll(); router.push('/') }
 
-const toProduct = (p:Product) => { router.push({name:'product',params:{id:p._id ?? p.id}}); closeAll() }
+const toProduct = (p:Product) => { 
+  const id = String(p._id ?? p.id);
+  router.push({name:'product',params:{id}}); 
+  closeAll() 
+}
 
 const doSearch = useDebounceFn(async (q:string)=>{
   if(!q.trim()){results.value=[];return}
@@ -178,8 +182,7 @@ const onEsc = (e:KeyboardEvent)=>{if(e.key==='Escape')closeAll()}
 onMounted(()=>{
   document.addEventListener('click',onClick)
   window.addEventListener('keydown',onEsc)
-  cart.loadCart?.()
-  wish.fetchWishlist?.()
+  cart.syncWithBackend?.()
   nextTick(()=>searchInput.value?.focus())
 })
 onUnmounted(()=>{

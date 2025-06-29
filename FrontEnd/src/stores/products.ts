@@ -3,7 +3,11 @@ import { defineStore } from 'pinia'
 import axiosInstance from '@/services/api'
 import { useAuthStore } from '@/stores/user'
 import type { Product, SearchCriteria, ProductForm } from '@/types/product'
-import defaultImage from '@/assets/No_Image_Available .jpg'
+// @ts-ignore
+import defaultImage from '@/assets/ui_assets/NoImage.jpg'
+
+// Ré-exporter les types pour compatibilité
+export type { Product, SearchCriteria, ProductForm }
 
 const extractImagePath = (raw: any): string => {
     if (!raw) return ''
@@ -37,14 +41,10 @@ export const useProductStore = defineStore('product', () => {
 
     const fetchProducts = async (): Promise<void> => {
         const { data } = await axiosInstance.get('/products')
-        const { mongoProducts = [], sqlProducts = [] } = data
-        const pgMap = new Map(sqlProducts.map((p: any) => [String(p.id ?? p._id), p]))
-
-        products.value = mongoProducts.map((m: any) => {
-            const id = String(m.id ?? m._id)
-            const pg = pgMap.get(id)
-            return normalizeProduct({ ...pg, ...m })
-        })
+        // Si data est un tableau, c'est la nouvelle structure
+        // Sinon, c'est l'ancienne structure avec sqlProducts et mongoProducts
+        const productsList = Array.isArray(data) ? data : (data.sqlProducts || [])
+        products.value = productsList.map(normalizeProduct)
     }
 
     const getProductById = async (id: string) => {
@@ -116,7 +116,9 @@ export const useProductStore = defineStore('product', () => {
             params: { q },
             headers: { Authorization: `Bearer ${authStore.token}` }
         })
-        const list = data.sqlProducts ?? data.mongoProducts ?? data
+        // Si data est un tableau, c'est la nouvelle structure
+        // Sinon, c'est l'ancienne structure avec sqlProducts et mongoProducts
+        const list = Array.isArray(data) ? data : (data.sqlProducts ?? data.mongoProducts ?? data)
         products.value = (list as any[]).map(normalizeProduct)
     }
 

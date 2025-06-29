@@ -69,7 +69,8 @@ const getImage = (product) => {
 };
 
 const calculateTotal = () => {
-  return displayedItems.value.reduce((total, item) => total + item.unitPrice * item.quantity, 0).toFixed(2);
+  const items = Array.isArray(displayedItems.value) ? displayedItems.value : [];
+  return items.reduce((total, item) => total + (item.unitPrice || 0) * (item.quantity || 0), 0).toFixed(2);
 };
 
 onMounted(async () => {
@@ -78,7 +79,7 @@ onMounted(async () => {
   if (orderId) {
     const order = await orderStore.fetchOrderById(orderId);
     if (order) {
-      displayedItems.value = order.OrderDetails;
+      displayedItems.value = order.details || [];
     }
   }
 });

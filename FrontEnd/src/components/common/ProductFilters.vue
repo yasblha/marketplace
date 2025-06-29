@@ -105,8 +105,8 @@
         <div class="px-1">
           <div class="relative pt-1">
             <div class="flex justify-between text-xs mb-2">
-              <span class="text-gray-600">{{ formatPrice(priceRange.min) }}</span>
-              <span class="text-gray-600">{{ formatPrice(priceRange.max) }}</span>
+              <span class="text-gray-600">{{ formatPrice(getPriceMin()) }}</span>
+              <span class="text-gray-600">{{ formatPrice(getPriceMax()) }}</span>
             </div>
             <div class="relative">
               <div class="h-2 bg-gray-200 rounded-full">
@@ -114,15 +114,15 @@
                   class="h-full bg-blue-500 rounded-full"
                   :style="{
                     width: priceFillWidth + '%',
-                    marginLeft: (activeFilters.priceMin / priceRange.max * 100) + '%'
+                    marginLeft: (getPriceMin() / getPriceMax() * 100) + '%'
                   }"
                 ></div>
               </div>
               <input 
                 type="range" 
                 v-model.number="activeFilters.priceMin"
-                :min="priceRange.min" 
-                :max="priceRange.max"
+                :min="getPriceMin()" 
+                :max="getPriceMax()"
                 step="10"
                 @input="handlePriceChange('min')"
                 class="absolute w-full h-2 -top-2 appearance-none pointer-events-none opacity-0"
@@ -130,8 +130,8 @@
               <input 
                 type="range" 
                 v-model.number="activeFilters.priceMax"
-                :min="priceRange.min" 
-                :max="priceRange.max"
+                :min="getPriceMin()" 
+                :max="getPriceMax()"
                 step="10"
                 @input="handlePriceChange('max')"
                 class="absolute w-full h-2 -top-2 appearance-none pointer-events-none opacity-0"
@@ -146,10 +146,10 @@
               type="number" 
               v-model.number="activeFilters.priceMin"
               @change="handlePriceInput('min')"
-              :min="priceRange.min"
-              :max="activeFilters.priceMax || priceRange.max"
+              :min="getPriceMin()"
+              :max="activeFilters.priceMax || getPriceMax()"
               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
-              :placeholder="priceRange.min.toString()"
+              :placeholder="getPriceMin().toString()"
             />
           </div>
           <div>
@@ -158,10 +158,10 @@
               type="number" 
               v-model.number="activeFilters.priceMax"
               @change="handlePriceInput('max')"
-              :min="activeFilters.priceMin || priceRange.min"
-              :max="priceRange.max"
+              :min="getPriceMin()"
+              :max="getPriceMax()"
               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
-              :placeholder="priceRange.max.toString()"
+              :placeholder="getPriceMax().toString()"
             />
           </div>
         </div>
@@ -211,7 +211,7 @@
           v-if="activeFilters.priceMin || activeFilters.priceMax"
           class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800"
         >
-          {{ formatPrice(activeFilters.priceMin || priceRange.min) }} - {{ formatPrice(activeFilters.priceMax || priceRange.max) }}
+          {{ formatPrice(activeFilters.priceMin || getPriceMin()) }} - {{ formatPrice(activeFilters.priceMax || getPriceMax()) }}
           <button @click="removePriceFilter" class="ml-1.5 text-purple-500 hover:text-purple-700">
             <span class="sr-only">Supprimer le filtre de prix</span>
             <svg class="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 20 20">
@@ -238,7 +238,7 @@
 
 <script setup lang="ts">
 import { ref, watch, defineProps, defineEmits, computed } from 'vue';
-import type { SearchCriteria, Product } from '@/stores/products';
+import type { SearchCriteria, Product } from '@/types/product';
 
 const props = defineProps<{
   products: Product[];
@@ -278,10 +278,13 @@ const priceRange = computed(() => {
 
 // Largeur de remplissage pour la barre de prix
 const priceFillWidth = computed(() => {
-  if (!activeFilters.value.priceMin && !activeFilters.value.priceMax) return 100;
+  const priceMin = activeFilters.value.priceMin;
+  const priceMax = activeFilters.value.priceMax;
   
-  const min = activeFilters.value.priceMin || priceRange.value.min;
-  const max = activeFilters.value.priceMax || priceRange.value.max;
+  if (priceMin === undefined && priceMax === undefined) return 100;
+  
+  const min = priceMin ?? priceRange.value.min;
+  const max = priceMax ?? priceRange.value.max;
   
   return ((max - min) / (priceRange.value.max - priceRange.value.min)) * 100;
 });
@@ -413,7 +416,7 @@ const handleSearch = () => {
  * Filtre par marque
  */
 const filterByBrand = (brand: string) => {
-  activeFilters.value.brand = activeFilters.value.brand === brand ? '' : brand;
+  activeFilters.value.brand = activeFilters.value.brand === brand ? undefined : brand;
   handleFilter();
 };
 
@@ -421,7 +424,7 @@ const filterByBrand = (brand: string) => {
  * Filtre par catégorie
  */
 const filterByCategory = (category: string) => {
-  activeFilters.value.category = activeFilters.value.category === category ? '' : category;
+  activeFilters.value.category = activeFilters.value.category === category ? undefined : category;
   handleFilter();
 };
 
@@ -434,9 +437,8 @@ const removeFilter = (filterKey: keyof SearchCriteria) => {
   } else if (filterKey === 'inStock') {
     activeFilters.value[filterKey] = false;
   } else {
-    activeFilters.value[filterKey] = '';
+    activeFilters.value[filterKey] = undefined;
   }
-  
   handleFilter();
 };
 
@@ -487,6 +489,10 @@ const getProductCountByBrand = (brand: string) => {
 const getProductCountByCategory = (category: string) => {
   return props.products.filter(p => p.category === category).length;
 };
+
+// Dans le template, corriger l'accès à priceMin
+const getPriceMin = () => activeFilters.value.priceMin ?? priceRange.value.min;
+const getPriceMax = () => activeFilters.value.priceMax ?? priceRange.value.max;
 
 defineExpose({
   resetFilters

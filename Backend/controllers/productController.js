@@ -65,9 +65,12 @@ async function createProduct(req, res) {
             const productId = newProduct.newSQLProduct.id;
 
             if (productData.images.length > 0) {
+                const now = new Date();
                 const mediaData = productData.images.map(path => ({
                     productId,
-                    path
+                    path,
+                    created_at: now,
+                    updated_at: now
                 }));
                 await Media.bulkCreate(mediaData);
             }
@@ -97,9 +100,12 @@ async function uploadProductImages(req, res) {
 
         try {
             const { productId } = req.body;
+            const now = new Date();
             const mediaData = req.files.map(file => ({
                 productId,
-                path: file.path
+                path: file.path,
+                created_at: now,
+                updated_at: now
             }));
 
             await Media.bulkCreate(mediaData);

@@ -81,7 +81,8 @@ import { useProductStore } from '@/stores/products'
 import { useCartStore } from '@/stores/panier'
 import type { Product } from '@/types/product'
 import Footer from '@/components/UI/Footer.vue'
-import defaultImg from '@/assets/No_Image_Available .jpg'
+// @ts-ignore
+import defaultImg from '@/assets/ui_assets/NoImage.jpg'
 
 /* ───── stores & route ───── */
 const prodStore = useProductStore()

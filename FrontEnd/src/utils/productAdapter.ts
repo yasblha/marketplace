@@ -1,5 +1,34 @@
 import type { Product as APIProduct } from '@/types/product';
-import type { Product as CardProduct } from '@/components/common/ProductCard.vue';
+
+// Définir le type localement pour éviter l'import circulaire
+interface CardProduct {
+  id: string;
+  _id?: string;
+  name: string;
+  description?: string;
+  brand: string;
+  category?: string;
+  price: number;
+  discount?: number;
+  stock_available: number;
+  stock_total?: number;
+  images?: string[];
+  created_at?: string | Date;
+  free_shipping?: boolean;
+  rating?: number;
+  reviewCount?: number;
+  slug?: string;
+  sale_price?: number;
+  stock_status?: string;
+  stock_status_class?: string;
+  shipping_info?: string;
+  is_new?: boolean;
+  image?: string;
+  discount_percentage?: number;
+  is_on_sale?: boolean;
+  status?: string;
+  category_id?: number | null;
+}
 
 /**
  * Extrait les chemins d'images d'un produit, en gérant différents formats

@@ -67,6 +67,9 @@ export const useAuthStore = defineStore('auth', () => {
         }
     };
 
+    // Charger l'état dès la création du store pour que isAuthenticated soit correct au premier rendu
+    loadState();
+
     watch(
         () => ({ user: user.value, token: token.value, refreshToken: refreshToken.value }),
         persistState,
@@ -218,8 +221,6 @@ export const useAuthStore = defineStore('auth', () => {
         }
     }
 
-    loadState();
-
     watchEffect(() => {
         if (isAuthenticated.value) {
             startRefreshTokenTimer();
@@ -237,10 +238,11 @@ export const useAuthStore = defineStore('auth', () => {
         isAuthenticated,
         register,
         login,
+        refreshTokenFunc,
         logout,
+        loadState,
         requestPasswordReset,
         resetPassword,
-        refreshTokenFunc,
         fetchUser,
     };
 });

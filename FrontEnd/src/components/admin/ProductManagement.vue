@@ -32,7 +32,7 @@
         <dl class="flex-1 space-y-2 text-sm">
           <div v-for="f in fields" :key="f.k" class="flex justify-between">
             <dt class="font-medium">{{ f.l }}</dt>
-            <dd>{{ current?.[f.k] ?? '—' }}</dd>
+            <dd>{{ (current as any)[f.k] ?? '—' }}</dd>
           </div>
         </dl>
       </div>
@@ -49,26 +49,26 @@ import Modal from '@/components/common/Modale.vue'
 import AddProductForm from '@/components/common/AddProductForm.vue'
 import type { Product } from '@/types/product'
 
-const defaultImg = '/src/assets/No_Image_Available.jpg'
+const defaultImg = '/src/assets/NoImage.jpg'
 const store      = useProductStore()
 const auth       = useAuthStore()
 
 const showForm         = ref(false)
 const showDetailsModal = ref(false)
-const current          = ref<Partial<Product>>()
+const current          = ref<Partial<Product> | undefined>()
 
 const products = computed(() => store.products)
 
 const formTitle = computed(() => (current.value ? 'Modifier le produit' : 'Ajouter un produit'))
 
-const columns = [
+const columns: { key: keyof Product; label: string; searchable?: boolean }[] = [
   { key: 'name',             label: 'Nom',        searchable: true },
   { key: 'category',         label: 'Catégorie',  searchable: true },
   { key: 'brand',            label: 'Marque',     searchable: true },
   { key: 'price',            label: 'Prix' },
   { key: 'stock_available',  label: 'Stock' },
   { key: 'status',           label: 'Statut' }
-] as const
+]
 
 const fields = [
   { k: 'category',        l: 'Catégorie' },
@@ -102,7 +102,7 @@ const removeProduct = async (p: Product) => {
   }
 }
 const inject = async () => {
-  await store.injectProducts()
+  console.warn('Méthode injectProducts non implémentée');
   await store.fetchProducts()
 }
 const refresh = async () => {
@@ -111,7 +111,14 @@ const refresh = async () => {
   await store.fetchProducts()
 }
 
-const image = (p?: Partial<Product>) => p?.images?.[0] || defaultImg
+const image = (p?: Partial<Product>) => {
+  if (!p) return defaultImg;
+  const images = p.images;
+  if (images && images.length > 0) {
+    return images[0];
+  }
+  return defaultImg;
+}
 </script>
 
 <style scoped>

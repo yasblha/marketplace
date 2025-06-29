@@ -82,8 +82,8 @@
               v-for="p in displayed"
               :key="p.id || p._id"
               :product="p"
-              :show-stock-info
-              :show-shipping-info
+              :show-stock-info="true"
+              :show-shipping-info="true"
               class="h-full transition-shadow hover:shadow-lg" />
         </div>
       </section>
@@ -129,7 +129,7 @@ const displayed = computed<Product[]>(() => {
   if (q) out = out.filter(p => (p.name+p.description).toLowerCase().includes(q))
   if (filters.value.category) out = out.filter(p => p.category === filters.value.category)
   if (filters.value.brand) out = out.filter(p => p.brand?.toLowerCase().includes(filters.value.brand.toLowerCase()))
-  out = out.filter(p => p.price >= filters.value.priceMin && p.price <= filters.value.priceMax)
+  out = out.filter(p => Number(p.price) >= filters.value.priceMin && Number(p.price) <= filters.value.priceMax)
   if (filters.value.inStock) out = out.filter(p => p.stock_available > 0)
 
   return sortArray(out, sort.value)
@@ -150,8 +150,8 @@ const sortArray = (arr:Product[], criteria:string) => {
   const sorted = [...arr]
   sorted.sort((a,b)=>{
     switch(criteria){
-      case 'price_asc' : return a.price-b.price
-      case 'price_desc': return b.price-a.price
+      case 'price_asc' : return Number(a.price)-Number(b.price)
+      case 'price_desc': return Number(b.price)-Number(a.price)
       case 'name_asc'  : return a.name.localeCompare(b.name)
       case 'name_desc' : return b.name.localeCompare(a.name)
       case 'newest'    : return new Date(b.created_at??0).getTime()-new Date(a.created_at??0).getTime()

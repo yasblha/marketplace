@@ -86,7 +86,7 @@ const handlePaypalCheckout = async () => {
 };
 
 const removeItem = (itemId: string) => {
-  cartStore.removeFromCart(cartStore.items.findIndex(i => i._id === itemId));
+  cartStore.removeFromCart(String(itemId));
 };
 
 onMounted(async () => {

@@ -6,5 +6,12 @@
   </template>
   
   <script setup lang="ts">
+  import { onMounted } from 'vue'
+  import { useCartStore } from '@/stores/panier'
+
+  const cart = useCartStore()
+
+  onMounted(() => {
+    cart.restoreSnapshot()
+  })
   </script>
-  

@@ -17,6 +17,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 export async function createCheckoutSession(req, res) {
   const { items, customer } = req.body;
 
+  console.log(stripe, 'stripe');
   console.log('Received items:', items);
   console.log('Received customer:', customer);
 

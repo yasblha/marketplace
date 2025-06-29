@@ -5,6 +5,7 @@
     <router-view />
 
     <AuthModal v-model:isVisible="authModalStore.isVisible" />
+    <CookieConsent />
   </div>
 </template>
 
@@ -14,6 +15,7 @@ import { useRoute }          from 'vue-router'
 
 import NavigationBar         from '@/components/UI/NavigationBar.vue'
 import AuthModal             from '@/components/common/AuthModal.vue'
+import CookieConsent         from '@/components/UI/CookieConsent.vue'
 
 import { useCartStore }      from '@/stores/panier'
 import { useAuthModalStore } from '@/stores/authModale'

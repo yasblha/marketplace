@@ -27,17 +27,20 @@ const DeliveryAddress = sequelize.define('DeliveryAddress', {
         type: DataTypes.STRING,
         allowNull: false,
     },
-    userid: {
+    userId: {
         type: DataTypes.INTEGER,
+        field: 'userId',
         references: {
             model: User,
             key: 'id'
-        }
+        },
+        allowNull: false
     }
 },{
-    tableName: 'DeliveryAdress',
-    timestamps: false,});
+    tableName: 'DeliveryAddresses',
+    timestamps: false,
+});
 
-DeliveryAddress.belongsTo(User, { foreignKey: 'userid' });
+DeliveryAddress.belongsTo(User, { foreignKey: 'userId' });
 
 export default DeliveryAddress;

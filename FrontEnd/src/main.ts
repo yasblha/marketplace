@@ -11,7 +11,7 @@ import { far }           from '@fortawesome/free-regular-svg-icons'
 import { fab }           from '@fortawesome/free-brands-svg-icons'
 import directives        from '@/directives'
 
-import Toast from 'vue-toastification'
+import Toast, { POSITION } from 'vue-toastification'
 import type { PluginOptions } from 'vue-toastification'
 import 'vue-toastification/dist/index.css'
 
@@ -28,7 +28,7 @@ pinia.use(piniaPersist)
 directives.install(app)
 
 const toastOptions: PluginOptions = {
-  position : 'top-right',
+  position : POSITION.TOP_RIGHT,
   timeout  : 5000
 }
 
