@@ -147,16 +147,16 @@ export async function getCartItems(req, res) {
 
         // Récupérer les articles du panier
         const cartItems = await Cart.findAll({ 
-            where: { userid },
+            where:{ userid },
             include: [
                 { 
-                    model: Client, 
+                    model: Client,
                     attributes: ['id', 'firstname', 'lastname', 'email'],
-                    as: 'UserPg'
+                    as: 'User'
                 },
                 { 
                     model: Product, 
-                    as: 'ProductPg',
+                    as: 'Product',
                     attributes: ['id', 'name', 'price', 'image']
                 }
             ]
@@ -170,7 +170,7 @@ export async function getCartItems(req, res) {
         // Mapper les articles du panier avec les produits correspondants
         const cartItemsWithProducts = cartItems.map(cartItem => {
             // Utiliser le produit inclus dans la requête ou un objet vide
-            const product = cartItem.ProductPg || {};
+            const product = cartItem.Product || {};
             
             return {
                 id: cartItem.id,

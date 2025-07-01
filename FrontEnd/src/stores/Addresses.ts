@@ -10,7 +10,7 @@ export interface Address {
     postalcode: string;
     department?: string;
     country: string;
-    userid: number;
+    userId: number;
 }
 
 interface AddressCreateData {
@@ -19,6 +19,7 @@ interface AddressCreateData {
     postalcode: string;
     department?: string;
     country: string;
+    userId?: number;
 }
 
 interface AddressUpdateData {

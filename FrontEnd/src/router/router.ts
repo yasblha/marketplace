@@ -20,6 +20,7 @@ import Favorites from '@/pages/Favorites.vue'
 import Payment from '@/pages/Payment.vue'
 import PaymentSuccess from '@/pages/PaymentSuccess.vue'
 import PaymentCancel from '@/pages/PaymentCancel.vue'
+import Unsubscribe from '../pages/Unsubscribe.vue'
 import { decodeBase64 } from '@/utils/encodage'
 
 const routes = [
@@ -139,7 +140,13 @@ const routes = [
 //     component: PaymentCommande
 //   },
   { path: '/paymentSuccess', name: 'paymentSuccess', component: PaymentSuccess },
-  { path: '/paymentCancel', name: 'paymentCancel', component: PaymentCancel }
+  { path: '/paymentCancel', name: 'paymentCancel', component: PaymentCancel },
+  {
+    path: '/unsubscribe',
+    name: 'Unsubscribe',
+    component: Unsubscribe,
+    meta: { requiresAuth: false }
+  }
 ]
 
 const router = createRouter({

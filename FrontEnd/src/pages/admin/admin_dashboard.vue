@@ -214,6 +214,14 @@
                 </div>
               </div>
             </div>
+
+            <div v-if="state.activeSection === 'dashboard'">
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                <StatsSalesChart :data="salesByMonth.data" :labels="salesByMonth.labels" />
+                <StatsDonutChart :data="productsByCategory.data" :labels="productsByCategory.labels" />
+                <StatsBarChart :data="ordersByMonth.data" :labels="ordersByMonth.labels" />
+              </div>
+            </div>
           </div>
         </div>
       </main>
@@ -221,7 +229,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/user';
@@ -231,6 +239,11 @@ import ProductManagement from '@/components/admin/ProductManagement.vue';
 import UserManagement from '@/components/admin/UserManagement.vue';
 import OrderManagement from '@/components/admin/OrderManagement.vue';
 import ListItems from '@/components/admin/ListItems.vue';
+import StatsSalesChart from '@/components/admin/StatsSalesChart.vue';
+import StatsDonutChart from '@/components/admin/StatsDonutChart.vue';
+import StatsBarChart from '@/components/admin/StatsBarChart.vue';
+import ReportSection from '@/components/admin/ReportSection.vue'
+import SettingsSection from '@/components/admin/SettingsSection.vue';
 
 // Icons
 import {
@@ -257,7 +270,9 @@ const components = {
   ProductManagement,
   UserManagement,
   OrderManagement,
-  ListItems
+  ListItems,
+  ReportSection,
+  SettingsSection
 };
 
 // Router et stores
@@ -356,7 +371,8 @@ const activeComponent = computed(() => {
   if (section === 'products') return ProductManagement;
   if (section === 'users') return UserManagement;
   if (section === 'orders') return OrderManagement;
-  if (section === 'settings') return ListItems;
+  if (section === 'settings') return SettingsSection;
+  if (section === 'reports') return ReportSection;
   return null;
 });
 
@@ -420,7 +436,6 @@ const getSectionDescription = (sectionId) => {
   return descriptions[sectionId] || 'Gérez cette section depuis le panneau d\'administration';
 };
 
-
 // Hooks de cycle de vie
 onMounted(async () => {
   // Charger les données initiales
@@ -450,6 +465,49 @@ onUnmounted(() => {
   window.removeEventListener('resize', handleResize);
   document.removeEventListener('click', handleAdminClickOutside);
 });
+
+// Ventes par mois (pour StatsSalesChart)
+const salesByMonth = computed(() => {
+  const map = new Map<string, number>()
+  orderStore.orders.forEach(order => {
+    const d = new Date(order.dateOrder)
+    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`
+    map.set(key, (map.get(key) || 0) + order.totalAmount)
+  })
+  const labels = Array.from(map.keys()).sort()
+  return {
+    labels,
+    data: labels.map(l => map.get(l) || 0)
+  }
+})
+
+// Commandes par mois (pour StatsBarChart)
+const ordersByMonth = computed(() => {
+  const map = new Map<string, number>()
+  orderStore.orders.forEach(order => {
+    const d = new Date(order.dateOrder)
+    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`
+    map.set(key, (map.get(key) || 0) + 1)
+  })
+  const labels = Array.from(map.keys()).sort()
+  return {
+    labels,
+    data: labels.map(l => map.get(l) || 0)
+  }
+})
+
+// Répartition produits par catégorie (pour StatsDonutChart)
+const productsByCategory = computed(() => {
+  const map = new Map<string, number>()
+  productStore.products.forEach(p => {
+    map.set(p.category || 'Autre', (map.get(p.category || 'Autre') || 0) + 1)
+  })
+  const labels = Array.from(map.keys())
+  return {
+    labels,
+    data: labels.map(l => map.get(l) || 0)
+  }
+})
 </script>
 
 <style scoped>

@@ -35,6 +35,8 @@ import analyticsRoutes from './routes/api/analyticsRoutes.js';
 import alertRoutes     from './routes/api/alertRoutes.js';
 import checkoutRoutes  from './routes/api/CheckoutRoutes.js';
 import syncRoutes      from './routes/api/syncRoutes.js';
+import stockRoutes     from './routes/api/stockRoutes.js';
+import settingsRoutes   from './routes/api/settingsRoutes.js';
 
 /*  Services */
 import { checkPasswordRenewal } from './services/reset_mail.js';
@@ -83,6 +85,8 @@ app.use('/api/analytics',  analyticsRoutes);
 app.use('/api/alerts',     alertRoutes);
 app.use('/api/checkout',   checkoutRoutes);
 app.use('/api/sync',       syncRoutes);
+app.use('/api/stock',      stockRoutes);
+app.use('/api/settings',   settingsRoutes);
 
 /*───────────────────────────────────
   Fichiers statiques

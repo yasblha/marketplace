@@ -110,11 +110,12 @@ db.AdresseLivraison.belongsTo(db.UserPg, { foreignKey: 'userId' });
 db.ProductPg.hasMany(db.Media, { foreignKey: 'productId' });
 db.Media.belongsTo(db.ProductPg, { foreignKey: 'productId' });
 
-db.UserPg.hasMany(db.Panier, { foreignKey: 'userid', as: 'UserPg' });
-db.Panier.belongsTo(db.UserPg, { foreignKey: 'userid', as: 'UserPg' });
 
-db.ProductPg.hasMany(db.Panier, { foreignKey: 'productid', as: 'ProductPg' });
-db.Panier.belongsTo(db.ProductPg, { foreignKey: 'productid', as: 'ProductPg' });
+db.UserPg.hasMany(db.Panier, { foreignKey: 'userid' });
+db.Panier.belongsTo(db.UserPg, { foreignKey: 'userid' });
+
+db.ProductPg.hasMany(db.Panier, { foreignKey: 'productid' });
+db.Panier.belongsTo(db.ProductPg, { foreignKey: 'productid' });
 
 db.Commande.hasMany(db.Payments, { foreignKey: 'orderId' });
 db.Payments.belongsTo(db.Commande, { foreignKey: 'orderId' });

@@ -36,6 +36,13 @@
           </div>
         </dl>
       </div>
+      <div class="mt-6">
+        <button class="btn-success" @click="openStockModal">Gestion de stock</button>
+      </div>
+    </Modal>
+
+    <Modal v-model="showStockModal" title="Gestion de stock">
+      <StockHistoryTable :product-id="current?.id || current?._id" />
     </Modal>
   </div>
 </template>
@@ -48,6 +55,7 @@ import Table from '@/components/common/Table.vue'
 import Modal from '@/components/common/Modale.vue'
 import AddProductForm from '@/components/common/AddProductForm.vue'
 import type { Product } from '@/types/product'
+import StockHistoryTable from '@/components/admin/StockHistoryTable.vue'
 
 const defaultImg = '/src/assets/NoImage.jpg'
 const store      = useProductStore()
@@ -55,6 +63,7 @@ const auth       = useAuthStore()
 
 const showForm         = ref(false)
 const showDetailsModal = ref(false)
+const showStockModal   = ref(false)
 const current          = ref<Partial<Product> | undefined>()
 
 const products = computed(() => store.products)
@@ -119,6 +128,8 @@ const image = (p?: Partial<Product>) => {
   }
   return defaultImg;
 }
+
+const openStockModal = () => { showStockModal.value = true }
 </script>
 
 <style scoped>

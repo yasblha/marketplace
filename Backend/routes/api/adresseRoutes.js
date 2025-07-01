@@ -1,12 +1,19 @@
 import express from 'express';
-const router = express.Router();
 import * as DeliveryAddressController from '../../controllers/AdresseController.js';
-import { authenticateToken, authenticateAdmin } from '../../middleware/authAdmin.js';
+import { authenticateToken } from '../../middleware/authAdmin.js';
 
-router.post('/', DeliveryAddressController.createAddress);
-router.get('/:addressId',authenticateToken, DeliveryAddressController.getAddressById);
-router.put('/:addressId', authenticateToken,DeliveryAddressController.updateAddress);
-router.delete('/:addressId', authenticateToken,DeliveryAddressController.deleteAddress);
-router.get('/users/:userId/addresses', DeliveryAddressController.getAddressesByUserId);
+const router = express.Router();
+
+router.use((req, _res, next) => {
+  console.log('[Adresse]', req.method, req.originalUrl);
+  next();
+});
+
+router.post('/', authenticateToken, DeliveryAddressController.createAddress);
+router.get('/users/:userId/addresses', authenticateToken, DeliveryAddressController.getAddressesByUserId);
+
+router.get('/:addressId', authenticateToken, DeliveryAddressController.getAddressById);
+router.put('/:addressId', authenticateToken, DeliveryAddressController.updateAddress);
+router.delete('/:addressId', authenticateToken, DeliveryAddressController.deleteAddress);
 
 export default router;

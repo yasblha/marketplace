@@ -102,18 +102,31 @@
     <!-- newsletter / footer -->
     <footer class="mt-16 space-y-10">
       <div class="bg-white rounded-xl shadow p-8 max-w-4xl mx-auto text-center">
-        <h4 class="text-xl font-semibold mb-4">Sign up for our newsletter</h4>
-        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <h4 class="text-xl font-semibold mb-4">Inscrivez-vous à notre newsletter</h4>
+        <form class="flex flex-col sm:flex-row gap-4 justify-center" @submit.prevent="subscribeNewsletter">
           <input
-              type="email"
-              placeholder="Email address"
-              class="flex-1 border rounded px-4 py-2"
+            v-model="newsletterEmail"
+            type="email"
+            placeholder="Votre adresse email"
+            class="flex-1 border rounded px-4 py-2"
+            required
+            :disabled="newsletterLoading"
           />
-          <button class="bg-slate-900 text-white px-6 py-2 rounded">Sign up</button>
-        </div>
+          <button
+            class="bg-slate-900 text-white px-6 py-2 rounded disabled:opacity-50"
+            :disabled="newsletterLoading"
+            type="submit"
+          >
+            <span v-if="newsletterLoading">Envoi...</span>
+            <span v-else>S'inscrire</span>
+          </button>
+        </form>
         <p class="text-sm text-slate-500 mt-4">
-          Be the first to know about our special offers, news and updates.
+          Soyez le premier informé de nos offres spéciales, nouveautés et actualités.<br>
+          <span class="text-xs block mt-2 text-gray-400">En vous inscrivant, vous acceptez de recevoir des emails de notre part. <br>Vous pouvez vous désinscrire à tout moment. Vos données sont traitées conformément à la <a href="/privacy" class="underline">politique de confidentialité</a> (RGPD).</span>
         </p>
+        <p v-if="newsletterSuccess" class="text-green-600 mt-2">Merci pour votre inscription ! 🎉</p>
+        <p v-if="newsletterError" class="text-red-600 mt-2">{{ newsletterError }}</p>
       </div>
       <p class="text-center text-xs text-slate-500">
         {{ new Date().getFullYear() }} site.com — All rights reserved
@@ -145,6 +158,7 @@ import { OrderStatus }              from '@/types/orderStatus'
 import defaultImage from '@/assets/ui_assets/NoImage.jpg'
 import Modal                        from '@/components/common/Modale.vue'
 import Footer                       from '@/components/UI/Footer.vue'
+import axios from 'axios'
 
 const cart        = useCartStore()
 const orderStore  = useOrderStore()
@@ -154,6 +168,10 @@ const showError   = ref(false)
 const errorTitle  = ref('Cart Error')
 const errorMessage = ref('An error occurred with your cart.')
 const isCheckingOut = ref(false)
+const newsletterEmail = ref('')
+const newsletterLoading = ref(false)
+const newsletterSuccess = ref(false)
+const newsletterError = ref('')
 
 const orderInfos = [
   {
@@ -222,6 +240,21 @@ const checkout = async () => {
     cart.restoreSnapshot()
   } finally {
     isCheckingOut.value = false
+  }
+}
+
+const subscribeNewsletter = async () => {
+  newsletterLoading.value = true
+  newsletterSuccess.value = false
+  newsletterError.value = ''
+  try {
+    await axios.post('/api/alerts/newsletter/subscribe', { email: newsletterEmail.value })
+    newsletterSuccess.value = true
+    newsletterEmail.value = ''
+  } catch (e: any) {
+    newsletterError.value = e.response?.data?.message || 'Erreur lors de l’inscription. Essayez plus tard.'
+  } finally {
+    newsletterLoading.value = false
   }
 }
 
