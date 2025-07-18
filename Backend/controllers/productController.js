@@ -175,15 +175,86 @@ async function deleteProduct(req, res) {
 
 async function searchProducts(req, res) {
     try {
-        const { name, category, brand, minPrice, maxPrice } = req.query;
+        console.log('Requête de recherche reçue:', req.query);
+        
+        const { 
+            name, 
+            category, 
+            brand, 
+            minPrice, 
+            maxPrice,
+            is_on_sale,
+            in_stock,
+            sort
+        } = req.query;
+        
         const criteria = {};
-        if (name) criteria.name = { $regex: new RegExp(name, 'i') };
+        
+        // Gestion des filtres principaux
+        if (name) criteria.name = name;
         if (category) criteria.category = category;
         if (brand) criteria.brand = brand;
-        if (minPrice && maxPrice) criteria.price = { $gte: parseFloat(minPrice), $lte: parseFloat(maxPrice) };
-
-        const products = await Product.searchProducts(criteria);
-        res.status(200).json(products);
+        if (minPrice) criteria.minPrice = parseFloat(minPrice);
+        if (maxPrice) criteria.maxPrice = parseFloat(maxPrice);
+        
+        // Gestion des filtres supplémentaires
+        if (is_on_sale === 'true') criteria.is_on_sale = true;
+        if (in_stock === 'true') criteria.in_stock = true;
+        
+        console.log('Critères de recherche appliqués:', criteria);
+        
+        // Gestion du tri (optionnel)
+        let orderOptions = [];
+        if (sort) {
+            const [field, direction] = sort.split(':');
+            if (field && (direction === 'asc' || direction === 'desc')) {
+                orderOptions = [field, direction];
+            }
+        }
+        
+        const products = await Product.searchProducts(criteria, orderOptions);
+        console.log(`${products.length} produits trouvés`);
+        
+        // S'assurer que les images sont correctement formatées
+        const formattedProducts = products.map(product => {
+            // Convertir en objet simple pour manipuler
+            const productObj = product.toJSON ? product.toJSON() : {...product};
+            
+            // S'assurer que image est toujours un tableau
+            if (!productObj.image) {
+                productObj.image = [];
+            } else if (!Array.isArray(productObj.image)) {
+                // Si image n'est pas un tableau, le convertir en tableau
+                productObj.image = [productObj.image];
+            }
+            
+            // Filtrer les images invalides (comme "{}")
+            productObj.image = productObj.image
+                .filter(img => img && typeof img === 'string' && img !== '{}')
+                .map(img => img.trim());
+                
+            return productObj;
+        });
+        
+        // Préparer les facettes pour la réponse
+        const facets = {
+            categories: [...new Set(formattedProducts.map(p => p.category).filter(Boolean))],
+            brands: [...new Set(formattedProducts.map(p => p.brand).filter(Boolean))],
+            priceRange: {
+                min: formattedProducts.length > 0 ? Math.min(...formattedProducts.map(p => parseFloat(p.price) || 0)) : 0,
+                max: formattedProducts.length > 0 ? Math.max(...formattedProducts.map(p => parseFloat(p.price) || 0)) : 0
+            },
+            hasPromotions: formattedProducts.some(p => p.is_on_sale),
+            hasInStock: formattedProducts.some(p => p.stock_available > 0)
+        };
+        
+        // Renvoyer un objet avec la propriété "products" contenant le tableau des produits
+        res.status(200).json({
+            products: formattedProducts,
+            facets,
+            totalResults: formattedProducts.length,
+            appliedFilters: criteria
+        });
     } catch (error) {
         console.error('Erreur lors de la recherche de produits :', error);
         res.status(500).json({ error: 'Erreur interne du serveur' });
@@ -245,15 +316,28 @@ async function injectProducts(req, res) {
     }
 }
 
+// Fonction pour récupérer toutes les catégories de produits distinctes
+async function getProductCategories(req, res) {
+    try {
+        console.log('Récupération des catégories de produits');
+        const categories = await Product.getDistinctCategories();
+        res.status(200).json(categories);
+    } catch (error) {
+        console.error('Erreur lors de la récupération des catégories de produits:', error);
+        res.status(500).json({ error: 'Erreur interne du serveur' });
+    }
+}
+
 export {
     updateProductStock,
     getAllProducts,
     getProductById,
     createProduct,
-    uploadProductImages,
     updateProduct,
     deleteProduct,
     searchProducts,
     getProductsByCategory,
-    injectProducts
+    injectProducts,
+    uploadProductImages,
+    getProductCategories // Ajout de l'export pour la nouvelle fonction
 };

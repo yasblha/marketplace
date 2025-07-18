@@ -248,7 +248,7 @@ const subscribeNewsletter = async () => {
   newsletterSuccess.value = false
   newsletterError.value = ''
   try {
-    await axios.post('/api/alerts/newsletter/subscribe', { email: newsletterEmail.value })
+    await axios.post('/alerts/newsletter/subscribe', { email: newsletterEmail.value })
     newsletterSuccess.value = true
     newsletterEmail.value = ''
   } catch (e: any) {

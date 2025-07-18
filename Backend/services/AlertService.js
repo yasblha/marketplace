@@ -7,6 +7,11 @@ class AlertService {
   // Créer une nouvelle alerte
   static async createAlert(userId, alertData) {
     try {
+      // Vérification de la présence d'un product_id pour les alertes liées aux produits
+      if (['price_change', 'restock'].includes(alertData.type) && !alertData.product_id) {
+        throw new Error(`L'identifiant du produit (product_id) est obligatoire pour les alertes de type ${alertData.type}`);
+      }
+
       const alert = await Alert.create({
         user_id: userId,
         type: alertData.type,

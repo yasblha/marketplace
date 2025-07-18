@@ -36,7 +36,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr v-for="product in selectedOrder?.OrderDetails" :key="product.productName">
+            <tr v-for="product in selectedOrder?.details" :key="product.productName">
               <td>{{ product.productName }}</td>
               <td>{{ product.unitPrice }}</td>
               <td>{{ product.quantity }}</td>
@@ -69,7 +69,7 @@ interface Order {
   dateOrder: string;
   statusOrder: string;
   totalAmount: number;
-  OrderDetails: {
+  details: {
     productName: string;
     unitPrice: number;
     quantity: number;

@@ -18,6 +18,7 @@ router.get('/confirm-email/:token', authControllers.confirmEmail);
 router.post('/logout', authenticateToken, authControllers.logout);
 router.get('/me',authenticateToken, authControllers.user);
 router.get('/users',authenticateToken, authControllers.users);
+router.patch('/update-password', authenticateToken, authControllers.updatePassword);
 
 router.patch('/user/:id', authenticateToken, authControllers.updateUser);
 router.post('/impersonate/:id', authenticateCompta, authControllers.impersonateUser);

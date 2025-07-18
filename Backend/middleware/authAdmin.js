@@ -70,13 +70,24 @@ function authenticateCompta(req, res, next) {
 function authenticateToken(req, res, next) {
     const authHeader = req.header('Authorization');
     const token = authHeader ? authHeader.split(' ')[1] : req.cookies.token;
-    if (!token) return res.sendStatus(401);
+    if (!token) return res.status(401).json({ message: 'Token manquant, authentification requise' });
 
-    jwt.verify(token, JWT_SECRET, (err, user) => {
-        if (err) return res.sendStatus(403);
-        req.user = user;
+    try {
+        console.log('Token reçu:', token);
+        const decoded = jwt.verify(token, JWT_SECRET);
+        console.log('Token décodé:', decoded);
+        
+        // Structure uniforme pour req.user
+        req.user = { 
+            userId: decoded.userId || decoded.id || (decoded.user ? decoded.user.id : null),
+            role: decoded.role || (decoded.user ? decoded.user.role : null)
+        };
+        console.log('User authenticated:', req.user);
         next();
-    });
+    } catch (error) {
+        console.error('Erreur d\'authentification:', error);
+        return res.status(403).json({ message: 'Token invalide ou expiré' });
+    }
 }
 
-export { authenticateAdmin, authenticateToken, authenticateCompta };
+export { authenticateAdmin, authenticateCompta, authenticateToken };

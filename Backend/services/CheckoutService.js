@@ -4,6 +4,7 @@ import db from '../models/index.js';
 import ProductService from './productService.js';
 import { sequelizeInstance } from '../config/sequelizeConfig.js';
 import ORDER_STATUS from '../constants/orderStatus.js';
+import invoiceService from './invoiceService.js';
 
 const Cart = db.Panier;
 const Client = db.UserPg;
@@ -168,6 +169,16 @@ class CheckoutService {
         await OrderService.updateOrder(orderId, {
           statusOrder: ORDER_STATUS.PAID
         });
+
+        // Générer automatiquement la facture pour la commande payée
+        try {
+          console.log(`Génération automatique de la facture pour la commande ${orderId}`);
+          await invoiceService.generateInvoice(orderId);
+          console.log(`Facture générée avec succès pour la commande ${orderId}`);
+        } catch (invoiceError) {
+          // Log error but don't fail the transaction
+          console.error(`Erreur lors de la génération automatique de la facture pour la commande ${orderId}:`, invoiceError);
+        }
 
         await transaction.commit();
 

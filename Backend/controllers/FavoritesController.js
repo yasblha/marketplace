@@ -31,13 +31,37 @@ export async function addFavorite(req, res) {
     }
 };
 
+// Fonction pour récupérer les favoris de l'utilisateur connecté
+export async function getCurrentUserFavorites(req, res) {
+    try {
+        // L'ID utilisateur provient du token JWT (middleware tokenJWT)
+        const userid = req.user.id;
+        
+        // Recherche des favoris pour cet utilisateur
+        const favorite = await Favorite.findOne({ where: { userid } });
+
+        if (!favorite) {
+            // Si aucun favori n'est trouvé, renvoyer un tableau vide plutôt qu'une erreur
+            return res.status(200).json([]);
+        }
+
+        // Récupération des produits favoris
+        const products = await Product.findAll({ where: { id: favorite.productids } });
+        res.status(200).json(products);
+    } catch (error) {
+        console.error('Erreur lors de la récupération des favoris:', error);
+        res.status(500).json({ message: error.message });
+    }
+}
+
 // controllers/favoriteController.js
 
 
 export async function getFavorites(req, res) {
     try {
-        const { userid } = req.params;
-        const favorite = await Favorite.findOne({ where: { userid } });
+        // Utiliser id au lieu de userid pour correspondre au paramètre de route
+        const { id } = req.params;
+        const favorite = await Favorite.findOne({ where: { userid: id } });
 
         if (!favorite) {
             return res.status(404).json({ message: 'Favorites not found' });

@@ -8,9 +8,13 @@ import cron           from 'node-cron';
 import path, { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 
-//import './config/postgres.js';
+import './config/postgres.js';
 import './config/mongodb.js';
 
+// Import des modèles pour la synchronisation
+import sequelize from './config/postgres.js';
+import User from './models/postgres_models/UserPg.js';
+import Alert from './models/postgres_models/Alert.js';
 
 import credentials       from './middleware/credentials.js';
 import errorHandler      from './middleware/error_handler.js';
@@ -20,23 +24,26 @@ import upload            from './middleware/upload.js';
 /*───────────────────────────────────
   Routes API
 ─────────────────────────────────────*/
-import authRoutes      from './routes/api/auth.js';
-import products        from './routes/api/products.js';
-import uploadRoutes    from './routes/api/uploadRoute.js';
-import sectionRoutes   from './routes/api/MenuRoute.js';
-import cartRoutes      from './routes/api/PanierRoute.js';
-import orderRoutes     from './routes/api/CommandeRoutes.js';
-import FavoriteRoutes  from './routes/api/FavoriteRoutes.js';
-import AddressRoutes   from './routes/api/adresseRoutes.js';
-import PaymentRoutes   from './routes/api/PaymentRoutes.js';
-import ReturnRoutes    from './routes/api/ReturnsRoutes.js';
-import stripeRoutes    from './routes/api/stripeRoutes.js';
-import analyticsRoutes from './routes/api/analyticsRoutes.js';
-import alertRoutes     from './routes/api/alertRoutes.js';
-import checkoutRoutes  from './routes/api/CheckoutRoutes.js';
-import syncRoutes      from './routes/api/syncRoutes.js';
-import stockRoutes     from './routes/api/stockRoutes.js';
-import settingsRoutes   from './routes/api/settingsRoutes.js';
+import authRoutes        from './routes/api/auth.js';
+import products          from './routes/api/products.js';
+import uploadRoutes      from './routes/api/uploadRoute.js';
+import sectionRoutes     from './routes/api/MenuRoute.js';
+import cartRoutes        from './routes/api/PanierRoute.js';
+import orderRoutes       from './routes/api/CommandeRoutes.js';
+import FavoriteRoutes    from './routes/api/FavoriteRoutes.js';
+import AddressRoutes     from './routes/api/adresseRoutes.js';
+import PaymentRoutes     from './routes/api/PaymentRoutes.js';
+import ReturnRoutes      from './routes/api/ReturnsRoutes.js';
+import stripeRoutes      from './routes/api/stripeRoutes.js';
+import analyticsRoutes   from './routes/api/analyticsRoutes.js';
+import alertRoutes       from './routes/api/alertRoutes.js';
+import checkoutRoutes    from './routes/api/CheckoutRoutes.js';
+import syncRoutes        from './routes/api/syncRoutes.js';
+import stockRoutes       from './routes/api/stockRoutes.js';
+import stockHistoryRoutes from './routes/api/stockHistoryRoutes.js';
+import settingsRoutes    from './routes/api/settingsRoutes.js';
+import testRoutes        from './routes/api/testRoutes.js';
+import invoiceRoutes     from './routes/api/invoiceRoutes.js';
 
 /*  Services */
 import { checkPasswordRenewal } from './services/reset_mail.js';
@@ -44,6 +51,7 @@ import { checkPasswordRenewal } from './services/reset_mail.js';
 import { syncDatabase }         from './synchronize.js';
 import SyncService              from './services/syncService.js';
 import CronService              from './services/CronService.js';
+import initScheduledTasks       from './scripts/scheduledTasks.js';
 
 /*───────────────────────────────────
   Variables d'environnement (debug)
@@ -70,23 +78,26 @@ app.use(cookieParser());
 /*───────────────────────────────────
   Montage des routes
 ─────────────────────────────────────*/
-app.use('/api/auth',       authRoutes);
-app.use('/api/products',   products);
-app.use('/api/upload',     uploadRoutes);
-app.use('/api/sections',   sectionRoutes);
-app.use('/api/cart',       cartRoutes);
-app.use('/api/orders',     orderRoutes);
-app.use('/api/favorites',  FavoriteRoutes);
-app.use('/api/addresses',  AddressRoutes);
-app.use('/api/payments',   PaymentRoutes);
-app.use('/api/returns',    ReturnRoutes);
-app.use('/api/stripe',     stripeRoutes);
-app.use('/api/analytics',  analyticsRoutes);
-app.use('/api/alerts',     alertRoutes);
-app.use('/api/checkout',   checkoutRoutes);
-app.use('/api/sync',       syncRoutes);
-app.use('/api/stock',      stockRoutes);
-app.use('/api/settings',   settingsRoutes);
+app.use('/api/auth',         authRoutes);
+app.use('/api/products',     products);
+app.use('/api/upload',       uploadRoutes);
+app.use('/api/sections',     sectionRoutes);
+app.use('/api/cart',         cartRoutes);
+app.use('/api/orders',       orderRoutes);
+app.use('/api/favorites',    FavoriteRoutes);
+app.use('/api/addresses',    AddressRoutes);
+app.use('/api/payments',     PaymentRoutes);
+app.use('/api/returns',      ReturnRoutes);
+app.use('/api/stripe',       stripeRoutes);
+app.use('/api/analytics',    analyticsRoutes);
+app.use('/api/alerts',       alertRoutes);
+app.use('/api/checkout',     checkoutRoutes);
+app.use('/api/sync',         syncRoutes);
+app.use('/api/stock',        stockRoutes);
+app.use('/api/stock-history', stockHistoryRoutes);
+app.use('/api/settings',     settingsRoutes);
+app.use('/api/test',         testRoutes);
+app.use('/api/invoices',     invoiceRoutes);
 
 /*───────────────────────────────────
   Fichiers statiques
@@ -120,6 +131,23 @@ app.get('/', (_req, res) => res.send('Welcome to my server!'));
 ─────────────────────────────────────*/
 await syncDatabase();
 
+// Synchronisation des modèles Sequelize dans l'ordre correct
+try {
+  console.log('Synchronisation des modèles PostgreSQL...');
+  
+  // D'abord, synchroniser les modèles un par un dans le bon ordre
+  await User.sync();
+  console.log('Table Users synchronisée');
+  
+  // Ensuite, synchroniser le modèle Alert
+  await Alert.sync();
+  console.log('Table alerts synchronisée');
+  
+  console.log('Synchronisation terminée avec succès!');
+} catch (error) {
+  console.error('Erreur lors de la synchronisation des modèles:', error);
+}
+
 // Configuration de la synchronisation périodique
 const setupPeriodicSync = () => {
     // Synchronisation toutes les 5 minutes
@@ -147,7 +175,12 @@ app.use(errorHandler);
 
 const server = app.listen(PORT, () => {
     console.log(`App is listening at http://localhost:${PORT}`);
-    // Démarrer la synchronisation périodique après le démarrage du serveur
+    console.log(`Visit: http://localhost:${PORT}/api/hello`);
+    
+    // Initialiser les tâches planifiées
+    initScheduledTasks();
+    
+    // Lancer synchronisation immédiatement au démarrage
     setupPeriodicSync();
     // Initialiser les tâches cron
     CronService.init();

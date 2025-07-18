@@ -3,9 +3,9 @@
   <database-model serializer="dbm" dbms="POSTGRES" family-id="POSTGRES" format-version="4.53">
     <root id="1">
       <DateStyle>mdy</DateStyle>
-      <IntrospectionStateNumber>796</IntrospectionStateNumber>
+      <IntrospectionStateNumber>885</IntrospectionStateNumber>
       <ServerVersion>14.1</ServerVersion>
-      <StartupTime>1751146055</StartupTime>
+      <StartupTime>1752746015</StartupTime>
       <TimeZones>true ACDT
 true ACSST
 false ACST
@@ -801,7 +801,7 @@ true posixrules
 13388||10|C|G
 13388||-9223372036854775808|U|G
 13388||10|U|G</Grants>
-      <IntrospectionStateNumber>796</IntrospectionStateNumber>
+      <IntrospectionStateNumber>885</IntrospectionStateNumber>
       <ObjectId>16384</ObjectId>
       <OwnerName>user</OwnerName>
     </database>
@@ -4231,8 +4231,8 @@ true posixrules
     <schema id="262" parent="2" name="public">
       <Comment>standard public schema</Comment>
       <Current>1</Current>
-      <IntrospectionStateNumber>796</IntrospectionStateNumber>
-      <LastIntrospectionLocalTimestamp>2025-06-29.11:39:38</LastIntrospectionLocalTimestamp>
+      <IntrospectionStateNumber>885</IntrospectionStateNumber>
+      <LastIntrospectionLocalTimestamp>2025-07-18.00:02:22</LastIntrospectionLocalTimestamp>
       <ObjectId>2200</ObjectId>
       <StateNumber>527</StateNumber>
       <OwnerName>user</OwnerName>
@@ -4248,7 +4248,18 @@ newsletter</Labels>
       <SubKind>enum</SubKind>
       <OwnerName>user</OwnerName>
     </object-type>
-    <sequence id="264" parent="262" name="Alerts_id_seq">
+    <object-type id="264" parent="262" name="enum_alerts_type">
+      <Labels>new_product
+restock
+price_change
+newsletter</Labels>
+      <ObjectId>16682</ObjectId>
+      <StateNumber>863</StateNumber>
+      <SubCategory>enum</SubCategory>
+      <SubKind>enum</SubKind>
+      <OwnerName>user</OwnerName>
+    </object-type>
+    <sequence id="265" parent="262" name="Alerts_id_seq">
       <ObjectId>16421</ObjectId>
       <SequenceIdentity>1</SequenceIdentity>
       <StartValue>1</StartValue>
@@ -4256,7 +4267,7 @@ newsletter</Labels>
       <StoredType>integer|0s</StoredType>
       <OwnerName>user</OwnerName>
     </sequence>
-    <sequence id="265" parent="262" name="Cart_id_seq">
+    <sequence id="266" parent="262" name="Cart_id_seq">
       <ObjectId>16438</ObjectId>
       <SequenceIdentity>1</SequenceIdentity>
       <StartValue>1</StartValue>
@@ -4264,7 +4275,7 @@ newsletter</Labels>
       <StoredType>integer|0s</StoredType>
       <OwnerName>user</OwnerName>
     </sequence>
-    <sequence id="266" parent="262" name="DeliveryAddresses_id_seq">
+    <sequence id="267" parent="262" name="DeliveryAddresses_id_seq">
       <ObjectId>16625</ObjectId>
       <SequenceIdentity>1</SequenceIdentity>
       <StartValue>1</StartValue>
@@ -4272,7 +4283,7 @@ newsletter</Labels>
       <StoredType>integer|0s</StoredType>
       <OwnerName>user</OwnerName>
     </sequence>
-    <sequence id="267" parent="262" name="DeliveryAdress_id_seq">
+    <sequence id="268" parent="262" name="DeliveryAdress_id_seq">
       <ObjectId>16456</ObjectId>
       <SequenceIdentity>1</SequenceIdentity>
       <StartValue>1</StartValue>
@@ -4280,7 +4291,7 @@ newsletter</Labels>
       <StoredType>integer|0s</StoredType>
       <OwnerName>user</OwnerName>
     </sequence>
-    <sequence id="268" parent="262" name="Favorites_id_seq">
+    <sequence id="269" parent="262" name="Favorites_id_seq">
       <ObjectId>16554</ObjectId>
       <SequenceIdentity>1</SequenceIdentity>
       <StartValue>1</StartValue>
@@ -4288,7 +4299,7 @@ newsletter</Labels>
       <StoredType>integer|0s</StoredType>
       <OwnerName>user</OwnerName>
     </sequence>
-    <sequence id="269" parent="262" name="Media_id_seq">
+    <sequence id="270" parent="262" name="Media_id_seq">
       <ObjectId>16491</ObjectId>
       <SequenceIdentity>1</SequenceIdentity>
       <StartValue>1</StartValue>
@@ -4296,7 +4307,7 @@ newsletter</Labels>
       <StoredType>integer|0s</StoredType>
       <OwnerName>user</OwnerName>
     </sequence>
-    <sequence id="270" parent="262" name="Menus_id_seq">
+    <sequence id="271" parent="262" name="Menus_id_seq">
       <ObjectId>16574</ObjectId>
       <SequenceIdentity>1</SequenceIdentity>
       <StartValue>1</StartValue>
@@ -4304,7 +4315,7 @@ newsletter</Labels>
       <StoredType>integer|0s</StoredType>
       <OwnerName>user</OwnerName>
     </sequence>
-    <sequence id="271" parent="262" name="OrderDetails_id_seq">
+    <sequence id="272" parent="262" name="OrderDetails_id_seq">
       <ObjectId>16503</ObjectId>
       <SequenceIdentity>1</SequenceIdentity>
       <StartValue>1</StartValue>
@@ -4312,7 +4323,7 @@ newsletter</Labels>
       <StoredType>integer|0s</StoredType>
       <OwnerName>user</OwnerName>
     </sequence>
-    <sequence id="272" parent="262" name="Orders_id_seq">
+    <sequence id="273" parent="262" name="Orders_id_seq">
       <ObjectId>16409</ObjectId>
       <SequenceIdentity>1</SequenceIdentity>
       <StartValue>1</StartValue>
@@ -4320,7 +4331,7 @@ newsletter</Labels>
       <StoredType>integer|0s</StoredType>
       <OwnerName>user</OwnerName>
     </sequence>
-    <sequence id="273" parent="262" name="Payments_id_seq">
+    <sequence id="274" parent="262" name="Payments_id_seq">
       <ObjectId>16581</ObjectId>
       <SequenceIdentity>1</SequenceIdentity>
       <StartValue>1</StartValue>
@@ -4328,7 +4339,7 @@ newsletter</Labels>
       <StoredType>integer|0s</StoredType>
       <OwnerName>user</OwnerName>
     </sequence>
-    <sequence id="274" parent="262" name="Product_id_seq">
+    <sequence id="275" parent="262" name="Product_id_seq">
       <ObjectId>16400</ObjectId>
       <SequenceIdentity>1</SequenceIdentity>
       <StartValue>1</StartValue>
@@ -4336,7 +4347,7 @@ newsletter</Labels>
       <StoredType>integer|0s</StoredType>
       <OwnerName>user</OwnerName>
     </sequence>
-    <sequence id="275" parent="262" name="Returns_id_seq">
+    <sequence id="276" parent="262" name="Returns_id_seq">
       <ObjectId>16601</ObjectId>
       <SequenceIdentity>1</SequenceIdentity>
       <StartValue>1</StartValue>
@@ -4344,7 +4355,7 @@ newsletter</Labels>
       <StoredType>integer|0s</StoredType>
       <OwnerName>user</OwnerName>
     </sequence>
-    <sequence id="276" parent="262" name="Section_id_seq">
+    <sequence id="277" parent="262" name="Section_id_seq">
       <ObjectId>16532</ObjectId>
       <SequenceIdentity>1</SequenceIdentity>
       <StartValue>1</StartValue>
@@ -4352,7 +4363,15 @@ newsletter</Labels>
       <StoredType>integer|0s</StoredType>
       <OwnerName>user</OwnerName>
     </sequence>
-    <sequence id="277" parent="262" name="User_id_seq">
+    <sequence id="278" parent="262" name="StockHistory_id_seq">
+      <ObjectId>16654</ObjectId>
+      <SequenceIdentity>1</SequenceIdentity>
+      <StartValue>1</StartValue>
+      <StateNumber>838</StateNumber>
+      <StoredType>integer|0s</StoredType>
+      <OwnerName>user</OwnerName>
+    </sequence>
+    <sequence id="279" parent="262" name="User_id_seq">
       <ObjectId>16388</ObjectId>
       <SequenceIdentity>1</SequenceIdentity>
       <StartValue>1</StartValue>
@@ -4360,7 +4379,15 @@ newsletter</Labels>
       <StoredType>integer|0s</StoredType>
       <OwnerName>user</OwnerName>
     </sequence>
-    <sequence id="278" parent="262" name="favorite_id_seq">
+    <sequence id="280" parent="262" name="alerts_id_seq">
+      <ObjectId>16931</ObjectId>
+      <SequenceIdentity>1</SequenceIdentity>
+      <StartValue>1</StartValue>
+      <StateNumber>884</StateNumber>
+      <StoredType>integer|0s</StoredType>
+      <OwnerName>user</OwnerName>
+    </sequence>
+    <sequence id="281" parent="262" name="favorite_id_seq">
       <ObjectId>16476</ObjectId>
       <SequenceIdentity>1</SequenceIdentity>
       <StartValue>1</StartValue>
@@ -4368,103 +4395,121 @@ newsletter</Labels>
       <StoredType>integer|0s</StoredType>
       <OwnerName>user</OwnerName>
     </sequence>
-    <table id="279" parent="262" name="Alerts">
+    <table id="282" parent="262" name="Alerts">
       <ObjectId>16422</ObjectId>
       <StateNumber>779</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>user</OwnerName>
     </table>
-    <table id="280" parent="262" name="Cart">
+    <table id="283" parent="262" name="Cart">
       <ObjectId>16439</ObjectId>
       <StateNumber>780</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>user</OwnerName>
     </table>
-    <table id="281" parent="262" name="Clients">
+    <table id="284" parent="262" name="Client_Product">
+      <ObjectId>16666</ObjectId>
+      <StateNumber>861</StateNumber>
+      <AccessMethodId>2</AccessMethodId>
+      <OwnerName>user</OwnerName>
+    </table>
+    <table id="285" parent="262" name="Clients">
       <ObjectId>16389</ObjectId>
       <StateNumber>738</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>user</OwnerName>
     </table>
-    <table id="282" parent="262" name="DeliveryAddresses">
+    <table id="286" parent="262" name="DeliveryAddresses">
       <ObjectId>16626</ObjectId>
       <StateNumber>760</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>user</OwnerName>
     </table>
-    <table id="283" parent="262" name="DeliveryAdress">
+    <table id="287" parent="262" name="DeliveryAdress">
       <ObjectId>16457</ObjectId>
       <StateNumber>738</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>user</OwnerName>
     </table>
-    <table id="284" parent="262" name="Favorites">
+    <table id="288" parent="262" name="Favorites">
       <ObjectId>16555</ObjectId>
       <StateNumber>746</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>user</OwnerName>
     </table>
-    <table id="285" parent="262" name="Media">
+    <table id="289" parent="262" name="Media">
       <ObjectId>16492</ObjectId>
       <StateNumber>749</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>user</OwnerName>
     </table>
-    <table id="286" parent="262" name="Menus">
+    <table id="290" parent="262" name="Menus">
       <ObjectId>16575</ObjectId>
       <StateNumber>750</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>user</OwnerName>
     </table>
-    <table id="287" parent="262" name="OrderDetails">
+    <table id="291" parent="262" name="OrderDetails">
       <ObjectId>16504</ObjectId>
       <StateNumber>787</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>user</OwnerName>
     </table>
-    <table id="288" parent="262" name="Orders">
+    <table id="292" parent="262" name="Orders">
       <ObjectId>16410</ObjectId>
       <StateNumber>770</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>user</OwnerName>
     </table>
-    <table id="289" parent="262" name="Payments">
+    <table id="293" parent="262" name="Payments">
       <ObjectId>16582</ObjectId>
       <StateNumber>753</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>user</OwnerName>
     </table>
-    <table id="290" parent="262" name="Product">
+    <table id="294" parent="262" name="Product">
       <ObjectId>16401</ObjectId>
       <StateNumber>758</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>user</OwnerName>
     </table>
-    <table id="291" parent="262" name="Returns">
+    <table id="295" parent="262" name="Returns">
       <ObjectId>16602</ObjectId>
       <StateNumber>759</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>user</OwnerName>
     </table>
-    <table id="292" parent="262" name="Section">
+    <table id="296" parent="262" name="Section">
       <ObjectId>16533</ObjectId>
       <StateNumber>738</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>user</OwnerName>
     </table>
-    <table id="293" parent="262" name="SequelizeMeta">
+    <table id="297" parent="262" name="SequelizeMeta">
       <ObjectId>16539</ObjectId>
       <StateNumber>738</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>user</OwnerName>
     </table>
-    <table id="294" parent="262" name="favorite">
+    <table id="298" parent="262" name="StockHistory">
+      <ObjectId>16655</ObjectId>
+      <StateNumber>842</StateNumber>
+      <AccessMethodId>2</AccessMethodId>
+      <OwnerName>user</OwnerName>
+    </table>
+    <table id="299" parent="262" name="alerts">
+      <ObjectId>16932</ObjectId>
+      <StateNumber>884</StateNumber>
+      <AccessMethodId>2</AccessMethodId>
+      <OwnerName>user</OwnerName>
+    </table>
+    <table id="300" parent="262" name="favorite">
       <ObjectId>16477</ObjectId>
       <StateNumber>738</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>user</OwnerName>
     </table>
-    <column id="295" parent="279" name="id">
+    <column id="301" parent="282" name="id">
       <DefaultExpression>nextval(&apos;&quot;Alerts_id_seq&quot;&apos;::regclass)</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>1</Position>
@@ -4473,90 +4518,90 @@ newsletter</Labels>
       <SequenceId>16421</SequenceId>
       <TypeId>23</TypeId>
     </column>
-    <column id="296" parent="279" name="userid">
+    <column id="302" parent="282" name="userid">
       <Position>2</Position>
       <StateNumber>738</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="297" parent="279" name="alerttype">
+    <column id="303" parent="282" name="alerttype">
       <Position>3</Position>
       <StateNumber>738</StateNumber>
       <StoredType>varchar(50)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="298" parent="279" name="productid">
+    <column id="304" parent="282" name="productid">
       <Position>4</Position>
       <StateNumber>738</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="299" parent="279" name="status">
+    <column id="305" parent="282" name="status">
       <Position>5</Position>
       <StateNumber>738</StateNumber>
       <StoredType>varchar(50)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="300" parent="279" name="user_id">
+    <column id="306" parent="282" name="user_id">
       <NotNull>1</NotNull>
       <Position>6</Position>
       <StateNumber>740</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="301" parent="279" name="product_id">
+    <column id="307" parent="282" name="product_id">
       <NotNull>1</NotNull>
       <Position>7</Position>
       <StateNumber>741</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="302" parent="279" name="alert_type">
+    <column id="308" parent="282" name="alert_type">
       <NotNull>1</NotNull>
       <Position>8</Position>
       <StateNumber>742</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="303" parent="279" name="created_at">
+    <column id="309" parent="282" name="created_at">
       <Position>9</Position>
       <StateNumber>743</StateNumber>
       <StoredType>timestamp with time zone|0s</StoredType>
       <TypeId>1184</TypeId>
     </column>
-    <column id="304" parent="279" name="updated_at">
+    <column id="310" parent="282" name="updated_at">
       <Position>10</Position>
       <StateNumber>744</StateNumber>
       <StoredType>timestamp with time zone|0s</StoredType>
       <TypeId>1184</TypeId>
     </column>
-    <column id="305" parent="279" name="type">
+    <column id="311" parent="282" name="type">
       <NotNull>1</NotNull>
       <Position>11</Position>
       <StateNumber>776</StateNumber>
       <StoredType>&quot;enum_Alerts_type&quot;|0s</StoredType>
       <TypeId>16641</TypeId>
     </column>
-    <column id="306" parent="279" name="category">
+    <column id="312" parent="282" name="category">
       <Position>12</Position>
       <StateNumber>777</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="307" parent="279" name="is_active">
+    <column id="313" parent="282" name="is_active">
       <DefaultExpression>true</DefaultExpression>
       <Position>13</Position>
       <StateNumber>778</StateNumber>
       <StoredType>boolean|0s</StoredType>
       <TypeId>16</TypeId>
     </column>
-    <column id="308" parent="279" name="last_sent">
+    <column id="314" parent="282" name="last_sent">
       <Position>14</Position>
       <StateNumber>779</StateNumber>
       <StoredType>timestamp with time zone|0s</StoredType>
       <TypeId>1184</TypeId>
     </column>
-    <foreign-key id="309" parent="279" name="Alerts_userid_fkey">
+    <foreign-key id="315" parent="282" name="Alerts_userid_fkey">
       <ColNames>userid</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16428</ObjectId>
@@ -4564,7 +4609,7 @@ newsletter</Labels>
       <RefKeyColPositions>1</RefKeyColPositions>
       <RefTableId>16389</RefTableId>
     </foreign-key>
-    <foreign-key id="310" parent="279" name="Alerts_productid_fkey">
+    <foreign-key id="316" parent="282" name="Alerts_productid_fkey">
       <ColNames>productid</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16433</ObjectId>
@@ -4572,7 +4617,7 @@ newsletter</Labels>
       <RefKeyColPositions>1</RefKeyColPositions>
       <RefTableId>16401</RefTableId>
     </foreign-key>
-    <foreign-key id="311" parent="279" name="Alerts_user_id_fkey">
+    <foreign-key id="317" parent="282" name="Alerts_user_id_fkey">
       <ColNames>user_id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16544</ObjectId>
@@ -4581,7 +4626,7 @@ newsletter</Labels>
       <RefKeyColPositions>1</RefKeyColPositions>
       <RefTableId>16389</RefTableId>
     </foreign-key>
-    <foreign-key id="312" parent="279" name="Alerts_product_id_fkey">
+    <foreign-key id="318" parent="282" name="Alerts_product_id_fkey">
       <ColNames>product_id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16549</ObjectId>
@@ -4590,7 +4635,7 @@ newsletter</Labels>
       <RefKeyColPositions>1</RefKeyColPositions>
       <RefTableId>16401</RefTableId>
     </foreign-key>
-    <index id="313" parent="279" name="Alerts_pkey">
+    <index id="319" parent="282" name="Alerts_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16426</ObjectId>
@@ -4599,14 +4644,14 @@ newsletter</Labels>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <key id="314" parent="279" name="Alerts_pkey">
+    <key id="320" parent="282" name="Alerts_pkey">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16427</ObjectId>
       <Primary>1</Primary>
       <StateNumber>738</StateNumber>
       <UnderlyingIndexId>16426</UnderlyingIndexId>
     </key>
-    <column id="315" parent="280" name="id">
+    <column id="321" parent="283" name="id">
       <DefaultExpression>nextval(&apos;&quot;Cart_id_seq&quot;&apos;::regclass)</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>1</Position>
@@ -4615,50 +4660,50 @@ newsletter</Labels>
       <SequenceId>16438</SequenceId>
       <TypeId>23</TypeId>
     </column>
-    <column id="316" parent="280" name="userid">
+    <column id="322" parent="283" name="userid">
       <Position>2</Position>
       <StateNumber>738</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="317" parent="280" name="productid">
+    <column id="323" parent="283" name="productid">
       <Position>3</Position>
       <StateNumber>738</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="318" parent="280" name="quantity">
+    <column id="324" parent="283" name="quantity">
       <Position>4</Position>
       <StateNumber>738</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="319" parent="280" name="sessionId">
+    <column id="325" parent="283" name="sessionId">
       <Position>5</Position>
       <StateNumber>738</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="320" parent="280" name="reserved_until">
+    <column id="326" parent="283" name="reserved_until">
       <DefaultExpression>CURRENT_TIMESTAMP</DefaultExpression>
       <Position>6</Position>
       <StateNumber>785</StateNumber>
       <StoredType>timestamp|0s</StoredType>
       <TypeId>1114</TypeId>
     </column>
-    <column id="321" parent="280" name="created_at">
+    <column id="327" parent="283" name="created_at">
       <Position>7</Position>
       <StateNumber>751</StateNumber>
       <StoredType>timestamp with time zone|0s</StoredType>
       <TypeId>1184</TypeId>
     </column>
-    <column id="322" parent="280" name="updated_at">
+    <column id="328" parent="283" name="updated_at">
       <Position>8</Position>
       <StateNumber>752</StateNumber>
       <StoredType>timestamp with time zone|0s</StoredType>
       <TypeId>1184</TypeId>
     </column>
-    <column id="323" parent="280" name="extension_count">
+    <column id="329" parent="283" name="extension_count">
       <DefaultExpression>0</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>9</Position>
@@ -4666,7 +4711,7 @@ newsletter</Labels>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <foreign-key id="324" parent="280" name="Cart_userid_fkey">
+    <foreign-key id="330" parent="283" name="Cart_userid_fkey">
       <ColNames>userid</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16446</ObjectId>
@@ -4674,7 +4719,7 @@ newsletter</Labels>
       <RefKeyColPositions>1</RefKeyColPositions>
       <RefTableId>16389</RefTableId>
     </foreign-key>
-    <foreign-key id="325" parent="280" name="Cart_productid_fkey">
+    <foreign-key id="331" parent="283" name="Cart_productid_fkey">
       <ColNames>productid</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16451</ObjectId>
@@ -4682,7 +4727,7 @@ newsletter</Labels>
       <RefKeyColPositions>1</RefKeyColPositions>
       <RefTableId>16401</RefTableId>
     </foreign-key>
-    <index id="326" parent="280" name="Cart_pkey">
+    <index id="332" parent="283" name="Cart_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16444</ObjectId>
@@ -4691,14 +4736,65 @@ newsletter</Labels>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <key id="327" parent="280" name="Cart_pkey">
+    <key id="333" parent="283" name="Cart_pkey">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16445</ObjectId>
       <Primary>1</Primary>
       <StateNumber>738</StateNumber>
       <UnderlyingIndexId>16444</UnderlyingIndexId>
     </key>
-    <column id="328" parent="281" name="id">
+    <column id="334" parent="284" name="user_id">
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+      <StateNumber>861</StateNumber>
+      <StoredType>integer|0s</StoredType>
+      <TypeId>23</TypeId>
+    </column>
+    <column id="335" parent="284" name="product_id">
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+      <StateNumber>861</StateNumber>
+      <StoredType>integer|0s</StoredType>
+      <TypeId>23</TypeId>
+    </column>
+    <foreign-key id="336" parent="284" name="Client_Product_user_id_fkey">
+      <ColNames>user_id</ColNames>
+      <NameSurrogate>1</NameSurrogate>
+      <ObjectId>16671</ObjectId>
+      <OnDelete>cascade</OnDelete>
+      <OnUpdate>cascade</OnUpdate>
+      <StateNumber>861</StateNumber>
+      <RefKeyColPositions>1</RefKeyColPositions>
+      <RefTableId>16389</RefTableId>
+    </foreign-key>
+    <foreign-key id="337" parent="284" name="Client_Product_product_id_fkey">
+      <ColNames>product_id</ColNames>
+      <NameSurrogate>1</NameSurrogate>
+      <ObjectId>16676</ObjectId>
+      <OnDelete>cascade</OnDelete>
+      <OnUpdate>cascade</OnUpdate>
+      <StateNumber>861</StateNumber>
+      <RefKeyColPositions>1</RefKeyColPositions>
+      <RefTableId>16401</RefTableId>
+    </foreign-key>
+    <index id="338" parent="284" name="Client_Product_pkey">
+      <ColNames>user_id
+product_id</ColNames>
+      <NameSurrogate>1</NameSurrogate>
+      <ObjectId>16669</ObjectId>
+      <Primary>1</Primary>
+      <StateNumber>861</StateNumber>
+      <Unique>1</Unique>
+      <AccessMethodId>403</AccessMethodId>
+    </index>
+    <key id="339" parent="284" name="Client_Product_pkey">
+      <NameSurrogate>1</NameSurrogate>
+      <ObjectId>16670</ObjectId>
+      <Primary>1</Primary>
+      <StateNumber>861</StateNumber>
+      <UnderlyingIndexId>16669</UnderlyingIndexId>
+    </key>
+    <column id="340" parent="285" name="id">
       <DefaultExpression>nextval(&apos;&quot;User_id_seq&quot;&apos;::regclass)</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>1</Position>
@@ -4706,82 +4802,82 @@ newsletter</Labels>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="329" parent="281" name="firstname">
+    <column id="341" parent="285" name="firstname">
       <Position>2</Position>
       <StateNumber>738</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="330" parent="281" name="lastname">
+    <column id="342" parent="285" name="lastname">
       <Position>3</Position>
       <StateNumber>738</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="331" parent="281" name="email">
+    <column id="343" parent="285" name="email">
       <Position>4</Position>
       <StateNumber>738</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="332" parent="281" name="password">
+    <column id="344" parent="285" name="password">
       <Position>5</Position>
       <StateNumber>738</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="333" parent="281" name="role">
+    <column id="345" parent="285" name="role">
       <Position>6</Position>
       <StateNumber>738</StateNumber>
       <StoredType>varchar(50)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="334" parent="281" name="confirmed">
+    <column id="346" parent="285" name="confirmed">
       <DefaultExpression>false</DefaultExpression>
       <Position>7</Position>
       <StateNumber>738</StateNumber>
       <StoredType>boolean|0s</StoredType>
       <TypeId>16</TypeId>
     </column>
-    <column id="335" parent="281" name="reset_token">
+    <column id="347" parent="285" name="reset_token">
       <Position>8</Position>
       <StateNumber>738</StateNumber>
       <StoredType>text|0s</StoredType>
       <TypeId>25</TypeId>
     </column>
-    <column id="336" parent="281" name="reset_token_expiry">
+    <column id="348" parent="285" name="reset_token_expiry">
       <Position>9</Position>
       <StateNumber>738</StateNumber>
       <StoredType>timestamp|0s</StoredType>
       <TypeId>1114</TypeId>
     </column>
-    <column id="337" parent="281" name="confirmation_token">
+    <column id="349" parent="285" name="confirmation_token">
       <Position>10</Position>
       <StateNumber>738</StateNumber>
       <StoredType>varchar|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="338" parent="281" name="confirmation_token_expiry">
+    <column id="350" parent="285" name="confirmation_token_expiry">
       <DefaultExpression>CURRENT_DATE</DefaultExpression>
       <Position>11</Position>
       <StateNumber>738</StateNumber>
       <StoredType>timestamp|0s</StoredType>
       <TypeId>1114</TypeId>
     </column>
-    <column id="339" parent="281" name="password_last_changed">
+    <column id="351" parent="285" name="password_last_changed">
       <Position>12</Position>
       <StateNumber>738</StateNumber>
       <StoredType>date|0s</StoredType>
       <TypeId>1082</TypeId>
     </column>
-    <column id="340" parent="281" name="account_created_at">
+    <column id="352" parent="285" name="account_created_at">
       <DefaultExpression>now()</DefaultExpression>
       <Position>13</Position>
       <StateNumber>738</StateNumber>
       <StoredType>date|0s</StoredType>
       <TypeId>1082</TypeId>
     </column>
-    <index id="341" parent="281" name="User_pkey">
+    <index id="353" parent="285" name="User_pkey">
       <ColNames>id</ColNames>
       <ObjectId>16398</ObjectId>
       <Primary>1</Primary>
@@ -4789,13 +4885,13 @@ newsletter</Labels>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <key id="342" parent="281" name="User_pkey">
+    <key id="354" parent="285" name="User_pkey">
       <ObjectId>16399</ObjectId>
       <Primary>1</Primary>
       <StateNumber>738</StateNumber>
       <UnderlyingIndexId>16398</UnderlyingIndexId>
     </key>
-    <column id="343" parent="282" name="id">
+    <column id="355" parent="286" name="id">
       <DefaultExpression>nextval(&apos;&quot;DeliveryAddresses_id_seq&quot;&apos;::regclass)</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>1</Position>
@@ -4804,48 +4900,48 @@ newsletter</Labels>
       <SequenceId>16625</SequenceId>
       <TypeId>23</TypeId>
     </column>
-    <column id="344" parent="282" name="address">
+    <column id="356" parent="286" name="address">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StateNumber>760</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="345" parent="282" name="city">
+    <column id="357" parent="286" name="city">
       <NotNull>1</NotNull>
       <Position>3</Position>
       <StateNumber>760</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="346" parent="282" name="postalcode">
+    <column id="358" parent="286" name="postalcode">
       <NotNull>1</NotNull>
       <Position>4</Position>
       <StateNumber>760</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="347" parent="282" name="department">
+    <column id="359" parent="286" name="department">
       <Position>5</Position>
       <StateNumber>760</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="348" parent="282" name="country">
+    <column id="360" parent="286" name="country">
       <NotNull>1</NotNull>
       <Position>6</Position>
       <StateNumber>760</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="349" parent="282" name="userId">
+    <column id="361" parent="286" name="userId">
       <NotNull>1</NotNull>
       <Position>7</Position>
       <StateNumber>760</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <foreign-key id="350" parent="282" name="DeliveryAddresses_userId_fkey">
+    <foreign-key id="362" parent="286" name="DeliveryAddresses_userId_fkey">
       <ColNames>userId</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16634</ObjectId>
@@ -4854,7 +4950,7 @@ newsletter</Labels>
       <RefKeyColPositions>1</RefKeyColPositions>
       <RefTableId>16389</RefTableId>
     </foreign-key>
-    <index id="351" parent="282" name="DeliveryAddresses_pkey">
+    <index id="363" parent="286" name="DeliveryAddresses_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16632</ObjectId>
@@ -4863,14 +4959,14 @@ newsletter</Labels>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <key id="352" parent="282" name="DeliveryAddresses_pkey">
+    <key id="364" parent="286" name="DeliveryAddresses_pkey">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16633</ObjectId>
       <Primary>1</Primary>
       <StateNumber>760</StateNumber>
       <UnderlyingIndexId>16632</UnderlyingIndexId>
     </key>
-    <column id="353" parent="283" name="id">
+    <column id="365" parent="287" name="id">
       <DefaultExpression>nextval(&apos;&quot;DeliveryAdress_id_seq&quot;&apos;::regclass)</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>1</Position>
@@ -4879,51 +4975,51 @@ newsletter</Labels>
       <SequenceId>16456</SequenceId>
       <TypeId>23</TypeId>
     </column>
-    <column id="354" parent="283" name="userid">
+    <column id="366" parent="287" name="userid">
       <Position>2</Position>
       <StateNumber>738</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="355" parent="283" name="adress">
+    <column id="367" parent="287" name="adress">
       <Position>3</Position>
       <StateNumber>738</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="356" parent="283" name="city">
+    <column id="368" parent="287" name="city">
       <Position>4</Position>
       <StateNumber>738</StateNumber>
       <StoredType>varchar(100)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="357" parent="283" name="postalcode">
+    <column id="369" parent="287" name="postalcode">
       <Position>5</Position>
       <StateNumber>738</StateNumber>
       <StoredType>varchar(20)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="358" parent="283" name="department">
+    <column id="370" parent="287" name="department">
       <Position>6</Position>
       <StateNumber>738</StateNumber>
       <StoredType>varchar(100)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="359" parent="283" name="country">
+    <column id="371" parent="287" name="country">
       <DefaultExpression>&apos;France&apos;::character varying</DefaultExpression>
       <Position>7</Position>
       <StateNumber>738</StateNumber>
       <StoredType>varchar(100)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="360" parent="283" name="address">
+    <column id="372" parent="287" name="address">
       <NotNull>1</NotNull>
       <Position>8</Position>
       <StateNumber>738</StateNumber>
       <StoredType>text|0s</StoredType>
       <TypeId>25</TypeId>
     </column>
-    <foreign-key id="361" parent="283" name="DeliveryAdress_userid_fkey">
+    <foreign-key id="373" parent="287" name="DeliveryAdress_userid_fkey">
       <ColNames>userid</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16466</ObjectId>
@@ -4931,14 +5027,14 @@ newsletter</Labels>
       <RefKeyColPositions>1</RefKeyColPositions>
       <RefTableId>16389</RefTableId>
     </foreign-key>
-    <foreign-key id="362" parent="283" name="fk_user">
+    <foreign-key id="374" parent="287" name="fk_user">
       <ColNames>userid</ColNames>
       <ObjectId>16471</ObjectId>
       <StateNumber>738</StateNumber>
       <RefKeyColPositions>1</RefKeyColPositions>
       <RefTableId>16389</RefTableId>
     </foreign-key>
-    <index id="363" parent="283" name="DeliveryAdress_pkey">
+    <index id="375" parent="287" name="DeliveryAdress_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16464</ObjectId>
@@ -4947,14 +5043,14 @@ newsletter</Labels>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <key id="364" parent="283" name="DeliveryAdress_pkey">
+    <key id="376" parent="287" name="DeliveryAdress_pkey">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16465</ObjectId>
       <Primary>1</Primary>
       <StateNumber>738</StateNumber>
       <UnderlyingIndexId>16464</UnderlyingIndexId>
     </key>
-    <column id="365" parent="284" name="id">
+    <column id="377" parent="288" name="id">
       <DefaultExpression>nextval(&apos;&quot;Favorites_id_seq&quot;&apos;::regclass)</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>1</Position>
@@ -4963,21 +5059,21 @@ newsletter</Labels>
       <SequenceId>16554</SequenceId>
       <TypeId>23</TypeId>
     </column>
-    <column id="366" parent="284" name="userid">
+    <column id="378" parent="288" name="userid">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StateNumber>746</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="367" parent="284" name="productids">
+    <column id="379" parent="288" name="productids">
       <DefaultExpression>ARRAY[]::integer[]</DefaultExpression>
       <Position>3</Position>
       <StateNumber>746</StateNumber>
       <StoredType>integer[]|0s</StoredType>
       <TypeId>1007</TypeId>
     </column>
-    <foreign-key id="368" parent="284" name="Favorites_userid_fkey">
+    <foreign-key id="380" parent="288" name="Favorites_userid_fkey">
       <ColNames>userid</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16564</ObjectId>
@@ -4986,7 +5082,7 @@ newsletter</Labels>
       <RefKeyColPositions>1</RefKeyColPositions>
       <RefTableId>16389</RefTableId>
     </foreign-key>
-    <index id="369" parent="284" name="Favorites_pkey">
+    <index id="381" parent="288" name="Favorites_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16562</ObjectId>
@@ -4995,14 +5091,14 @@ newsletter</Labels>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <key id="370" parent="284" name="Favorites_pkey">
+    <key id="382" parent="288" name="Favorites_pkey">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16563</ObjectId>
       <Primary>1</Primary>
       <StateNumber>746</StateNumber>
       <UnderlyingIndexId>16562</UnderlyingIndexId>
     </key>
-    <column id="371" parent="285" name="id">
+    <column id="383" parent="289" name="id">
       <DefaultExpression>nextval(&apos;&quot;Media_id_seq&quot;&apos;::regclass)</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>1</Position>
@@ -5011,40 +5107,40 @@ newsletter</Labels>
       <SequenceId>16491</SequenceId>
       <TypeId>23</TypeId>
     </column>
-    <column id="372" parent="285" name="productId">
+    <column id="384" parent="289" name="productId">
       <Position>2</Position>
       <StateNumber>738</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="373" parent="285" name="path">
+    <column id="385" parent="289" name="path">
       <NotNull>1</NotNull>
       <Position>3</Position>
       <StateNumber>738</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="374" parent="285" name="created_at">
+    <column id="386" parent="289" name="created_at">
       <NotNull>1</NotNull>
       <Position>4</Position>
       <StateNumber>747</StateNumber>
       <StoredType>timestamp with time zone|0s</StoredType>
       <TypeId>1184</TypeId>
     </column>
-    <column id="375" parent="285" name="updated_at">
+    <column id="387" parent="289" name="updated_at">
       <NotNull>1</NotNull>
       <Position>5</Position>
       <StateNumber>748</StateNumber>
       <StoredType>timestamp with time zone|0s</StoredType>
       <TypeId>1184</TypeId>
     </column>
-    <column id="376" parent="285" name="product_id">
+    <column id="388" parent="289" name="product_id">
       <Position>6</Position>
       <StateNumber>749</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <foreign-key id="377" parent="285" name="Media_productId_fkey">
+    <foreign-key id="389" parent="289" name="Media_productId_fkey">
       <ColNames>productId</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16498</ObjectId>
@@ -5053,7 +5149,7 @@ newsletter</Labels>
       <RefKeyColPositions>1</RefKeyColPositions>
       <RefTableId>16401</RefTableId>
     </foreign-key>
-    <foreign-key id="378" parent="285" name="Media_product_id_fkey">
+    <foreign-key id="390" parent="289" name="Media_product_id_fkey">
       <ColNames>product_id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16569</ObjectId>
@@ -5063,7 +5159,7 @@ newsletter</Labels>
       <RefKeyColPositions>1</RefKeyColPositions>
       <RefTableId>16401</RefTableId>
     </foreign-key>
-    <index id="379" parent="285" name="Media_pkey">
+    <index id="391" parent="289" name="Media_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16496</ObjectId>
@@ -5072,14 +5168,14 @@ newsletter</Labels>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <key id="380" parent="285" name="Media_pkey">
+    <key id="392" parent="289" name="Media_pkey">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16497</ObjectId>
       <Primary>1</Primary>
       <StateNumber>738</StateNumber>
       <UnderlyingIndexId>16496</UnderlyingIndexId>
     </key>
-    <column id="381" parent="286" name="id">
+    <column id="393" parent="290" name="id">
       <DefaultExpression>nextval(&apos;&quot;Menus_id_seq&quot;&apos;::regclass)</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>1</Position>
@@ -5088,14 +5184,14 @@ newsletter</Labels>
       <SequenceId>16574</SequenceId>
       <TypeId>23</TypeId>
     </column>
-    <column id="382" parent="286" name="name">
+    <column id="394" parent="290" name="name">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StateNumber>750</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <index id="383" parent="286" name="Menus_pkey">
+    <index id="395" parent="290" name="Menus_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16579</ObjectId>
@@ -5104,84 +5200,84 @@ newsletter</Labels>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <key id="384" parent="286" name="Menus_pkey">
+    <key id="396" parent="290" name="Menus_pkey">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16580</ObjectId>
       <Primary>1</Primary>
       <StateNumber>750</StateNumber>
       <UnderlyingIndexId>16579</UnderlyingIndexId>
     </key>
-    <column id="385" parent="287" name="orderId">
+    <column id="397" parent="291" name="orderId">
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StateNumber>738</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="386" parent="287" name="productId">
+    <column id="398" parent="291" name="productId">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StateNumber>738</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="387" parent="287" name="productName">
+    <column id="399" parent="291" name="productName">
       <NotNull>1</NotNull>
       <Position>3</Position>
       <StateNumber>738</StateNumber>
       <StoredType>varchar(500)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="388" parent="287" name="productDescription">
+    <column id="400" parent="291" name="productDescription">
       <NotNull>1</NotNull>
       <Position>4</Position>
       <StateNumber>738</StateNumber>
       <StoredType>varchar(10000)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="389" parent="287" name="productCategory">
+    <column id="401" parent="291" name="productCategory">
       <NotNull>1</NotNull>
       <Position>5</Position>
       <StateNumber>738</StateNumber>
       <StoredType>varchar(2555)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="390" parent="287" name="productBrand">
+    <column id="402" parent="291" name="productBrand">
       <NotNull>1</NotNull>
       <Position>6</Position>
       <StateNumber>738</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="391" parent="287" name="unitPrice">
+    <column id="403" parent="291" name="unitPrice">
       <NotNull>1</NotNull>
       <Position>7</Position>
       <StateNumber>738</StateNumber>
       <StoredType>double precision|0s</StoredType>
       <TypeId>701</TypeId>
     </column>
-    <column id="392" parent="287" name="quantity">
+    <column id="404" parent="291" name="quantity">
       <NotNull>1</NotNull>
       <Position>8</Position>
       <StateNumber>738</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="393" parent="287" name="createdAt">
+    <column id="405" parent="291" name="createdAt">
       <NotNull>1</NotNull>
       <Position>9</Position>
       <StateNumber>738</StateNumber>
       <StoredType>timestamp with time zone|0s</StoredType>
       <TypeId>1184</TypeId>
     </column>
-    <column id="394" parent="287" name="updatedAt">
+    <column id="406" parent="291" name="updatedAt">
       <NotNull>1</NotNull>
       <Position>10</Position>
       <StateNumber>738</StateNumber>
       <StoredType>timestamp with time zone|0s</StoredType>
       <TypeId>1184</TypeId>
     </column>
-    <column id="395" parent="287" name="id">
+    <column id="407" parent="291" name="id">
       <DefaultExpression>nextval(&apos;&quot;OrderDetails_id_seq&quot;&apos;::regclass)</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>11</Position>
@@ -5190,7 +5286,7 @@ newsletter</Labels>
       <SequenceId>16503</SequenceId>
       <TypeId>23</TypeId>
     </column>
-    <column id="396" parent="287" name="subtotal">
+    <column id="408" parent="291" name="subtotal">
       <DefaultExpression>0</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>14</Position>
@@ -5198,7 +5294,7 @@ newsletter</Labels>
       <StoredType>double precision|0s</StoredType>
       <TypeId>701</TypeId>
     </column>
-    <foreign-key id="397" parent="287" name="OrderDetails_orderId_fkey">
+    <foreign-key id="409" parent="291" name="OrderDetails_orderId_fkey">
       <ColNames>orderId</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16512</ObjectId>
@@ -5206,7 +5302,7 @@ newsletter</Labels>
       <RefKeyColPositions>1</RefKeyColPositions>
       <RefTableId>16410</RefTableId>
     </foreign-key>
-    <foreign-key id="398" parent="287" name="fk_orderdetails_orders">
+    <foreign-key id="410" parent="291" name="fk_orderdetails_orders">
       <ColNames>orderId</ColNames>
       <ObjectId>16517</ObjectId>
       <OnDelete>cascade</OnDelete>
@@ -5214,7 +5310,7 @@ newsletter</Labels>
       <RefKeyColPositions>1</RefKeyColPositions>
       <RefTableId>16410</RefTableId>
     </foreign-key>
-    <foreign-key id="399" parent="287" name="OrderDetails_productId_fkey">
+    <foreign-key id="411" parent="291" name="OrderDetails_productId_fkey">
       <ColNames>productId</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16522</ObjectId>
@@ -5222,7 +5318,7 @@ newsletter</Labels>
       <RefKeyColPositions>1</RefKeyColPositions>
       <RefTableId>16401</RefTableId>
     </foreign-key>
-    <foreign-key id="400" parent="287" name="fk_orderdetails_product">
+    <foreign-key id="412" parent="291" name="fk_orderdetails_product">
       <ColNames>productId</ColNames>
       <ObjectId>16527</ObjectId>
       <OnDelete>cascade</OnDelete>
@@ -5230,7 +5326,7 @@ newsletter</Labels>
       <RefKeyColPositions>1</RefKeyColPositions>
       <RefTableId>16401</RefTableId>
     </foreign-key>
-    <index id="401" parent="287" name="OrderDetails_pkey">
+    <index id="413" parent="291" name="OrderDetails_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16510</ObjectId>
@@ -5239,14 +5335,14 @@ newsletter</Labels>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <key id="402" parent="287" name="OrderDetails_pkey">
+    <key id="414" parent="291" name="OrderDetails_pkey">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16511</ObjectId>
       <Primary>1</Primary>
       <StateNumber>738</StateNumber>
       <UnderlyingIndexId>16510</UnderlyingIndexId>
     </key>
-    <column id="403" parent="288" name="id">
+    <column id="415" parent="292" name="id">
       <DefaultExpression>nextval(&apos;&quot;Orders_id_seq&quot;&apos;::regclass)</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>1</Position>
@@ -5255,49 +5351,49 @@ newsletter</Labels>
       <SequenceId>16409</SequenceId>
       <TypeId>23</TypeId>
     </column>
-    <column id="404" parent="288" name="dateOrder">
+    <column id="416" parent="292" name="dateOrder">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StateNumber>738</StateNumber>
       <StoredType>timestamp with time zone|0s</StoredType>
       <TypeId>1184</TypeId>
     </column>
-    <column id="405" parent="288" name="statusOrder">
+    <column id="417" parent="292" name="statusOrder">
       <NotNull>1</NotNull>
       <Position>3</Position>
       <StateNumber>738</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="406" parent="288" name="totalAmount">
+    <column id="418" parent="292" name="totalAmount">
       <NotNull>1</NotNull>
       <Position>4</Position>
       <StateNumber>738</StateNumber>
       <StoredType>double precision|0s</StoredType>
       <TypeId>701</TypeId>
     </column>
-    <column id="407" parent="288" name="userId">
+    <column id="419" parent="292" name="userId">
       <NotNull>1</NotNull>
       <Position>5</Position>
       <StateNumber>738</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="408" parent="288" name="createdAt">
+    <column id="420" parent="292" name="createdAt">
       <NotNull>1</NotNull>
       <Position>6</Position>
       <StateNumber>738</StateNumber>
       <StoredType>timestamp with time zone|0s</StoredType>
       <TypeId>1184</TypeId>
     </column>
-    <column id="409" parent="288" name="updatedAt">
+    <column id="421" parent="292" name="updatedAt">
       <NotNull>1</NotNull>
       <Position>7</Position>
       <StateNumber>738</StateNumber>
       <StoredType>timestamp with time zone|0s</StoredType>
       <TypeId>1184</TypeId>
     </column>
-    <foreign-key id="410" parent="288" name="Orders_userId_fkey">
+    <foreign-key id="422" parent="292" name="Orders_userId_fkey">
       <ColNames>userId</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16416</ObjectId>
@@ -5305,7 +5401,7 @@ newsletter</Labels>
       <RefKeyColPositions>1</RefKeyColPositions>
       <RefTableId>16389</RefTableId>
     </foreign-key>
-    <index id="411" parent="288" name="Orders_pkey">
+    <index id="423" parent="292" name="Orders_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16414</ObjectId>
@@ -5314,14 +5410,14 @@ newsletter</Labels>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <key id="412" parent="288" name="Orders_pkey">
+    <key id="424" parent="292" name="Orders_pkey">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16415</ObjectId>
       <Primary>1</Primary>
       <StateNumber>738</StateNumber>
       <UnderlyingIndexId>16414</UnderlyingIndexId>
     </key>
-    <column id="413" parent="289" name="id">
+    <column id="425" parent="293" name="id">
       <DefaultExpression>nextval(&apos;&quot;Payments_id_seq&quot;&apos;::regclass)</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>1</Position>
@@ -5330,62 +5426,62 @@ newsletter</Labels>
       <SequenceId>16581</SequenceId>
       <TypeId>23</TypeId>
     </column>
-    <column id="414" parent="289" name="order_id">
+    <column id="426" parent="293" name="order_id">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StateNumber>753</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="415" parent="289" name="user_id">
+    <column id="427" parent="293" name="user_id">
       <NotNull>1</NotNull>
       <Position>3</Position>
       <StateNumber>753</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="416" parent="289" name="amount">
+    <column id="428" parent="293" name="amount">
       <NotNull>1</NotNull>
       <Position>4</Position>
       <StateNumber>753</StateNumber>
       <StoredType>numeric(10,2 digit)|0s</StoredType>
       <TypeId>1700</TypeId>
     </column>
-    <column id="417" parent="289" name="payment_method">
+    <column id="429" parent="293" name="payment_method">
       <NotNull>1</NotNull>
       <Position>5</Position>
       <StateNumber>753</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="418" parent="289" name="status">
+    <column id="430" parent="293" name="status">
       <NotNull>1</NotNull>
       <Position>6</Position>
       <StateNumber>753</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="419" parent="289" name="transaction_id">
+    <column id="431" parent="293" name="transaction_id">
       <Position>7</Position>
       <StateNumber>753</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="420" parent="289" name="created_at">
+    <column id="432" parent="293" name="created_at">
       <NotNull>1</NotNull>
       <Position>8</Position>
       <StateNumber>753</StateNumber>
       <StoredType>timestamp with time zone|0s</StoredType>
       <TypeId>1184</TypeId>
     </column>
-    <column id="421" parent="289" name="updated_at">
+    <column id="433" parent="293" name="updated_at">
       <NotNull>1</NotNull>
       <Position>9</Position>
       <StateNumber>753</StateNumber>
       <StoredType>timestamp with time zone|0s</StoredType>
       <TypeId>1184</TypeId>
     </column>
-    <foreign-key id="422" parent="289" name="Payments_order_id_fkey">
+    <foreign-key id="434" parent="293" name="Payments_order_id_fkey">
       <ColNames>order_id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16590</ObjectId>
@@ -5395,7 +5491,7 @@ newsletter</Labels>
       <RefKeyColPositions>1</RefKeyColPositions>
       <RefTableId>16410</RefTableId>
     </foreign-key>
-    <foreign-key id="423" parent="289" name="Payments_user_id_fkey">
+    <foreign-key id="435" parent="293" name="Payments_user_id_fkey">
       <ColNames>user_id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16595</ObjectId>
@@ -5405,7 +5501,7 @@ newsletter</Labels>
       <RefKeyColPositions>1</RefKeyColPositions>
       <RefTableId>16389</RefTableId>
     </foreign-key>
-    <index id="424" parent="289" name="Payments_pkey">
+    <index id="436" parent="293" name="Payments_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16588</ObjectId>
@@ -5414,14 +5510,14 @@ newsletter</Labels>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <key id="425" parent="289" name="Payments_pkey">
+    <key id="437" parent="293" name="Payments_pkey">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16589</ObjectId>
       <Primary>1</Primary>
       <StateNumber>753</StateNumber>
       <UnderlyingIndexId>16588</UnderlyingIndexId>
     </key>
-    <column id="426" parent="290" name="id">
+    <column id="438" parent="294" name="id">
       <DefaultExpression>nextval(&apos;&quot;Product_id_seq&quot;&apos;::regclass)</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>1</Position>
@@ -5430,67 +5526,67 @@ newsletter</Labels>
       <SequenceId>16400</SequenceId>
       <TypeId>23</TypeId>
     </column>
-    <column id="427" parent="290" name="name">
+    <column id="439" parent="294" name="name">
       <Position>2</Position>
       <StateNumber>738</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="428" parent="290" name="description">
+    <column id="440" parent="294" name="description">
       <Position>3</Position>
       <StateNumber>738</StateNumber>
       <StoredType>text|0s</StoredType>
       <TypeId>25</TypeId>
     </column>
-    <column id="429" parent="290" name="category">
+    <column id="441" parent="294" name="category">
       <Position>4</Position>
       <StateNumber>738</StateNumber>
       <StoredType>varchar(100)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="430" parent="290" name="brand">
+    <column id="442" parent="294" name="brand">
       <Position>5</Position>
       <StateNumber>738</StateNumber>
       <StoredType>varchar(100)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="431" parent="290" name="price">
+    <column id="443" parent="294" name="price">
       <Position>6</Position>
       <StateNumber>738</StateNumber>
       <StoredType>numeric(10,2 digit)|0s</StoredType>
       <TypeId>1700</TypeId>
     </column>
-    <column id="432" parent="290" name="stock_available">
+    <column id="444" parent="294" name="stock_available">
       <Position>7</Position>
       <StateNumber>738</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="433" parent="290" name="status">
+    <column id="445" parent="294" name="status">
       <Position>8</Position>
       <StateNumber>738</StateNumber>
       <StoredType>varchar(50)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="434" parent="290" name="image">
+    <column id="446" parent="294" name="image">
       <Position>9</Position>
       <StateNumber>738</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="435" parent="290" name="category_id">
+    <column id="447" parent="294" name="category_id">
       <Position>10</Position>
       <StateNumber>754</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="436" parent="290" name="sale_price">
+    <column id="448" parent="294" name="sale_price">
       <Position>11</Position>
       <StateNumber>755</StateNumber>
       <StoredType>numeric|0s</StoredType>
       <TypeId>1700</TypeId>
     </column>
-    <column id="437" parent="290" name="is_on_sale">
+    <column id="449" parent="294" name="is_on_sale">
       <DefaultExpression>false</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>12</Position>
@@ -5498,21 +5594,21 @@ newsletter</Labels>
       <StoredType>boolean|0s</StoredType>
       <TypeId>16</TypeId>
     </column>
-    <column id="438" parent="290" name="created_at">
+    <column id="450" parent="294" name="created_at">
       <NotNull>1</NotNull>
       <Position>13</Position>
       <StateNumber>757</StateNumber>
       <StoredType>timestamp with time zone|0s</StoredType>
       <TypeId>1184</TypeId>
     </column>
-    <column id="439" parent="290" name="updated_at">
+    <column id="451" parent="294" name="updated_at">
       <NotNull>1</NotNull>
       <Position>14</Position>
       <StateNumber>758</StateNumber>
       <StoredType>timestamp with time zone|0s</StoredType>
       <TypeId>1184</TypeId>
     </column>
-    <index id="440" parent="290" name="Product_pkey">
+    <index id="452" parent="294" name="Product_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16407</ObjectId>
@@ -5521,14 +5617,14 @@ newsletter</Labels>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <key id="441" parent="290" name="Product_pkey">
+    <key id="453" parent="294" name="Product_pkey">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16408</ObjectId>
       <Primary>1</Primary>
       <StateNumber>738</StateNumber>
       <UnderlyingIndexId>16407</UnderlyingIndexId>
     </key>
-    <column id="442" parent="291" name="id">
+    <column id="454" parent="295" name="id">
       <DefaultExpression>nextval(&apos;&quot;Returns_id_seq&quot;&apos;::regclass)</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>1</Position>
@@ -5537,56 +5633,56 @@ newsletter</Labels>
       <SequenceId>16601</SequenceId>
       <TypeId>23</TypeId>
     </column>
-    <column id="443" parent="291" name="order_id">
+    <column id="455" parent="295" name="order_id">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StateNumber>759</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="444" parent="291" name="product_id">
+    <column id="456" parent="295" name="product_id">
       <NotNull>1</NotNull>
       <Position>3</Position>
       <StateNumber>759</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="445" parent="291" name="user_id">
+    <column id="457" parent="295" name="user_id">
       <NotNull>1</NotNull>
       <Position>4</Position>
       <StateNumber>759</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="446" parent="291" name="reason">
+    <column id="458" parent="295" name="reason">
       <NotNull>1</NotNull>
       <Position>5</Position>
       <StateNumber>759</StateNumber>
       <StoredType>text|0s</StoredType>
       <TypeId>25</TypeId>
     </column>
-    <column id="447" parent="291" name="status">
+    <column id="459" parent="295" name="status">
       <NotNull>1</NotNull>
       <Position>6</Position>
       <StateNumber>759</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="448" parent="291" name="created_at">
+    <column id="460" parent="295" name="created_at">
       <NotNull>1</NotNull>
       <Position>7</Position>
       <StateNumber>759</StateNumber>
       <StoredType>timestamp with time zone|0s</StoredType>
       <TypeId>1184</TypeId>
     </column>
-    <column id="449" parent="291" name="updated_at">
+    <column id="461" parent="295" name="updated_at">
       <NotNull>1</NotNull>
       <Position>8</Position>
       <StateNumber>759</StateNumber>
       <StoredType>timestamp with time zone|0s</StoredType>
       <TypeId>1184</TypeId>
     </column>
-    <foreign-key id="450" parent="291" name="Returns_order_id_fkey">
+    <foreign-key id="462" parent="295" name="Returns_order_id_fkey">
       <ColNames>order_id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16610</ObjectId>
@@ -5596,7 +5692,7 @@ newsletter</Labels>
       <RefKeyColPositions>1</RefKeyColPositions>
       <RefTableId>16410</RefTableId>
     </foreign-key>
-    <foreign-key id="451" parent="291" name="Returns_product_id_fkey">
+    <foreign-key id="463" parent="295" name="Returns_product_id_fkey">
       <ColNames>product_id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16615</ObjectId>
@@ -5606,7 +5702,7 @@ newsletter</Labels>
       <RefKeyColPositions>1</RefKeyColPositions>
       <RefTableId>16401</RefTableId>
     </foreign-key>
-    <foreign-key id="452" parent="291" name="Returns_user_id_fkey">
+    <foreign-key id="464" parent="295" name="Returns_user_id_fkey">
       <ColNames>user_id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16620</ObjectId>
@@ -5616,7 +5712,7 @@ newsletter</Labels>
       <RefKeyColPositions>1</RefKeyColPositions>
       <RefTableId>16389</RefTableId>
     </foreign-key>
-    <index id="453" parent="291" name="Returns_pkey">
+    <index id="465" parent="295" name="Returns_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16608</ObjectId>
@@ -5625,14 +5721,14 @@ newsletter</Labels>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <key id="454" parent="291" name="Returns_pkey">
+    <key id="466" parent="295" name="Returns_pkey">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16609</ObjectId>
       <Primary>1</Primary>
       <StateNumber>759</StateNumber>
       <UnderlyingIndexId>16608</UnderlyingIndexId>
     </key>
-    <column id="455" parent="292" name="id">
+    <column id="467" parent="296" name="id">
       <DefaultExpression>nextval(&apos;&quot;Section_id_seq&quot;&apos;::regclass)</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>1</Position>
@@ -5641,28 +5737,28 @@ newsletter</Labels>
       <SequenceId>16532</SequenceId>
       <TypeId>23</TypeId>
     </column>
-    <column id="456" parent="292" name="name">
+    <column id="468" parent="296" name="name">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StateNumber>738</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="457" parent="292" name="createdAt">
+    <column id="469" parent="296" name="createdAt">
       <NotNull>1</NotNull>
       <Position>3</Position>
       <StateNumber>738</StateNumber>
       <StoredType>timestamp with time zone|0s</StoredType>
       <TypeId>1184</TypeId>
     </column>
-    <column id="458" parent="292" name="updatedAt">
+    <column id="470" parent="296" name="updatedAt">
       <NotNull>1</NotNull>
       <Position>4</Position>
       <StateNumber>738</StateNumber>
       <StoredType>timestamp with time zone|0s</StoredType>
       <TypeId>1184</TypeId>
     </column>
-    <index id="459" parent="292" name="Section_pkey">
+    <index id="471" parent="296" name="Section_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16537</ObjectId>
@@ -5671,21 +5767,21 @@ newsletter</Labels>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <key id="460" parent="292" name="Section_pkey">
+    <key id="472" parent="296" name="Section_pkey">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16538</ObjectId>
       <Primary>1</Primary>
       <StateNumber>738</StateNumber>
       <UnderlyingIndexId>16537</UnderlyingIndexId>
     </key>
-    <column id="461" parent="293" name="name">
+    <column id="473" parent="297" name="name">
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StateNumber>738</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <index id="462" parent="293" name="SequelizeMeta_pkey">
+    <index id="474" parent="297" name="SequelizeMeta_pkey">
       <ColNames>name</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16542</ObjectId>
@@ -5697,14 +5793,170 @@ newsletter</Labels>
       <CollationIds>100</CollationIds>
       <CollationParentNames>pg_catalog</CollationParentNames>
     </index>
-    <key id="463" parent="293" name="SequelizeMeta_pkey">
+    <key id="475" parent="297" name="SequelizeMeta_pkey">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16543</ObjectId>
       <Primary>1</Primary>
       <StateNumber>738</StateNumber>
       <UnderlyingIndexId>16542</UnderlyingIndexId>
     </key>
-    <column id="464" parent="294" name="id">
+    <column id="476" parent="298" name="id">
+      <DefaultExpression>nextval(&apos;&quot;StockHistory_id_seq&quot;&apos;::regclass)</DefaultExpression>
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+      <StateNumber>838</StateNumber>
+      <StoredType>integer|0s</StoredType>
+      <SequenceId>16654</SequenceId>
+      <TypeId>23</TypeId>
+    </column>
+    <column id="477" parent="298" name="productId">
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+      <StateNumber>838</StateNumber>
+      <StoredType>varchar(255)|0s</StoredType>
+      <TypeId>1043</TypeId>
+    </column>
+    <column id="478" parent="298" name="quantity">
+      <NotNull>1</NotNull>
+      <Position>3</Position>
+      <StateNumber>838</StateNumber>
+      <StoredType>integer|0s</StoredType>
+      <TypeId>23</TypeId>
+    </column>
+    <column id="479" parent="298" name="createdAt">
+      <DefaultExpression>CURRENT_TIMESTAMP</DefaultExpression>
+      <Position>4</Position>
+      <StateNumber>838</StateNumber>
+      <StoredType>timestamp with time zone|0s</StoredType>
+      <TypeId>1184</TypeId>
+    </column>
+    <column id="480" parent="298" name="product_id">
+      <Position>5</Position>
+      <StateNumber>842</StateNumber>
+      <StoredType>varchar(255)|0s</StoredType>
+      <TypeId>1043</TypeId>
+    </column>
+    <index id="481" parent="298" name="StockHistory_pkey">
+      <ColNames>id</ColNames>
+      <NameSurrogate>1</NameSurrogate>
+      <ObjectId>16660</ObjectId>
+      <Primary>1</Primary>
+      <StateNumber>838</StateNumber>
+      <Unique>1</Unique>
+      <AccessMethodId>403</AccessMethodId>
+    </index>
+    <index id="482" parent="298" name="idx_StockHistory_productId">
+      <ColNames>productId</ColNames>
+      <ObjectId>16662</ObjectId>
+      <StateNumber>840</StateNumber>
+      <AccessMethodId>403</AccessMethodId>
+      <CollationNames>default</CollationNames>
+      <CollationIds>100</CollationIds>
+      <CollationParentNames>pg_catalog</CollationParentNames>
+    </index>
+    <index id="483" parent="298" name="idx_StockHistory_product_id">
+      <ColNames>product_id</ColNames>
+      <ObjectId>16665</ObjectId>
+      <StateNumber>844</StateNumber>
+      <AccessMethodId>403</AccessMethodId>
+      <CollationNames>default</CollationNames>
+      <CollationIds>100</CollationIds>
+      <CollationParentNames>pg_catalog</CollationParentNames>
+    </index>
+    <key id="484" parent="298" name="StockHistory_pkey">
+      <NameSurrogate>1</NameSurrogate>
+      <ObjectId>16661</ObjectId>
+      <Primary>1</Primary>
+      <StateNumber>838</StateNumber>
+      <UnderlyingIndexId>16660</UnderlyingIndexId>
+    </key>
+    <check id="485" parent="299" name="alerts_type_check">
+      <ColNames>type</ColNames>
+      <ObjectId>16939</ObjectId>
+      <Predicate>(type)::text = ANY ((ARRAY[&apos;new_product&apos;::character varying, &apos;restock&apos;::character varying, &apos;price_change&apos;::character varying, &apos;newsletter&apos;::character varying])::text[])</Predicate>
+      <StateNumber>884</StateNumber>
+    </check>
+    <column id="486" parent="299" name="id">
+      <DefaultExpression>nextval(&apos;alerts_id_seq&apos;::regclass)</DefaultExpression>
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+      <StateNumber>884</StateNumber>
+      <StoredType>integer|0s</StoredType>
+      <SequenceId>16931</SequenceId>
+      <TypeId>23</TypeId>
+    </column>
+    <column id="487" parent="299" name="user_id">
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+      <StateNumber>884</StateNumber>
+      <StoredType>integer|0s</StoredType>
+      <TypeId>23</TypeId>
+    </column>
+    <column id="488" parent="299" name="type">
+      <NotNull>1</NotNull>
+      <Position>3</Position>
+      <StateNumber>884</StateNumber>
+      <StoredType>varchar(20)|0s</StoredType>
+      <TypeId>1043</TypeId>
+    </column>
+    <column id="489" parent="299" name="category">
+      <Position>4</Position>
+      <StateNumber>884</StateNumber>
+      <StoredType>varchar(255)|0s</StoredType>
+      <TypeId>1043</TypeId>
+    </column>
+    <column id="490" parent="299" name="product_id">
+      <Position>5</Position>
+      <StateNumber>884</StateNumber>
+      <StoredType>varchar(255)|0s</StoredType>
+      <TypeId>1043</TypeId>
+    </column>
+    <column id="491" parent="299" name="is_active">
+      <DefaultExpression>true</DefaultExpression>
+      <Position>6</Position>
+      <StateNumber>884</StateNumber>
+      <StoredType>boolean|0s</StoredType>
+      <TypeId>16</TypeId>
+    </column>
+    <column id="492" parent="299" name="last_sent">
+      <Position>7</Position>
+      <StateNumber>884</StateNumber>
+      <StoredType>timestamp|0s</StoredType>
+      <TypeId>1114</TypeId>
+    </column>
+    <column id="493" parent="299" name="created_at">
+      <DefaultExpression>CURRENT_TIMESTAMP</DefaultExpression>
+      <NotNull>1</NotNull>
+      <Position>8</Position>
+      <StateNumber>884</StateNumber>
+      <StoredType>timestamp|0s</StoredType>
+      <TypeId>1114</TypeId>
+    </column>
+    <column id="494" parent="299" name="updated_at">
+      <DefaultExpression>CURRENT_TIMESTAMP</DefaultExpression>
+      <NotNull>1</NotNull>
+      <Position>9</Position>
+      <StateNumber>884</StateNumber>
+      <StoredType>timestamp|0s</StoredType>
+      <TypeId>1114</TypeId>
+    </column>
+    <index id="495" parent="299" name="alerts_pkey">
+      <ColNames>id</ColNames>
+      <NameSurrogate>1</NameSurrogate>
+      <ObjectId>16942</ObjectId>
+      <Primary>1</Primary>
+      <StateNumber>884</StateNumber>
+      <Unique>1</Unique>
+      <AccessMethodId>403</AccessMethodId>
+    </index>
+    <key id="496" parent="299" name="alerts_pkey">
+      <NameSurrogate>1</NameSurrogate>
+      <ObjectId>16943</ObjectId>
+      <Primary>1</Primary>
+      <StateNumber>884</StateNumber>
+      <UnderlyingIndexId>16942</UnderlyingIndexId>
+    </key>
+    <column id="497" parent="300" name="id">
       <DefaultExpression>nextval(&apos;favorite_id_seq&apos;::regclass)</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>1</Position>
@@ -5713,35 +5965,35 @@ newsletter</Labels>
       <SequenceId>16476</SequenceId>
       <TypeId>23</TypeId>
     </column>
-    <column id="465" parent="294" name="userid">
+    <column id="498" parent="300" name="userid">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StateNumber>738</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="466" parent="294" name="productids">
+    <column id="499" parent="300" name="productids">
       <DefaultExpression>ARRAY[]::integer[]</DefaultExpression>
       <Position>3</Position>
       <StateNumber>738</StateNumber>
       <StoredType>integer[]|0s</StoredType>
       <TypeId>1007</TypeId>
     </column>
-    <column id="467" parent="294" name="createdAt">
+    <column id="500" parent="300" name="createdAt">
       <NotNull>1</NotNull>
       <Position>4</Position>
       <StateNumber>738</StateNumber>
       <StoredType>timestamp with time zone|0s</StoredType>
       <TypeId>1184</TypeId>
     </column>
-    <column id="468" parent="294" name="updatedAt">
+    <column id="501" parent="300" name="updatedAt">
       <NotNull>1</NotNull>
       <Position>5</Position>
       <StateNumber>738</StateNumber>
       <StoredType>timestamp with time zone|0s</StoredType>
       <TypeId>1184</TypeId>
     </column>
-    <foreign-key id="469" parent="294" name="favorite_userid_fkey">
+    <foreign-key id="502" parent="300" name="favorite_userid_fkey">
       <ColNames>userid</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16486</ObjectId>
@@ -5749,7 +6001,7 @@ newsletter</Labels>
       <RefKeyColPositions>1</RefKeyColPositions>
       <RefTableId>16389</RefTableId>
     </foreign-key>
-    <index id="470" parent="294" name="favorite_pkey">
+    <index id="503" parent="300" name="favorite_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16484</ObjectId>
@@ -5758,7 +6010,7 @@ newsletter</Labels>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <key id="471" parent="294" name="favorite_pkey">
+    <key id="504" parent="300" name="favorite_pkey">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16485</ObjectId>
       <Primary>1</Primary>

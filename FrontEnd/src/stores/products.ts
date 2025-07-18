@@ -116,10 +116,28 @@ export const useProductStore = defineStore('product', () => {
             params: { q },
             headers: { Authorization: `Bearer ${authStore.token}` }
         })
-        // Si data est un tableau, c'est la nouvelle structure
-        // Sinon, c'est l'ancienne structure avec sqlProducts et mongoProducts
-        const list = Array.isArray(data) ? data : (data.sqlProducts ?? data.mongoProducts ?? data)
-        products.value = (list as any[]).map(normalizeProduct)
+        
+        // Récupérer les produits selon le format de réponse
+        let productList: any[] = [];
+        
+        if (data?.products && Array.isArray(data.products)) {
+            productList = data.products;
+        } else if (Array.isArray(data)) {
+            productList = data;
+        } else {
+            productList = data.sqlProducts ?? data.mongoProducts ?? [];
+        }
+        
+        // Filtrer les produits qui correspondent à la recherche (nom ou description)
+        const searchTerm = q.toLowerCase().trim();
+        const filteredProducts = productList.filter(product => {
+            const nameMatch = product.name?.toLowerCase().includes(searchTerm);
+            const descMatch = product.description?.toLowerCase().includes(searchTerm);
+            return nameMatch || descMatch;
+        });
+        
+        // Normaliser les produits filtrés
+        products.value = filteredProducts.map(normalizeProduct);
     }
 
     const searchFacetedProducts = (c: SearchCriteria) => {

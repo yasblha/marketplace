@@ -112,10 +112,9 @@ export const useAuthStore = defineStore('auth', () => {
                 token.value = response.data.accessToken;
                 refreshToken.value = response.data.refreshToken;
                 if (token.value) {
-                    localStorage.setItem('authToken', token.value);
+                    persistState();
                     axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token.value}`;
                 }
-                document.cookie = `refreshToken=${refreshToken.value}; path=/; Secure; SameSite=Strict`;
             } catch (error) {
                 logout();
             }

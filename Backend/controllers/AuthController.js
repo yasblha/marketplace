@@ -34,7 +34,24 @@ if (!JWT_SECRET || !REFRESH_TOKEN_SECRET) {
 }
 
 function isPasswordStrong(password) {
-    return password.length >= 8 && /[A-Z]/.test(password) && /[0-9]/.test(password);
+    // Vérifier la longueur minimale (12 caractères)
+    const hasMinLength = password.length >= 12;
+    // Vérifier la présence de majuscules
+    const hasUppercase = /[A-Z]/.test(password);
+    // Vérifier la présence de minuscules
+    const hasLowercase = /[a-z]/.test(password);
+    // Vérifier la présence de chiffres
+    const hasDigit = /[0-9]/.test(password);
+    // Vérifier la présence de symboles
+    const hasSymbol = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+    
+    // Calcul du score (pour l'indicateur visuel)
+    const score = [hasMinLength, hasUppercase, hasLowercase, hasDigit, hasSymbol].filter(Boolean).length;
+    
+    // Le mot de passe est considéré fort s'il remplit toutes les conditions
+    const isStrong = hasMinLength && hasUppercase && hasLowercase && hasDigit && hasSymbol;
+    
+    return { isStrong, score, hasMinLength, hasUppercase, hasLowercase, hasDigit, hasSymbol };
 }
 
 export function generateToken(user) {
@@ -97,9 +114,11 @@ async function sendAccountBlockedEmail(email) {
 }
 
 export async function register(req, res, next) {
-    const { role, email, lastName, firstName, password, password_confirm } = req.body;
+    const { email, lastName, firstName, password, password_confirm } = req.body;
+    // Le rôle "client" est défini par défaut
+    const role = "client";
 
-    if (!role || !email || !firstName || !lastName || !password || !password_confirm) {
+    if (!email || !firstName || !lastName || !password || !password_confirm) {
         return res.status(422).json({ message: 'Tous les champs sont obligatoires' });
     }
 
@@ -107,8 +126,12 @@ export async function register(req, res, next) {
         return res.status(422).json({ message: 'Les mots de passe ne correspondent pas' });
     }
 
-    if (!isPasswordStrong(password)) {
-        return res.status(422).json({ message: 'Le mot de passe doit comporter au moins 8 caracteres, avec chiffres, lettres majuscules et minuscules.' });
+    const passwordStrength = isPasswordStrong(password);
+    if (!passwordStrength.isStrong) {
+        return res.status(422).json({ 
+            message: 'Le mot de passe doit comporter au moins 12 caracteres, avec chiffres, lettres majuscules et minuscules et symboles.',
+            passwordStrength
+        });
     }
 
     try {
@@ -117,7 +140,7 @@ export async function register(req, res, next) {
         const confirmationTokenExpiry = new Date();
         confirmationTokenExpiry.setHours(confirmationTokenExpiry.getHours() + 24);
 
-        const newUser = await User.create({
+        const user = await User.create({
             firstname: firstName,
             lastname: lastName,
             email,
@@ -126,6 +149,8 @@ export async function register(req, res, next) {
             confirmation_token: confirmationToken,
             confirmation_token_expiry: confirmationTokenExpiry,
             confirmed: false,
+            password_last_changed: new Date(),
+            password_renewal_notified: false
         });
 
         const confirmLink = `${process.env.FRONTEND_BASE_URL}/confirm-email/${confirmationToken}`;
@@ -348,15 +373,21 @@ export async function resetPassword(req, res) {
         return res.status(422).json({ message: 'Les mots de passe ne correspondent pas' });
     }
 
-    if (!isPasswordStrong(newPassword)) {
-        return res.status(422).json({ message: 'Le mot de passe doit comporter au moins 12 caracteres, avec chiffres, lettres majuscules et minuscules et symboles.' });
+    const passwordStrength = isPasswordStrong(newPassword);
+    if (!passwordStrength.isStrong) {
+        return res.status(422).json({ 
+            message: 'Le mot de passe doit comporter au moins 12 caracteres, avec chiffres, lettres majuscules et minuscules et symboles.',
+            passwordStrength
+        });
     }
 
     try {
         const result = await User.updateUserByToken(token, {
             password: await bcrypt.hash(newPassword, 10),
             reset_token: null,
-            reset_token_expiry: null
+            reset_token_expiry: null,
+            password_last_changed: new Date(),
+            password_renewal_notified: false
         });
 
         if (result[0] === 0) {
@@ -418,7 +449,16 @@ export async function updateUser(req, res) {
         user.role = role || user.role;
 
         if (password) {
+            const passwordStrength = isPasswordStrong(password);
+            if (!passwordStrength.isStrong) {
+                return res.status(422).json({ 
+                    message: 'Le mot de passe doit comporter au moins 12 caracteres, avec chiffres, lettres majuscules et minuscules et symboles.',
+                    passwordStrength
+                });
+            }
             user.password = await bcrypt.hash(password, 10);
+            user.password_last_changed = new Date();
+            user.password_renewal_notified = false;
         }
 
         await user.save();
@@ -433,16 +473,77 @@ export async function impersonateUser(req, res) {
     const { id } = req.params;
 
     try {
-        const user = await User.findByPk(id);
+        const targetUserId = parseInt(id);
+        if (isNaN(targetUserId)) {
+            return res.status(400).json({ message: 'ID utilisateur invalide' });
+        }
+
+        User.findByPk(targetUserId)
+            .then(user => {
+                if (!user) {
+                    return res.status(404).json({ message: 'Utilisateur non trouvé' });
+                }
+                const token = generateToken(user);
+                res.json({ token, user });
+            });
+    } catch (error) {
+        console.error('Erreur lors de l\'impersonnation:', error);
+        res.status(500).json({ message: 'Erreur serveur' });
+    }
+}
+
+async function updatePassword(req, res) {
+    const { currentPassword, newPassword } = req.body;
+    const userId = req.user.userId;
+
+    if (!currentPassword || !newPassword) {
+        return res.status(422).json({ message: 'Tous les champs sont obligatoires' });
+    }
+
+    try {
+        const user = await User.findByPk(userId);
+        
         if (!user) {
             return res.status(404).json({ message: 'Utilisateur non trouvé' });
         }
-        const accessToken = generateToken(user);
-        const refreshToken = generateRefreshToken(user);
-        res.status(200).json({ accessToken, refreshToken, user });
+        
+        // Vérifier le mot de passe actuel
+        const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.password);
+        
+        if (!isCurrentPasswordValid) {
+            return res.status(401).json({ message: 'Mot de passe actuel incorrect' });
+        }
+        
+        // Vérifier si le nouveau mot de passe est différent de l'ancien
+        const isSameAsOld = await bcrypt.compare(newPassword, user.password);
+        
+        if (isSameAsOld) {
+            return res.status(422).json({ message: 'Le nouveau mot de passe doit être différent de l\'ancien' });
+        }
+        
+        // Vérifier la robustesse du nouveau mot de passe
+        const passwordStrength = isPasswordStrong(newPassword);
+        
+        if (!passwordStrength.isStrong) {
+            return res.status(422).json({ 
+                message: 'Le mot de passe doit comporter au moins 12 caractères, avec chiffres, lettres majuscules et minuscules et symboles.',
+                passwordStrength
+            });
+        }
+        
+        // Hasher le nouveau mot de passe et le sauvegarder
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        
+        await user.update({
+            password: hashedPassword,
+            password_last_changed: new Date(),
+            password_renewal_notified: false
+        });
+        
+        return res.status(200).json({ message: 'Mot de passe mis à jour avec succès' });
     } catch (error) {
-        console.error('Erreur impersonate user:', error);
-        res.status(500).json({ message: 'Erreur interne du serveur' });
+        console.error('Erreur lors de la mise à jour du mot de passe:', error);
+        return res.status(500).json({ message: 'Erreur serveur lors de la mise à jour du mot de passe' });
     }
 }
 
@@ -450,14 +551,13 @@ export default {
   user,
   register,
   login,
+  refreshToken,
   logout,
   users,
-  confirmEmail,
-  resetPassword,
-  requestPasswordReset,
-  refreshToken,
   updateUser,
   impersonateUser,
-  generateToken,
-  generateRefreshToken
+  requestPasswordReset,
+  resetPassword,
+  confirmEmail,
+  updatePassword
 };

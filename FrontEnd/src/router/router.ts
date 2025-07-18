@@ -110,7 +110,13 @@ const routes = [
   {
     path: '/favorites',
     name: 'Favorites',
-    component: Favorites
+    component: Favorites,
+    meta: { requiresAuth: false }
+  },
+  {
+    path: '/wishlist',
+    redirect: '/favorites',
+    meta: { requiresAuth: false }
   },
 
   {

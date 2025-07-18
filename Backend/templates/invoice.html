@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facture #{{invoiceNumber}}</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #333;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .invoice-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        .logo {
+            max-height: 70px;
+        }
+        .invoice-info {
+            text-align: right;
+        }
+        .invoice-title {
+            color: #2c3e50;
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        .invoice-number {
+            font-size: 16px;
+            color: #7f8c8d;
+            margin-bottom: 10px;
+        }
+        .invoice-date {
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+        .addresses {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+        .address {
+            width: 48%;
+        }
+        .address-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #2c3e50;
+            font-size: 16px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+        th {
+            background-color: #f8f9fa;
+            text-align: left;
+            padding: 12px 15px;
+            border-bottom: 2px solid #ddd;
+            font-size: 14px;
+        }
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+        }
+        .text-right {
+            text-align: right;
+        }
+        .total-row {
+            font-weight: bold;
+        }
+        .total-amount {
+            font-size: 18px;
+            color: #2c3e50;
+        }
+        .payment-info {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .payment-info h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: #2c3e50;
+            font-size: 16px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            color: #7f8c8d;
+            font-size: 12px;
+        }
+        .footer p {
+            margin: 5px 0;
+        }
+        .item-description {
+            max-width: 300px;
+        }
+        .subtotal-section {
+            width: 35%;
+            margin-left: auto;
+            margin-bottom: 30px;
+        }
+        .subtotal-table {
+            width: 100%;
+        }
+        .subtotal-table td {
+            padding: 5px 15px;
+            border: none;
+        }
+        .subtotal-table .total-amount {
+            border-top: 2px solid #ddd;
+            padding-top: 10px;
+        }
+        .subtotal-label {
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="invoice-header">
+            <div>
+                <img src="{{logoUrl}}" alt="Logo" class="logo">
+            </div>
+            <div class="invoice-info">
+                <div class="invoice-title">FACTURE</div>
+                <div class="invoice-number">#{{invoiceNumber}}</div>
+                <div class="invoice-date">Date: {{invoiceDate}}</div>
+                <div class="invoice-date">Date d'échéance: {{dueDate}}</div>
+            </div>
+        </div>
+
+        <div class="addresses">
+            <div class="address">
+                <div class="address-title">De:</div>
+                <p>
+                    {{companyName}}<br>
+                    {{companyAddress}}<br>
+                    {{companyCity}}<br>
+                    {{companyZip}}, {{companyCountry}}<br>
+                    {{companyEmail}}<br>
+                    {{companyPhone}}
+                </p>
+            </div>
+            <div class="address">
+                <div class="address-title">Facturer à:</div>
+                <p>
+                    {{customerName}}<br>
+                    {{customerAddress}}<br>
+                    {{customerCity}}<br>
+                    {{customerZip}}, {{customerCountry}}<br>
+                    {{customerEmail}}<br>
+                    {{customerPhone}}
+                </p>
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Article</th>
+                    <th>Quantité</th>
+                    <th>Prix unitaire</th>
+                    <th class="text-right">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#items}}
+                <tr>
+                    <td>
+                        <div class="item-description">{{name}}</div>
+                    </td>
+                    <td>{{quantity}}</td>
+                    <td>{{unitPrice}}€</td>
+                    <td class="text-right">{{itemTotal}}€</td>
+                </tr>
+                {{/items}}
+            </tbody>
+        </table>
+
+        <div class="subtotal-section">
+            <table class="subtotal-table">
+                <tr>
+                    <td class="subtotal-label">Sous-total:</td>
+                    <td class="text-right">{{subtotal}}€</td>
+                </tr>
+                <tr>
+                    <td class="subtotal-label">TVA ({{vatRate}}%):</td>
+                    <td class="text-right">{{vatAmount}}€</td>
+                </tr>
+                <tr>
+                    <td class="subtotal-label">Frais de livraison:</td>
+                    <td class="text-right">{{shippingFee}}€</td>
+                </tr>
+                <tr>
+                    <td class="subtotal-label"><strong>Total:</strong></td>
+                    <td class="text-right total-amount">{{totalAmount}}€</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="payment-info">
+            <h3>Informations de paiement</h3>
+            <p>Méthode de paiement: {{paymentMethod}}</p>
+            <p>Statut du paiement: <strong>{{paymentStatus}}</strong></p>
+            <p>Date de paiement: {{paymentDate}}</p>
+            <p>Référence de transaction: {{transactionReference}}</p>
+        </div>
+
+        <div class="payment-info">
+            <h3>Informations de livraison</h3>
+            <p>Méthode de livraison: {{shippingMethod}}</p>
+            <p>Numéro de suivi: {{trackingNumber}}</p>
+            <p>Statut de livraison: {{shippingStatus}}</p>
+            <p>Date estimée de livraison: {{estimatedDeliveryDate}}</p>
+        </div>
+
+        <div class="footer">
+            <p>Merci pour votre achat !</p>
+            <p>{{companyName}} - SIRET: {{companyRegistration}} - TVA: {{companyVatNumber}}</p>
+            <p>Pour toute question concernant cette facture, veuillez contacter {{supportEmail}}</p>
+        </div>
+    </div>
+</body>
+</html>

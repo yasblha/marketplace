@@ -222,6 +222,9 @@
                 <StatsBarChart :data="ordersByMonth.data" :labels="ordersByMonth.labels" />
               </div>
             </div>
+            <div v-if="state.activeSection === 'stock'">
+              <StockEvolutionChart />
+            </div>
           </div>
         </div>
       </main>
@@ -244,6 +247,7 @@ import StatsDonutChart from '@/components/admin/StatsDonutChart.vue';
 import StatsBarChart from '@/components/admin/StatsBarChart.vue';
 import ReportSection from '@/components/admin/ReportSection.vue'
 import SettingsSection from '@/components/admin/SettingsSection.vue';
+import StockEvolutionChart from '@/components/admin/StockEvolutionChart.vue';
 
 // Icons
 import {
@@ -272,7 +276,8 @@ const components = {
   OrderManagement,
   ListItems,
   ReportSection,
-  SettingsSection
+  SettingsSection,
+  StockEvolutionChart
 };
 
 // Router et stores
@@ -333,6 +338,7 @@ const state = ref({
   ],
   navigation: [
     { id: 'dashboard', name: 'Tableau de bord', icon: HomeIcon },
+    { id: 'stock', name: 'Évolution du stock', icon: ChartBarIcon },
     { id: 'products', name: 'Produits', icon: ViewGridIcon },
     { id: 'orders', name: 'Commandes', icon: ShoppingBagIcon },
     { id: 'users', name: 'Utilisateurs', icon: UserGroupIcon },
@@ -373,6 +379,7 @@ const activeComponent = computed(() => {
   if (section === 'orders') return OrderManagement;
   if (section === 'settings') return SettingsSection;
   if (section === 'reports') return ReportSection;
+  if (section === 'stock') return StockEvolutionChart;
   return null;
 });
 
@@ -431,7 +438,8 @@ const getSectionDescription = (sectionId) => {
     orders: 'Consultez et gérez les commandes des clients',
     users: 'Gérez les comptes utilisateurs et les autorisations',
     reports: 'Consultez les rapports et analyses',
-    settings: 'Configurez les paramètres de votre boutique'
+    settings: 'Configurez les paramètres de votre boutique',
+    stock: 'Évolution du stock'
   };
   return descriptions[sectionId] || 'Gérez cette section depuis le panneau d\'administration';
 };

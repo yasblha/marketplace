@@ -7,6 +7,7 @@ import upload from '../../middleware/upload.js';
 // Routes publiques
 router.get('/', productControllers.getAllProducts);
 router.get('/search', productControllers.searchProducts);
+router.get('/categories', productControllers.getProductCategories);
 router.get('/:id', productControllers.getProductById);
 
 // Routes protégées (authentification admin requise)

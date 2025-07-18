@@ -11,10 +11,6 @@ const Alert = sequelize.define('Alert', {
     user_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        references: {
-            model: 'Users',
-            key: 'id'
-        }
     },
     type: {
         type: DataTypes.ENUM('new_product', 'restock', 'price_change', 'newsletter'),
@@ -48,9 +44,7 @@ const Alert = sequelize.define('Alert', {
     }
 }, {
     tableName: 'alerts',
-    timestamps: true,
-    createdAt: 'created_at',
-    updatedAt: 'updated_at'
+    timestamps: false
 });
 
 // Associations

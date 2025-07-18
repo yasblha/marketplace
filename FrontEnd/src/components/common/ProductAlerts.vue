@@ -163,7 +163,10 @@ const togglePriceAlert = async () => {
       }
     } else {
       // Créer l'alerte
-      await axiosInstance.post('/alerts/price-change', { product_id: props.productId });
+      await axiosInstance.post('/alerts', { 
+        type: 'price_change',
+        product_id: props.productId 
+      });
       successMessage.value = 'Alerte de changement de prix activée';
     }
     

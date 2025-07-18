@@ -61,6 +61,9 @@
           </button>
 
           <p class="text-sm text-gray-500">Availability: {{ product.status === 'available' ? 'In stock' : 'Out of stock' }}</p>
+          
+          <!-- Composant d'alertes produit -->
+          <ProductAlerts v-if="product" :product="product" />
         </div>
       </div>
     </div>
@@ -81,6 +84,7 @@ import { useProductStore } from '@/stores/products'
 import { useCartStore } from '@/stores/panier'
 import type { Product } from '@/types/product'
 import Footer from '@/components/UI/Footer.vue'
+import ProductAlerts from '@/components/Products/ProductAlerts.vue'
 // @ts-ignore
 import defaultImg from '@/assets/ui_assets/NoImage.jpg'
 

@@ -6,25 +6,30 @@ const StockHistory = sequelize.define('StockHistory', {
   id: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
-    primaryKey: true
+    primaryKey: true,
+    field: 'id' // Explicitly set the field name
   },
   productId: {
-    type: DataTypes.INTEGER,
-    references: { model: Product, key: 'id' }
+    type: DataTypes.STRING,
+    allowNull: false,
+    field: 'productId' // Explicitly set the field name
   },
   quantity: {
     type: DataTypes.INTEGER,
-    allowNull: false
+    allowNull: false,
+    field: 'quantity' // Explicitly set the field name
   },
   createdAt: {
     type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW
+    defaultValue: DataTypes.NOW,
+    field: 'createdAt' // Explicitly set the field name
   }
 }, {
   tableName: 'StockHistory',
-  timestamps: false
+  timestamps: false,
+  underscored: false // Don't convert camelCase to snake_case
 });
 
-StockHistory.belongsTo(Product, { foreignKey: 'productId' });
+// On ne définit pas d'association automatique entre les modèles
 
 export default StockHistory;

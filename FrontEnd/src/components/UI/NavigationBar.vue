@@ -95,10 +95,10 @@
             <div v-if="loading" class="loader" />
             <p v-else-if="!results.length" class="empty">Aucun résultat.</p>
             <div v-else class="results">
-              <button v-for="p in results" :key="p._id" class="result" @click="toProduct(p)">
-                <img :src="p.images?.[0] || 'https://via.placeholder.com/40?text=Img'" class="h-10 w-10 rounded object-cover" />
+              <button v-for="p in results" :key="p.id || p._id" class="result" @click="toProduct(p)">
+                <img :src="getProductImage(p)" class="h-10 w-10 rounded object-cover" />
                 <span class="flex-1 truncate text-left">{{ p.name }}</span>
-                <span class="text-primary-600">{{ p.price.toLocaleString('fr-FR',{style:'currency',currency:'EUR'}) }}</span>
+                <span class="text-primary-600">{{ formatPrice(p.price) }}</span>
               </button>
               <button class="see-all" @click="router.push({name:'products',query:{q:query.trim()}}); closeAll()">Voir tous les résultats »</button>
             </div>
@@ -169,8 +169,49 @@ const doSearch = useDebounceFn(async (q:string)=>{
   await prod.searchProducts(q)
   results.value = prod.products.slice(0,8)
   loading.value = false
-},300)
+})
 watch(query,doSearch)
+
+const getProductImage = (product: any): string => {
+  if (product.images?.[0]) {
+    return product.images[0];
+  }
+  
+  if (product.image && Array.isArray(product.image) && product.image.length > 0) {
+    try {
+      let imgPath = product.image[0];
+      if (typeof imgPath === 'string' && (imgPath.startsWith('{') || imgPath.startsWith('['))) {
+        imgPath = JSON.parse(imgPath);
+      }
+      
+      if (typeof imgPath === 'object' && imgPath !== null) {
+        const key = Object.keys(imgPath)[0];
+        imgPath = key || '';
+      }
+      
+      if (imgPath && !imgPath.startsWith('http')) {
+        return `/uploads/${imgPath.replace('uploads/', '')}`;
+      }
+      return imgPath;
+    } catch (e) {
+      console.error("Erreur lors du traitement de l'image:", e);
+    }
+  }
+  
+  return 'https://via.placeholder.com/40?text=Img';
+}
+
+const formatPrice = (price: string | number): string => {
+  if (typeof price === 'string') {
+    price = parseFloat(price);
+  }
+  
+  try {
+    return price.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' });
+  } catch (e) {
+    return `${price} €`;
+  }
+}
 
 const onClick = (e:MouseEvent)=>{
   const t=e.target as HTMLElement
